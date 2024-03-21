@@ -17,6 +17,7 @@ const CommonShape = ({ className, children }) => (
 export const Rectangle = () => (
   <CommonShape className="rectangle">
     <rect x="10" y="10" width={shapeSize.width - 20} height={shapeSize.height - 40} stroke="black" strokeWidth="2" fill="none" />
+    
   </CommonShape>
 );
 

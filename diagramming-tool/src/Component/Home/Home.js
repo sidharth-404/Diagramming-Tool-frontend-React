@@ -4,6 +4,7 @@ import { Rectangle, RoundedRectangle, Square, Circle, Ellipse, Diamond, Parallel
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
 import { MdDeleteForever, MdFileOpen } from "react-icons/md";
 import { TfiSave } from "react-icons/tfi";
+import * as diagram from 'diagram-js';
 
 const Home = () => {
   const [selectedShape, setSelectedShape] = useState(null);
@@ -67,6 +68,7 @@ const Home = () => {
             onMouseOver={() => setSelectedShape("Rectangle")} 
             onMouseOut={() => setSelectedShape(null)} 
           />
+          
           <RoundedRectangle 
             onMouseOver={() => setSelectedShape("RoundedRectangle")} 
             onMouseOut={() => setSelectedShape(null)} 
@@ -158,6 +160,7 @@ const Home = () => {
         </div>
         <h2>Draw Here!!</h2>
         <div className="selected-shape">{selectedShape && <selectedShape />}</div>
+        diagram.get('')
       </div>
     </div>
   );
