@@ -1,0 +1,61 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.sidebar {
+  flex: 1;
+  max-width: 200px;
+  padding: 10px;
+  border-right: 1px solid #ccc;
+}
+
+.sidebar h2 {
+  margin-bottom: 10px;
+}
+
+.main {
+  flex: 3;
+  padding: 10px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.button-container button {
+  background-color: #ffffff;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button-container button.selected {
+  background-color: #ccc;
+}
+
+.shape {
+  margin: 10px;
+  cursor: pointer;
+}
+
+/* .selected-shape {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 450px;
+  border: 1px solid #ccc;
+  margin-top: 20px;
+} */
+
+/* .selected-shape svg {
+  width: 100%;
+  height: 100%;
+} */
+
