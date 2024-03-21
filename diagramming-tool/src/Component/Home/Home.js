@@ -160,7 +160,7 @@ const Home = () => {
         </div>
         <h2>Draw Here!!</h2>
         <div className="selected-shape">{selectedShape && <selectedShape />}</div>
-        diagram.get('')
+        
       </div>
     </div>
   );
