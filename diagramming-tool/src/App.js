@@ -1,31 +1,32 @@
-import React, { useState } from 'react';
+
+
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import './App.css';
 import Registration from './Component/Register/Registration';
 import MsgComponent from './Component/ConfirmMsg/MsgComponent';
+import Login from './Component/Login';
+import Registration from './Component/Register'
 const App = () => {
-const [showModal, setShowModal] = useState(false);
 
-// const openModal = () => {
-//   setShowModal(true);
-// };
 
-// const closeModal = () => {
-//   setShowModal(false);
-//   alert("hai");
-// };
-// const cancelModel=()=>{
-//   setShowModal(false);
-// }
-// const msg="hai hoi"
-  
   return (
-    <div className="App">
+    <><div className="App">
       <header className="App-header">
-<Registration/>
+        <Registration />
       </header>
 
-      
-    </div>
+
+    </div><Router>
+        <div>
+          <Switch>
+
+            <Route path="/login" component={Login} />
+            <Route path="/contact" component={Contact} />
+
+          </Switch>
+        </div>
+      </Router></>
   );
 };
 

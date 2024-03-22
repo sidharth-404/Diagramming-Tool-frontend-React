@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+
 import './Registration.css';
 import axios from 'axios';
 import MsgComponent from '../ConfirmMsg/MsgComponent';
@@ -76,13 +78,19 @@ const Registration = ({ history }) => {
     }
   };
 
+  const history = useHistory();
+
   const handleOkClick = () => {
     setShowModal(false);
     setMsg('');
+  
     if (msg === 'User added successfully! Please login.') {
       history.push('/login');
     }
   };
+  const cancelModel=()=>{
+     setShowModal(false);
+    }
 
   const closeModal = () => {
     setShowModal(false);
@@ -159,7 +167,7 @@ const Registration = ({ history }) => {
       </form>
       <div className="background-right"></div>
 
-      <MsgComponent showModal={showModal} closeModal={closeModal} msg={msg} />
+      <MsgComponent showModal={showModal} closeModal={closeModal} cancelModel={cancelModel} msg={msg} />
 
     </div>
   );
