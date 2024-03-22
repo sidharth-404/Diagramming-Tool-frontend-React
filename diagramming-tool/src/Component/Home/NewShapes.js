@@ -1,5 +1,3 @@
-import React from 'react';
-
 const shapeSize = { width: 80, height: 80 };
 
 const Shape = ({ className, children }) => (

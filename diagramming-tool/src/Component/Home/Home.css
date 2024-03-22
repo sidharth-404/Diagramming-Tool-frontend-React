@@ -5,7 +5,7 @@
 .sidebar {
   flex: 1;
   padding: 20px;
-  border-right: 1px solid #ccc;
+  border-right: 1px solid #e0e0e0; /* Light gray border */
 }
 
 .main {
@@ -15,6 +15,7 @@
 
 h2 {
   margin-top: 0;
+  font-size: 1.5rem; /* Larger heading font size */
 }
 
 button {
@@ -23,56 +24,51 @@ button {
   cursor: pointer;
   border: none;
   background-color: transparent;
+  font-size: 1rem; /* Button text font size */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
 }
 
 button.selected {
-  background-color: #ccc;
+  background-color: #f0f0f0; /* Light gray background for selected button */
 }
 
-/* .tooltip {
+button:hover {
+  background-color: #f5f5f5; /* Slightly lighter background color on hover */
+}
+
+.tooltip {
   position: absolute;
   background-color: #333;
   color: white;
   padding: 5px;
   border-radius: 5px;
-  top: 100%;
+  top: calc(100% + 5px); /* Position the tooltip below the button */
   left: 50%;
   transform: translateX(-50%);
   opacity: 0;
   transition: opacity 0.3s ease;
-} */
+}
 
 button:hover .tooltip {
   opacity: 1;
 }
 
 canvas {
-  border: 1px solid black;
+  border: 1px solid #e0e0e0; /* Light gray canvas border */
+  border-radius: 5px; /* Rounded corners */
 }
 
 .shape-button {
-  border: 1px solid #000;
-  border-radius: 5px;
-  padding: 5px;
+  border: 1px solid #e0e0e0; /* Light gray border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px;
   margin: 5px;
-  background-color: #fff;
+  background-color: #fafafa; /* Light gray background */
   cursor: pointer;
 }
 
 .shape-icon {
   width: 20px;
   height: 20px;
+  margin-right: 5px; /* Add some spacing between the icon and text */
 }
-
-
-/* outer boarder for each shape */
-/* .rectangle {
-  background-color: #fff; 
-  border: 1px solid #000; 
-}
-
-.circle {
-  background-color: #fff; 
-  border: 1px solid #000;
-  border-radius: 50%;
-} */
