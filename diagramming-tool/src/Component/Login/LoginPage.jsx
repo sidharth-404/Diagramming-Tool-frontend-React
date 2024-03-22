@@ -35,11 +35,11 @@ function App() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error); // Extracting the error message
+        throw new Error(data.error); 
       }
 
       console.log('Login successful');
-      // Redirect or perform any action upon successful login
+     
     } catch (error) {
       setError(error.message || 'An error occurred.');
     }
