@@ -1,10 +1,11 @@
 import './App.css';
+import Registration from './Component/Register/Registration';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-       <h1>HAi</h1>
+      <Registration/>
       </header>
     </div>
   );
