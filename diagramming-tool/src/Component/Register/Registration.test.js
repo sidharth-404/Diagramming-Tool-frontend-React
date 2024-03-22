@@ -56,10 +56,10 @@ it('validates empty form submission', () => {
   render(<Registration />);
   const submitButton = screen.getByText('Register');
   fireEvent.click(submitButton);
-  // Add assertions to check for error messages for each required field
+
 });
 
-// Add test case for successful form submission
+
 it('submits the form successfully', () => {
   render(<Registration />);
   const firstNameInput = screen.getByLabelText('First Name:');

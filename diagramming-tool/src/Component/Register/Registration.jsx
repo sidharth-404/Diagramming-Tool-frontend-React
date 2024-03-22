@@ -25,7 +25,7 @@ const Registration = () => {
       [name]: value
     });
 
-    // Validate first name format
+   
     if (name === 'firstname') {
       const isValidFirstName = value.length >= 2 && value.length <= 20;
       setErrors({
@@ -33,7 +33,7 @@ const Registration = () => {
         firstname: isValidFirstName ? '' : 'First Name must be between 2 and 20 characters long'
       });
     }
-    // Validate email format
+    
     if (name === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const isValidEmail = emailRegex.test(value);
@@ -43,7 +43,7 @@ const Registration = () => {
       });
     }
 
-    // Validate password format
+    
     if (name === 'password') {
       const isValidPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
       setErrors({
@@ -52,7 +52,7 @@ const Registration = () => {
       });
     }
 
-    // Validate confirm password
+    
     if (name === 'confirmPassword') {
       setErrors({
         ...errors,
