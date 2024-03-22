@@ -1,10 +1,15 @@
+import React from 'react';
 import './App.css';
+
+import LoginPage from './Component/Login/LoginPage';
+import './Component/Login/LoginPage.css';
+
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-       <h1>HAi</h1>
+         <LoginPage/>
       </header>
     </div>
   );

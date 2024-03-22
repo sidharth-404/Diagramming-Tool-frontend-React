@@ -1,0 +1,45 @@
+
+.center-container {
+  background-image: url('loginbgimg.jpg');
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.custom-input {
+  width: 100%;
+  border-radius: 6px;
+  padding: 10px;
+  border: 3px solid #aeb2b6;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+
+.box {
+  width: 400px;
+  text-align: center;
+  background-color: #ecf1f6;
+  border: 3px solid #cdd0d2;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(175, 172, 172, 0.1);
+  padding: 100px;
+}
+.custom-logo {
+  width: 150px; /* Adjust the width as needed */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.position-relative {
+  position: relative; /* Ensure the container is positioned relatively */
+}
+
+.position-absolute {
+  position: absolute; /* Position the logo absolutely */
+}
+.top-0 {
+  top: 0; /* Align the logo to the top */
+}
+.start-0 {
+  left: 0; /* Align the logo to the start (left) */
+}
