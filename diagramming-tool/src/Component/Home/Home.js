@@ -1,15 +1,155 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './Home.css';
-import { Rectangle, RoundedRectangle, Square, Circle, Ellipse, Diamond, Parallelogram, Hexagon, Triangle, Line, ConnectorLine, BidirectionalConnector } from "./Shapes";
-import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
-import { MdDeleteForever, MdFileOpen } from "react-icons/md";
-import { TfiSave } from "react-icons/tfi";
-import * as diagram from 'diagram-js';
+import { IoArrowUndo, IoArrowRedo } from 'react-icons/io5';
+import { MdDeleteForever, MdFileOpen } from 'react-icons/md';
+import { TfiSave } from 'react-icons/tfi';
+import { Rectangle, Circle, Square, Diamond } from './NewShapes';
+
+
+const ShapeTypes = {
+  RECTANGLE: 'rectangle',
+  CIRCLE: 'circle',
+  SQUARE: 'square',
+  DIAMOND: 'diamond',
+};
 
 const Home = () => {
   const [selectedShape, setSelectedShape] = useState(null);
   const [selectedButton, setSelectedButton] = useState(null);
   const [hoveredButton, setHoveredButton] = useState("");
+  const canvasRef = useRef(null);
+  const [shapes, setShapes] = useState([]);
+  const isDrawing = useRef(false);
+  const draggedShape = useRef(null);
+  const dragOffset = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      shapes.forEach((shape) => {
+        if (shape.type === ShapeTypes.RECTANGLE) {
+          // Draw a stroked rectangle
+          ctx.strokeStyle = "black"; // Border color
+          ctx.fillStyle = "white"; // Fill color
+          // Draw the rectangle with different width and height
+          ctx.fillRect(shape.x, shape.y, shape.width * 2, shape.height);
+          ctx.strokeRect(shape.x, shape.y, shape.width * 2, shape.height);
+        } else if (shape.type === ShapeTypes.CIRCLE) {
+          // Draw a filled circle
+          ctx.beginPath();
+          ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = "black"; // Border color
+          ctx.fillStyle = "white"; // Fill color
+          ctx.fill(); // Fill the circle with white
+          ctx.stroke(); // Stroke the circle's border
+        } else if (shape.type === ShapeTypes.SQUARE) {
+          // Draw a stroked square
+          ctx.strokeStyle = "black"; // Border color
+          ctx.fillStyle = "white"; // Fill color
+          ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
+          ctx.strokeRect(shape.x, shape.y, shape.width, shape.height); // Stroke the square's border
+        } else if (shape.type === ShapeTypes.DIAMOND) {
+          // Draw a filled diamond
+          ctx.beginPath();
+          ctx.moveTo(shape.x + shape.width / 2, shape.y); // Top point
+          ctx.lineTo(shape.x + shape.width, shape.y + shape.height / 2); // Right point
+          ctx.lineTo(shape.x + shape.width / 2, shape.y + shape.height); // Bottom point
+          ctx.lineTo(shape.x, shape.y + shape.height / 2); // Left point
+          ctx.closePath(); // Close the path
+          ctx.strokeStyle = "black"; // Border color
+          ctx.fillStyle = "white"; // Fill color
+          ctx.fill(); // Fill the diamond with white
+          ctx.stroke(); // Stroke the diamond's border
+        }
+      });
+    };
+
+    const handleMouseDown = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Check if the click event occurs within any shape's bounds
+      const clickedShape = shapes.find((shape) => {
+        if (
+          shape.type === ShapeTypes.RECTANGLE ||
+          shape.type === ShapeTypes.SQUARE
+        ) {
+          return (
+            x >= shape.x &&
+            x <= shape.x + shape.width &&
+            y >= shape.y &&
+            y <= shape.y + shape.height
+          );
+        } else if (shape.type === ShapeTypes.CIRCLE) {
+          return (
+            Math.sqrt((x - shape.x) ** 2 + (y - shape.y) ** 2) <= shape.radius
+          );
+        } else if (shape.type === ShapeTypes.DIAMOND) {
+          // Calculate the center point of the diamond
+          const centerX = shape.x + shape.width / 2;
+          const centerY = shape.y + shape.height / 2;
+
+          // Calculate the distance from the click point to the center
+          const dx = Math.abs(x - centerX);
+          const dy = Math.abs(y - centerY);
+
+          // Check if the point is within the diamond's boundaries
+          return dx / (shape.width / 2) + dy / (shape.height / 2) <= 1;
+        }
+        return false;
+      });
+
+      if (clickedShape) {
+        isDrawing.current = true;
+        draggedShape.current = clickedShape;
+        dragOffset.current = { x: x - clickedShape.x, y: y - clickedShape.y };
+        setSelectedShape(clickedShape.id);
+      }
+    };
+
+    const handleMouseMove = (e) => {
+      if (isDrawing.current) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left - dragOffset.current.x;
+        const y = e.clientY - rect.top - dragOffset.current.y;
+        draggedShape.current.x = x;
+        draggedShape.current.y = y;
+        draw();
+      }
+    };
+
+    const handleMouseUp = () => {
+      isDrawing.current = false;
+    };
+
+    canvas.addEventListener("mousedown", handleMouseDown);
+    canvas.addEventListener("mousemove", handleMouseMove);
+    canvas.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      canvas.removeEventListener("mousedown", handleMouseDown);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      canvas.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [shapes]);
+
+  const addShape = (type) => {
+    const newShape = {
+      id: Date.now(),
+      type,
+      x: 100, // Initial position
+      y: 100,
+      width: 100, // Initial size for rectangle (can adjust as needed)
+      height: 100,
+      radius: 50, // Initial radius for circle (can adjust as needed)
+      // Add additional properties for other shapes if needed
+    };
+    setShapes([...shapes, newShape]);
+  };
 
   const handleUndo = () => {
     console.log("Undo clicked");
@@ -29,7 +169,7 @@ const Home = () => {
 
   const handleOpen = () => {
     console.log("File opened");
-  }
+  };
 
   const handleButtonClick = (button) => {
     setSelectedButton(button);
@@ -59,60 +199,22 @@ const Home = () => {
   };
 
   return (
-    <div className="container"> 
+    <div className="container">
       <div className="sidebar">
         <h2>Shapes</h2>
-        <div className="sidebar1" style={{ maxHeight: "calc(100vh - 100px)", overflowY: "auto" }}>
-          {/* Add onMouseOver event handler to each shape */}
-          <Rectangle 
-            onMouseOver={() => setSelectedShape("Rectangle")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
-          
-          <RoundedRectangle 
-            onMouseOver={() => setSelectedShape("RoundedRectangle")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
-          <Square 
-            onMouseOver={() => setSelectedShape("Square")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
-          <Circle 
-            onMouseOver={() => setSelectedShape("Circle")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
-          <Ellipse 
-            onMouseOver={() => setSelectedShape("Ellipse")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
-          <Diamond 
-            onMouseOver={() => setSelectedShape("Diamond")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
-          <Parallelogram 
-            onMouseOver={() => setSelectedShape("Parallelogram")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
-          <Hexagon 
-            onMouseOver={() => setSelectedShape("Hexagon")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
-          <Triangle 
-            onMouseOver={() => setSelectedShape("Triangle")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
-          <Line 
-            onMouseOver={() => setSelectedShape("Line")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
-          <ConnectorLine 
-            onMouseOver={() => setSelectedShape("ConnectorLine")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
-          <BidirectionalConnector 
-            onMouseOver={() => setSelectedShape("BidirectionalConnector")} 
-            onMouseOut={() => setSelectedShape(null)} 
-          />
+        <div className="sidebar">
+          <button onClick={() => addShape(ShapeTypes.RECTANGLE)}>
+            <Rectangle width={100} height={60} />
+          </button>
+          <button onClick={() => addShape(ShapeTypes.CIRCLE)}>
+            <Circle radius={50} />
+          </button>
+          <button onClick={() => addShape(ShapeTypes.SQUARE)}>
+            <Square size={80} />
+          </button>
+          <button onClick={() => addShape(ShapeTypes.DIAMOND)}>
+            <Diamond width={100} height={100} />
+          </button>
         </div>
       </div>
       <div className="main">
@@ -155,12 +257,20 @@ const Home = () => {
             className={selectedButton === "delete" ? "selected" : ""}
           >
             <MdDeleteForever />
-            {hoveredButton === "delete" && <span className="tooltip">Delete</span>}
+            {hoveredButton === "delete" && (
+              <span className="tooltip">Delete</span>
+            )}
           </button>
         </div>
-        <h2>Draw Here!!</h2>
-        <div className="selected-shape">{selectedShape && <selectedShape />}</div>
-        
+        <div>
+        <h1>Draw Here!!</h1>
+        <canvas
+          ref={canvasRef}
+          width={800}
+          height={600}
+          style={{ border: "1px solid black" }}
+        ></canvas>
+        </div>
       </div>
     </div>
   );
