@@ -18,12 +18,12 @@ const Home = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //ctx.clearRect(0, 0, canvas.width, canvas.height);
     shapes.forEach((shape) => {
       if (shape.type === ShapeTypes.RECTANGLE) {
         ctx.fillStyle = "white";
-        ctx.fillRect(shape.x, shape.y, shape.width * 2, shape.height);
-        ctx.strokeRect(shape.x, shape.y, shape.width * 2, shape.height);
+        ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
+        ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
       } else if (shape.type === ShapeTypes.CIRCLE) {
         ctx.beginPath();
         ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
@@ -32,8 +32,8 @@ const Home = () => {
         ctx.stroke();
       } else if (shape.type === ShapeTypes.SQUARE) {
         ctx.fillStyle = "white";
-        ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
-        ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+        ctx.fillRect(shape.x, shape.y, shape.size, shape.size);
+        ctx.strokeRect(shape.x, shape.y, shape.size, shape.size);
       } else if (shape.type === ShapeTypes.DIAMOND) {
         ctx.beginPath();
         ctx.moveTo(shape.x + shape.width / 2, shape.y);
@@ -49,9 +49,8 @@ const Home = () => {
   }, [shapes]);
 
   useEffect(() => {
-    // Re-render canvas when selectedShape changes
     draw();
-  }, [selectedShape, draw]);
+  }, [draw]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -120,11 +119,6 @@ const Home = () => {
     };
   }, [shapes, draw]);
 
-  useEffect(() => {
-    // Re-render canvas when selectedShape changes
-    draw();
-  }, [selectedShape, draw]);
-
   const addShape = (type) => {
     const newShape = {
       id: Date.now(),
@@ -134,29 +128,25 @@ const Home = () => {
       width: 100,
       height: 100,
       radius: 50,
+      size: 80,
     };
     setShapes([...shapes, newShape]);
-    setSelectedShape(newShape.id); // Set the newly added shape as selected
+    setSelectedShape(newShape.id);
   };
 
   const handleUndo = () => {
-    console.log("Undo clicked");
   };
 
   const handleRedo = () => {
-    console.log("Redo clicked");
   };
 
   const handleDelete = () => {
-    console.log("Delete clicked");
   };
 
   const handleSave = () => {
-    console.log("Save clicked");
   };
 
   const handleOpen = () => {
-    console.log("File opened");
   };
 
   const handleButtonClick = (button) => {
@@ -183,24 +173,24 @@ const Home = () => {
   };
 
   const handleButtonHover = (button) => {
-    setHoveredButton(button.toLowerCase());
+    setHoveredButton(button);
   };
-  
+
   return (
     <div className="container">
       <div className="sidebar">
         <h2>Shapes</h2>
         <div className="sidebar">
-          <button onClick={() => addShape(ShapeTypes.RECTANGLE)}>
+          <button data-testid='rectangleButton' onClick={() => addShape(ShapeTypes.RECTANGLE)}>
             <Rectangle width={100} height={60} />
           </button>
-          <button onClick={() => addShape(ShapeTypes.CIRCLE)}>
+          <button data-testid='circle' onClick={() => addShape(ShapeTypes.CIRCLE)}>
             <Circle radius={50} />
           </button>
-          <button onClick={() => addShape(ShapeTypes.SQUARE)}>
+          <button data-testid='square' onClick={() => addShape(ShapeTypes.SQUARE)}>
             <Square size={80} />
           </button>
-          <button onClick={() => addShape(ShapeTypes.DIAMOND)}>
+          <button data-testid='diamond' onClick={() => addShape(ShapeTypes.DIAMOND)}>
             <Diamond width={100} height={100} />
           </button>
         </div>
@@ -208,7 +198,7 @@ const Home = () => {
       <div className="main">
         <div className="button-container">
           {Object.keys(iconComponents).map((button) => (
-            <button
+            <button 
               key={button}
               onMouseOver={() => handleButtonHover(button)}
               onClick={() => handleButtonClick(button)}
@@ -225,6 +215,7 @@ const Home = () => {
           <h1>Draw Here!!</h1>
           <canvas
             ref={canvasRef}
+            aria-label="Canvas"
             width={800}
             height={600}
             style={{ border: "1px solid black" }}
@@ -233,7 +224,7 @@ const Home = () => {
       </div>
     </div>
   );
-  };
-  
-  export default Home;
-  
+};
+
+export default Home;
+
