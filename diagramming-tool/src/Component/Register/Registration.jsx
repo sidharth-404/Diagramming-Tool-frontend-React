@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Registration.css';
-import axios from 'axios';
-import MsgComponent from '../ConfirmMsg/MsgComponent';
+import MsgComponent from '../ConfirmMsg/MsgBoxComponent';
+import { registerUser } from '../../ApiService/ApiService' 
 
 const Registration = () => {
   const [formData, setFormData] = useState({
@@ -13,7 +13,7 @@ const Registration = () => {
     confirmPassword: ''
   });
 
-  const [showModal, setShowModal] = useState(false);
+  const [showMsgBox, setshowMsgBox] = useState(false);
   const [msg, setMsg] = useState('');
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -61,24 +61,22 @@ const Registration = () => {
     e.preventDefault();
     if (Object.values(errors).some(error => error !== '')) {
       setMsg('Please fix the form errors.');
-      setShowModal(true);
+      setshowMsgBox(true);
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:8080/api/diagrammingtool/addUser', formData);
-      if (response.status === 201) {
-        setMsg('User added successfully! Please login.');
-        setShowModal(true);
+      const response = await registerUser(formData); // Use the API function
+      setMsg(response);
+      setshowMsgBox(true);
+      if (response === 'User added successfully! Please login.') {
+        setTimeout(() => {
+          navigateToLogin();
+        }, 3000); 
       }
     } catch (error) {
-      if (error.response && error.response.data) {
-        setMsg(error.response.data);
-      } else {
-        setMsg('Error adding user. Please try again.');
-      }
-      setShowModal(true);
-    
+      setMsg(error);
+      setshowMsgBox(true);
     }
   };
 
@@ -87,25 +85,14 @@ const Registration = () => {
   };
 
   const handleOkClick = () => {
-    setShowModal(false);
+    setshowMsgBox(false);
     setMsg('');
   };
 
- 
-  const cancelModal = () => {
-    setShowModal(false);
+  const closelMsgBox = () => {
+    setshowMsgBox(false);
     setMsg('');
   };
-
-  useEffect(() => {
-    let timer;
-    if (msg === 'User added successfully! Please login.') {
-      timer = setTimeout(() => {
-        navigateToLogin();
-      }, 3000); // Redirect to login after 3 seconds
-    }
-    return () => clearTimeout(timer);
-  }, [msg, navigateToLogin]);
 
   return (
     <div className="registration-container">
@@ -177,8 +164,7 @@ const Registration = () => {
       </form>
       <div className="background-right"></div>
 
-      <MsgComponent showModal={showModal}cancelModel={cancelModal} msg={msg} handleOkClick={handleOkClick} />
-
+      <MsgComponent showMsgBox={showMsgBox} closeMsgBox={closelMsgBox} msg={msg} handleOkClick={handleOkClick} />
     </div>
   );
 };
