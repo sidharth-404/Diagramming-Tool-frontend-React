@@ -58,8 +58,8 @@ function App() {
           {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
 
           <form onSubmit={handleSubmit}>
-            <MDBInput wrapperClass='mb-4' placeholder='Enter your email here' id='form1' type='email' className='custom-input' value={email} onChange={(e) => setEmail(e.target.value)} />
-            <MDBInput wrapperClass='mb-4' placeholder='Enter your password here' id='form2' type='password' className='custom-input' value={password} onChange={(e) => setPassword(e.target.value)} />
+            <MDBInput wrapperClass='mb-4' placeholder='Enter your email here' id='emailform' type='email' className='custom-input' value={email} onChange={(e) => setEmail(e.target.value)} />
+            <MDBInput wrapperClass='mb-4' placeholder='Enter your password here' id='passwordform' type='password' className='custom-input' value={password} onChange={(e) => setPassword(e.target.value)} />
             <input type='submit' value='Sign In' className='button-28' />
           </form>
 
