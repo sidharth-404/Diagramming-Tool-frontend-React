@@ -73,10 +73,8 @@ const Registration = () => {
       }
     } catch (error) {
       if (error.response && error.response.data) {
-        // If there is a response from the server with error message
         setMsg(error.response.data);
       } else {
-        // If there's an error without a response (network error, etc.)
         setMsg('Error adding user. Please try again.');
       }
       setShowModal(true);
@@ -93,10 +91,7 @@ const Registration = () => {
     setMsg('');
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setMsg('');
-  };
+ 
   const cancelModal = () => {
     setShowModal(false);
     setMsg('');
@@ -182,7 +177,7 @@ const Registration = () => {
       </form>
       <div className="background-right"></div>
 
-      <MsgComponent showModal={showModal} closeModal={closeModal} cancelModel={cancelModal} msg={msg} handleOkClick={handleOkClick} />
+      <MsgComponent showModal={showModal}cancelModel={cancelModal} msg={msg} handleOkClick={handleOkClick} />
 
     </div>
   );

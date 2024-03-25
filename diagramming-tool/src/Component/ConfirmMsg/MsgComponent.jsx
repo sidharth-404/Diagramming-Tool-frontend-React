@@ -1,7 +1,7 @@
 import React from "react";
 import "./MsgComponent.css";
 
-const MsgComponent = ({ showModal, closeModal, cancelModel, msg }) => {
+const MsgComponent = ({ showModal, cancelModel, msg }) => {
   return (
     <div>
     
@@ -34,7 +34,7 @@ const MsgComponent = ({ showModal, closeModal, cancelModel, msg }) => {
               <button type="button" className="btn btn-danger" onClick={cancelModel}>
                 Cancel
               </button>
-              <button type="button" className="btn btn-primary" onClick={closeModal}>
+              <button type="button" className="btn btn-primary" onClick={cancelModel}>
                 OK
               </button>
             </div>
@@ -47,21 +47,3 @@ const MsgComponent = ({ showModal, closeModal, cancelModel, msg }) => {
 
 export default MsgComponent;
 
-// const [showModal, setShowModal] = useState(false);
-
-// const openModal = () => {
-//   setShowModal(true);
-// };
-
-// const closeModal = () => {
-//   setShowModal(false);
-//   alert("hai");
-// };
-// const cancelModel=()=>{
-//   setShowModal(false);
-// }
-// const msg="hai hoi"
-{/* <MsgComponent showModal={showModal} closeModal={closeModal} cancelModel={cancelModel} msg={msg} /> */}
-{/* <button className="btn btn-primary" onClick={openModal}>
-Open Modal
-</button> */}
