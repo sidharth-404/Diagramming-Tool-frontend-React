@@ -72,9 +72,15 @@ const Registration = () => {
         setShowModal(true);
       }
     } catch (error) {
-      console.error('Registration Error:', error);
-      setMsg('Error adding user. Please try again.');
+      if (error.response && error.response.data) {
+        // If there is a response from the server with error message
+        setMsg(error.response.data);
+      } else {
+        // If there's an error without a response (network error, etc.)
+        setMsg('Error adding user. Please try again.');
+      }
       setShowModal(true);
+    
     }
   };
 
