@@ -7,8 +7,8 @@ function Login() {
 
 
   return (
-    
 
+  
           <div className='text-center'>
             <p>Not a member? <Link to='/register' className='link'>Register</Link></p>
           </div>
