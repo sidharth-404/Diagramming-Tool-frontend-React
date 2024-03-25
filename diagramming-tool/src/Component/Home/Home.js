@@ -1,8 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import './Home.css';
-import { iconComponents, iconTooltips } from './IconFunctions';
-import { Rectangle, Circle, Square, Diamond } from './NewShapes';
-import ShapeTypes from './ShapeTypes';
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import "./Home.css";
+import { Rectangle, Circle, Square, Diamond } from "./NewShapes";
+import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
+import { MdDeleteForever, MdFileOpen } from "react-icons/md";
+import { TfiSave } from "react-icons/tfi";
+import ShapeTypes from "./ShapeTypes";
 
 const Home = () => {
   const [selectedShape, setSelectedShape] = useState(null);
@@ -16,19 +18,25 @@ const Home = () => {
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    if (!canvas) return;
 
-    //ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     shapes.forEach((shape) => {
       if (shape.type === ShapeTypes.RECTANGLE) {
         ctx.fillStyle = "white";
-        ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
-        ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+        ctx.lineWidth = 2;
+        ctx.fillRect(shape.x, shape.y, shape.width * 2, shape.height);
+        ctx.strokeRect(shape.x, shape.y, shape.width * 2, shape.height);
       } else if (shape.type === ShapeTypes.CIRCLE) {
         ctx.beginPath();
         ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
         ctx.fillStyle = "white";
         ctx.fill();
+        // ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
         ctx.stroke();
       } else if (shape.type === ShapeTypes.SQUARE) {
         ctx.fillStyle = "white";
@@ -61,10 +69,14 @@ const Home = () => {
       const y = e.clientY - rect.top;
 
       const clickedShape = shapes.find((shape) => {
-        if (
-          shape.type === ShapeTypes.RECTANGLE ||
-          shape.type === ShapeTypes.SQUARE
-        ) {
+        if (shape.type === ShapeTypes.RECTANGLE) {
+          return (
+            x >= shape.x &&
+            x <= shape.x + shape.width * 2 &&
+            y >= shape.y &&
+            y <= shape.y + shape.height
+          );
+        } else if (shape.type === ShapeTypes.SQUARE) {
           return (
             x >= shape.x &&
             x <= shape.x + shape.width &&
@@ -134,20 +146,15 @@ const Home = () => {
     setSelectedShape(newShape.id);
   };
 
-  const handleUndo = () => {
-  };
+  const handleUndo = () => {};
 
-  const handleRedo = () => {
-  };
+  const handleRedo = () => {};
 
-  const handleDelete = () => {
-  };
+  const handleDelete = () => {};
 
-  const handleSave = () => {
-  };
+  const handleSave = () => {};
 
-  const handleOpen = () => {
-  };
+  const handleOpen = () => {};
 
   const handleButtonClick = (button) => {
     setSelectedButton(button);
@@ -172,48 +179,90 @@ const Home = () => {
     }
   };
 
-  const handleButtonHover = (button) => {
-    setHoveredButton(button);
-  };
+  // const handleButtonHover = (button) => {
+  //   setHoveredButton(button);
+  // };
 
   return (
     <div className="container">
       <div className="sidebar">
         <h2>Shapes</h2>
         <div className="sidebar">
-          <button data-testid='rectangleButton' onClick={() => addShape(ShapeTypes.RECTANGLE)}>
+          <button
+            data-testid="rectangleButton"
+            onClick={() => addShape(ShapeTypes.RECTANGLE)}
+          >
             <Rectangle width={100} height={60} />
           </button>
-          <button data-testid='circle' onClick={() => addShape(ShapeTypes.CIRCLE)}>
+          <button
+            data-testid="circleButton"
+            onClick={() => addShape(ShapeTypes.CIRCLE)}
+          >
             <Circle radius={50} />
           </button>
-          <button data-testid='square' onClick={() => addShape(ShapeTypes.SQUARE)}>
+          <button
+            data-testid="squareButton"
+            onClick={() => addShape(ShapeTypes.SQUARE)}
+          >
             <Square size={80} />
           </button>
-          <button data-testid='diamond' onClick={() => addShape(ShapeTypes.DIAMOND)}>
+          <button
+            data-testid="diamondButton"
+            onClick={() => addShape(ShapeTypes.DIAMOND)}
+          >
             <Diamond width={100} height={100} />
           </button>
         </div>
       </div>
       <div className="main">
         <div className="button-container">
-          {Object.keys(iconComponents).map((button) => (
-            <button 
-              key={button}
-              onMouseOver={() => handleButtonHover(button)}
-              onClick={() => handleButtonClick(button)}
-              className={selectedButton === button ? "selected" : ""}
-            >
-              {React.createElement(iconComponents[button])}
-              {hoveredButton === button && (
-                <span className="tooltip">{iconTooltips[button]}</span>
-              )}
-            </button>
-          ))}
+          <button
+            data-testid="openButton"
+            onClick={() => handleButtonClick("open")}
+            className={selectedButton === "open" ? "selected" : ""}
+          >
+            <MdFileOpen />
+            {hoveredButton === "open" && <span className="tooltip">Open</span>}
+          </button>
+          <button
+            data-testid="saveButton"
+            onClick={() => handleButtonClick("save")}
+            className={selectedButton === "save" ? "selected" : ""}
+          >
+            <TfiSave />
+            {hoveredButton === "save" && <span className="tooltip">Save</span>}
+          </button>
+          <button
+            data-testid="undoButton"
+            onClick={() => handleButtonClick("undo")}
+            className={selectedButton === "undo" ? "selected" : ""}
+          >
+            <IoArrowUndo />
+            {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
+          </button>
+          <button
+            data-testid="redoButton"
+            onClick={() => handleButtonClick("redo")}
+            className={selectedButton === "redo" ? "selected" : ""}
+          >
+            <IoArrowRedo />
+            {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
+          </button>
+          <button
+            data-testid="deleteButton"
+            onClick={() => handleButtonClick("delete")}
+            className={selectedButton === "delete" ? "selected" : ""}
+          >
+            <MdDeleteForever />
+            {hoveredButton === "delete" && (
+              <span className="tooltip">Delete</span>
+            )}
+          </button>
         </div>
         <div>
           <h1>Draw Here!!</h1>
           <canvas
+            data-testid="canvas"
             ref={canvasRef}
             aria-label="Canvas"
             width={800}
@@ -227,4 +276,3 @@ const Home = () => {
 };
 
 export default Home;
-
