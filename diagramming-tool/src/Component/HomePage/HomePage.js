@@ -2,13 +2,13 @@
 
 
 import React, { useState } from 'react';
-import './HomePage.css'; // Import your CSS file for styling
-import diagImage from './diag.png'; // Import your diagram image file
+import './HomePage.css'; 
+import diagImage from './diag.png';
 
 import exampleImage from './example.jpg';
-import peopleImage from './people.png'; // Import your people image file
+import peopleImage from './people.png';
 import featuresImage from './features.png';
-import keImage from './ke.png'; // Import your ke image file
+import keImage from './ke.png'; 
 import dig from './dig.svg';
 
 const HomePage = () => {
