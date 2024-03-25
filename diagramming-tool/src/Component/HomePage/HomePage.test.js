@@ -49,7 +49,7 @@ describe('HomePage', () => {
   it('renders footer contact information', () => {
     render(<HomePage />);
     // Assert that footer contact information is rendered
-    expect(screen.getByText('Contact: contact@example.com')).toBeInTheDocument();
+    expect(screen.getByText('Contact: diagrammingtool@example.com')).toBeInTheDocument();
   });
 
   it('renders copyright information', () => {

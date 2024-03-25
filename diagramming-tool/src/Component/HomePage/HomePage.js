@@ -1,4 +1,6 @@
 
+
+
 import React, { useState } from 'react';
 import './HomePage.css'; // Import your CSS file for styling
 import diagImage from './diag.png'; // Import your diagram image file
@@ -7,6 +9,7 @@ import exampleImage from './example.jpg';
 import peopleImage from './people.png'; // Import your people image file
 import featuresImage from './features.png';
 import keImage from './ke.png'; // Import your ke image file
+import dig from './dig.svg';
 
 const HomePage = () => {
   const [showOptions, setShowOptions] = useState(false);
@@ -30,7 +33,7 @@ const HomePage = () => {
         </button>
         {showOptions && (
           <div className="options-box" data-testid="options-box">
-            <p className="option-description">Choose an option to begin:</p>
+            <p className="option-description"></p>
           </div>
         )}
       </section>
@@ -38,6 +41,8 @@ const HomePage = () => {
       <img src={peopleImage} alt="People" className="bottom-left-image" />
       <img src={featuresImage} alt="Features" className="bottom-leeft-image" />
       <img src={keImage} alt="KE" className="bottom-leeeft-image" />
+      <img src={dig} alt="DI" className="dig-image" />
+
       <div className="bottom-left-text">
         <h2 className="bottom-left-title">Share with everyone</h2>
         <p className="bottom-left-subtitle">Easily translate ideas into visual diagrams.</p>
@@ -48,8 +53,15 @@ const HomePage = () => {
         </p>
         <h2 className="bottom-left-title3">Privacy First</h2>
         <p className="bottom-left-subtitle3">Store your data wherever you want to. We cannot access your data</p>
+        {/* New sentences */}
+        <div className="bottom-left-additional">
+          <p>Experience the seamless integration of collaboration and visualization, as you co-create with colleagues in real-time, regardless of distance or time zone.</p>
+          <p>Embark on a journey of discovery and ideation as you explore the endless possibilities our tool offers for expressing and refining your thoughts.</p>
+          <p>From brainstorming to presentation, our comprehensive suite of tools empowers you at every stage of your creative process, ensuring your ideas are brought to life with clarity and precision.</p>
+        </div>
       </div>
-      <footer className="footer">
+      {
+       <footer className="footer">
         <div className="footer-links">
           <a href="/about">About Us</a>
           <a href="/contact">Contact Us</a>
@@ -62,12 +74,9 @@ const HomePage = () => {
         <div className="copyright">
           <p>© 2024 Your Company Name. All rights reserved.</p>
         </div>
-      </footer>
+      </footer> }
     </div>
   );
 };
 
 export default HomePage;
-
-
-

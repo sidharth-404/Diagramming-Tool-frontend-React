@@ -234,11 +234,11 @@ body {
 }
 .footer {
     position: absolute;
-    bottom: -700px;
+    bottom: -1300px;
     width: 100%;
     padding: 20px;
     text-align: center;
-    background-color: black;
+    background-color:grey;
     color: white; /* Set text color to white */
 }
 
@@ -261,3 +261,29 @@ body {
     margin-top: 20px;
     color: white; /* Set text color to white */
 }
+.dig-image {
+    width: 500px; /* Increase the width to the desired size */
+    height: auto; /* Maintain aspect ratio */
+    position: absolute;
+    right: 50px;
+    top: 1400px;
+}
+
+  
+.bottom-left-additional {
+    position: absolute;
+    left: -800px; /* Adjust left position as needed */
+    width: 500px; /* Adjust width as needed */
+    top: 600px; /* Adjust top position as needed */
+    /* Add any other styles you want */
+    font-size: 1.2rem; /* Adjust font size as needed */
+    color:lightseagreen; /* Adjust text color as needed */
+    margin-bottom: 10px; /* Adjust margin as needed */
+    line-height: 2; /* Adjust line height as needed */
+    /* Add any other styles you want */
+    font-family: 'Lucida Calligraphy', cursive; /* Apply Lucida Calligraphy font */
+}
+
+  
+  
+  
