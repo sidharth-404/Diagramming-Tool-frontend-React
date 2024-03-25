@@ -35,13 +35,13 @@ function App() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error); 
+        throw new Error(data.error ); 
       }
 
       console.log('Login successful');
      
     } catch (error) {
-      setError(error.message || 'An error occurred.');
+      setError(error.message );
     }
   };
 
