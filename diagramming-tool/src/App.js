@@ -1,9 +1,9 @@
 import './App.css';
-import Registration from './Component/Register/Registration';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Component/Login/Login';
 
 import ResetPasswordPage from './Component/Login/ResetPasswordPage';
+import Registration from './Component/Register/Registration';
 function App() {
   return (
     <Router>
@@ -13,12 +13,14 @@ function App() {
         </header>
         <Routes>
           <Route exact path="/" element={<Login/>} />
-          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Registration />} />
           <Route path="/reset" element={<ResetPasswordPage />} />
         </Routes>
       </div>
+   
+    
     </Router>
+
   );
 }
  

@@ -1,4 +1,8 @@
 
+  
+
+
+
 import React, { useState } from 'react';
 import './Registration.css'; 
 
@@ -20,36 +24,38 @@ const Registration = () => {
       [name]: value
     });
 
-   
-    const isValidFirstName = value.length >= 2 && value.length <= 20;
-    const firstNameErrorMessage = isValidFirstName ? '' : 'First Name must be between 2 and 20 characters long';
-    
-    setErrors({
-      ...errors,
-      firstname: firstNameErrorMessage
-    });
-    
-    
   
-     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isValidEmail = emailRegex.test(value);
-   const emailErrorMessage = isValidEmail ? '' : 'Please enter a valid email address';
+    const isValidFirstName = value.length >= 2 && value.length <= 20;
+const firstNameErrorMessage = isValidFirstName ? '' : 'First Name must be between 2 and 20 characters long';
 
-  setErrors({
-   ...errors,
-    email: emailErrorMessage
-  });
+setErrors({
+  ...errors,
+  firstname: firstNameErrorMessage
+});
+
+    
+   
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const isValidEmail = emailRegex.test(value);
+const emailErrorMessage = isValidEmail ? '' : 'Please enter a valid email address';
+
+setErrors({
+  ...errors,
+  email: emailErrorMessage
+});
 
 
-   const isValidPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
-    const passwordErrorMessage = isValidPassword ? '' : 'Password must contain at least 8 characters including one uppercase letter, one lowercase letter, one number, and one special character';
-    
-    setErrors({
-      ...errors,
-      password: passwordErrorMessage
-    });
-    
-    
+
+    const isValidPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
+const passwordErrorMessage = isValidPassword ? '' : 'Password must contain at least 8 characters including one uppercase letter, one lowercase letter, one number, and one special character';
+
+setErrors({
+  ...errors,
+  password: passwordErrorMessage
+});
+
+
+   
     if (name === 'confirmPassword') {
       setErrors({
         ...errors,
@@ -57,9 +63,6 @@ const Registration = () => {
       });
     }
   };
-
- 
-
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -139,4 +142,3 @@ const Registration = () => {
 };
 
 export default Registration;
-

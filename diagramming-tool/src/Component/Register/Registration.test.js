@@ -1,6 +1,4 @@
 
-
-
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import Registration from './Registration';
@@ -52,6 +50,7 @@ describe('Registration component', () => {
 });
 
 
+
 it('validates empty form submission', () => {
   render(<Registration />);
   const submitButton = screen.getByText('Register');
@@ -76,3 +75,4 @@ it('submits the form successfully', () => {
   fireEvent.click(submitButton);
  
 });
+
