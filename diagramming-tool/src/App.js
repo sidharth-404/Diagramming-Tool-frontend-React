@@ -1,8 +1,4 @@
 import './App.css';
-import Registration from './Component/Register/Registration';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './Component/Login/LoginPage.jsx';
-import Home from './Component/HomePage/HomePage.js';
 
 import HomePage from './Component/HomePage/HomePage';
 
@@ -12,7 +8,6 @@ import ChangePassword from './Component/ChangePassword/ChangePassword';
 
 function App() {
   return (
-
     <div className="App">
       <header className="App-header">
 
@@ -23,20 +18,6 @@ function App() {
 
       </header>
     </div>
-
-    <Router>
-      <div className="App">
-        <header className="App-header">
-         
-        </header>
-        <Routes>
-          <Route exact path="/" element={<Home/>} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Registration />} />
-        </Routes>
-      </div>
-    </Router>
-
   );
 }
 
