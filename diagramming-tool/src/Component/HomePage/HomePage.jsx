@@ -1,15 +1,12 @@
-
-
-
 import React, { useState } from 'react';
 import './HomePage.css'; 
-import diagImage from './diag.png';
+import diagImage from '../../Images/diag.png';
 
-import exampleImage from './example.jpg';
-import peopleImage from './people.png';
-import featuresImage from './features.png';
-import keImage from './ke.png'; 
-import dig from './dig.svg';
+import exampleImage from '../../Images/example.jpg';
+import peopleImage from '../../Images/people.png';
+import featuresImage from '../../Images/features.png';
+import keImage from '../../Images/ke.png'; 
+import dig from '../../Images/dig.svg';
 
 const HomePage = () => {
   const [showOptions, setShowOptions] = useState(false);
