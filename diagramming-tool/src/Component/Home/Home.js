@@ -12,9 +12,6 @@ const Home = () => {
   const [hoveredButton, setHoveredButton] = useState("");
   const canvasRef = useRef(null);
   const [shapes, setShapes] = useState([]);
-  const isDrawing = useRef(false);
-  const draggedShape = useRef(null);
-  const dragOffset = useRef({ x: 0, y: 0 });
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -40,10 +37,12 @@ const Home = () => {
         ctx.stroke();
       } else if (shape.type === ShapeTypes.SQUARE) {
         ctx.fillStyle = "white";
+        ctx.lineWidth = 2;
         ctx.fillRect(shape.x, shape.y, shape.size, shape.size);
         ctx.strokeRect(shape.x, shape.y, shape.size, shape.size);
       } else if (shape.type === ShapeTypes.DIAMOND) {
         ctx.beginPath();
+        ctx.lineWidth = 2;
         ctx.moveTo(shape.x + shape.width / 2, shape.y);
         ctx.lineTo(shape.x + shape.width, shape.y + shape.height / 2);
         ctx.lineTo(shape.x + shape.width / 2, shape.y + shape.height);
@@ -59,77 +58,6 @@ const Home = () => {
   useEffect(() => {
     draw();
   }, [draw]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-
-    const handleMouseDown = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const clickedShape = shapes.find((shape) => {
-        if (shape.type === ShapeTypes.RECTANGLE) {
-          return (
-            x >= shape.x &&
-            x <= shape.x + shape.width * 2 &&
-            y >= shape.y &&
-            y <= shape.y + shape.height
-          );
-        } else if (shape.type === ShapeTypes.SQUARE) {
-          return (
-            x >= shape.x &&
-            x <= shape.x + shape.width &&
-            y >= shape.y &&
-            y <= shape.y + shape.height
-          );
-        } else if (shape.type === ShapeTypes.CIRCLE) {
-          return (
-            Math.sqrt((x - shape.x) ** 2 + (y - shape.y) ** 2) <= shape.radius
-          );
-        } else if (shape.type === ShapeTypes.DIAMOND) {
-          const centerX = shape.x + shape.width / 2;
-          const centerY = shape.y + shape.height / 2;
-          const dx = Math.abs(x - centerX);
-          const dy = Math.abs(y - centerY);
-          return dx / (shape.width / 2) + dy / (shape.height / 2) <= 1;
-        }
-        return false;
-      });
-
-      if (clickedShape) {
-        isDrawing.current = true;
-        draggedShape.current = clickedShape;
-        dragOffset.current = { x: x - clickedShape.x, y: y - clickedShape.y };
-        setSelectedShape(clickedShape.id);
-      }
-    };
-
-    const handleMouseMove = (e) => {
-      if (isDrawing.current) {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left - dragOffset.current.x;
-        const y = e.clientY - rect.top - dragOffset.current.y;
-        draggedShape.current.x = x;
-        draggedShape.current.y = y;
-        draw();
-      }
-    };
-
-    const handleMouseUp = () => {
-      isDrawing.current = false;
-    };
-
-    canvas.addEventListener("mousedown", handleMouseDown);
-    canvas.addEventListener("mousemove", handleMouseMove);
-    canvas.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      canvas.removeEventListener("mousedown", handleMouseDown);
-      canvas.removeEventListener("mousemove", handleMouseMove);
-      canvas.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [shapes, draw]);
 
   const addShape = (type) => {
     const newShape = {
@@ -178,10 +106,6 @@ const Home = () => {
         break;
     }
   };
-
-  // const handleButtonHover = (button) => {
-  //   setHoveredButton(button);
-  // };
 
   return (
     <div className="container">

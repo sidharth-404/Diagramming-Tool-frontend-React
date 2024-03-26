@@ -29,11 +29,11 @@ export const Rectangle = () => (
 
   export const Square = () => (
     <CommonShape className="square">
-      <rect x="10" y="10" width={shapeSize.width - 20} height={shapeSize.height - 20} stroke="black" strokeWidth="2" fill="none" />
+      <rect x="10" y="10" width={shapeSize.width - 20} height={shapeSize.height - 20} stroke="black" strokeWidth="2" fill="White" />
     </CommonShape>
   );
   export const Diamond = () => (
     <CommonShape className="diamond">
-      <polygon points={`${shapeSize.width / 2},${10} ${shapeSize.width - 10},${shapeSize.height / 2} ${shapeSize.width / 2},${shapeSize.height - 10} ${10},${shapeSize.height / 2}`} stroke="black" strokeWidth="2" fill="none" />
+      <polygon points={`${shapeSize.width / 2},${10} ${shapeSize.width - 10},${shapeSize.height / 2} ${shapeSize.width / 2},${shapeSize.height - 10} ${10},${shapeSize.height / 2}`} stroke="black" strokeWidth="2" fill="White" />
     </CommonShape>
   );

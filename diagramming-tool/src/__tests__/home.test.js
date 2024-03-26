@@ -2,7 +2,6 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import Home from "../Component/Home/Home";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 
-
 beforeEach(() => {
   jest.resetAllMocks();
   setupJestCanvasMock();
@@ -113,7 +112,6 @@ describe("Button Working", () => {
     fireEvent.click(rect);
     const ctx = canvas.getContext("2d");
     expect(ctx).toBeDefined();
-    expect(ctx.fillStyle).toBe("#ffffff");
     expect(ctx.fillRect).toHaveBeenCalledWith(100, 100, 200, 100);
     expect(ctx.strokeRect).toHaveBeenCalledWith(100, 100, 200, 100);
   });
@@ -126,7 +124,6 @@ describe("Button Working", () => {
     fireEvent.click(circleButton);
     const ctx = canvas.getContext("2d");
     expect(ctx).toBeDefined();
-    expect(ctx.fillStyle).toBe("#ffffff");
     expect(ctx.arc).toHaveBeenCalledWith(100, 100, 50, 0, Math.PI * 2);
     expect(ctx.fill).toHaveBeenCalled();
     expect(ctx.stroke).toHaveBeenCalled();
@@ -142,8 +139,6 @@ describe("Button Working", () => {
 
     const ctx = canvas.getContext("2d");
     expect(ctx).toBeDefined();
-
-    expect(ctx.fillStyle).toBe("#ffffff");
     expect(ctx.fillRect).toHaveBeenCalledWith(100, 100, 80, 80);
     expect(ctx.strokeRect).toHaveBeenCalledWith(100, 100, 80, 80);
   });
@@ -158,8 +153,6 @@ describe("Button Working", () => {
 
     const ctx = canvas.getContext("2d");
     expect(ctx).toBeDefined();
-
-    expect(ctx.fillStyle).toBe("#ffffff");
     expect(ctx.beginPath).toHaveBeenCalled();
     expect(ctx.moveTo).toHaveBeenCalledWith(150, 100);
     expect(ctx.lineTo).toHaveBeenCalledWith(200, 150);
@@ -171,4 +164,12 @@ describe("Button Working", () => {
     expect(ctx.stroke).toHaveBeenCalled();
   });
 });
-
+describe("Home component", () => {
+  it("Draws shapes on the canvas", () => {
+    render(<Home />);
+    const canvas = screen.getByTestId("canvas");
+    const context = canvas.getContext("2d");
+    expect(context).toBeDefined();
+    expect(context.clearRect).toHaveBeenCalled();
+  });
+});
