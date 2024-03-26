@@ -14,7 +14,7 @@ const HomePage = () => {
        navi('/logout')
       } else {
         // Redirect to login page
-        navi('/loginForm')
+        navi('/login')
       }
 
   }
