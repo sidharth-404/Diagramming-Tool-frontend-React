@@ -1,6 +1,6 @@
 
 .center-container {
-  background-image: url('./assets/loginbgimg.jpg');
+  background-image: url('../../assets/loginbgimg.jpg');
   display: flex;
   justify-content: center;
   align-items: center;
