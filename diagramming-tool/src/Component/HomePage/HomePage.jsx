@@ -7,12 +7,15 @@ import peopleImage from '../../Images/people.png';
 import featuresImage from '../../Images/features.png';
 import keImage from '../../Images/ke.png'; 
 import dig from '../../Images/dig.svg';
+import { useNavigate, useNavigation } from 'react-router-dom';
 
 const HomePage = () => {
   const [showOptions, setShowOptions] = useState(false);
+  const navigation=useNavigate();
 
   const toggleOptions = () => {
-    setShowOptions(!showOptions);
+    // setShowOptions(!showOptions);
+    navigation('/login')
   };
 
   return (

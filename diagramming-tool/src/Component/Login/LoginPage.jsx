@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
+import { Link, useNavigate } from 'react-router-dom';
+import './LoginPage.css';
 
 function App() {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigation=useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,16 +32,20 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userEmail: email,
-          password: password,
+          "userEmail": email,
+          "password": password,
         }),
       });
-
+ 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error ); 
+        const data = await response.text();
+        console.log(data);
+        throw new Error(data );
+       
       }
-
+      const data = await response.text();
+      document.cookie = `token=${data}; path=/`;
+     navigation('/dashbord');
       console.log('Login successful');
      
     } catch (error) {
@@ -56,13 +64,14 @@ function App() {
           {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
 
           <form onSubmit={handleSubmit}>
-            <MDBInput wrapperClass='mb-4' placeholder='Enter your email here' id='form1' type='email' className='custom-input' value={email} onChange={(e) => setEmail(e.target.value)} />
-            <MDBInput wrapperClass='mb-4' placeholder='Enter your password here' id='form2' type='password' className='custom-input' value={password} onChange={(e) => setPassword(e.target.value)} />
+            <MDBInput wrapperClass='margin-4' placeholder='Enter your email here' id='form1' type='email' className='custom-input' value={email} onChange={(e) => setEmail(e.target.value)} />
+            <MDBInput wrapperClass='margin-4' placeholder='Enter your password here' id='form2' type='password' className='custom-input' value={password} onChange={(e) => setPassword(e.target.value)} />
             <input type='submit' value='Sign In' />
           </form>
 
           <div className='text-center'>
-            <p>Not a member? <a href='#!'>Register</a></p>
+            <p>Not a member? <Link to='/register' className='link'>Register</Link></p>
+            <p>forgot password? <Link to='/reset' className='link'>Reset Password</Link></p>
           </div>
         </MDBContainer>
       </div>
