@@ -11,9 +11,9 @@ function App() {
     <div className="App">
       <header className="App-header">
 
-       <HomePage/>
+       {/* <HomePage/> */}
 
-       {/* <Home/> */}
+       <Home/>
        {/* <ChangePassword/> */}
 
       </header>
