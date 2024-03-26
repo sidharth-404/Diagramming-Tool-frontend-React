@@ -1,13 +1,27 @@
 
 import React from 'react';
-import {Link} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
+import Cookies from 'js-cookie';
+
 
 
 const HomePage = () => {
+  const navi=useNavigate();
+  const handleGetStarted=()=>{
+    const token = Cookies.get('token');
+    if (token) {
+        // Redirect to logout page
+       navi('/logout')
+      } else {
+        // Redirect to login page
+        navi('/loginForm')
+      }
 
+  }
+   
   return (
     <div>Home Page
-      <Link to='/login'>login</Link>
+      <button onClick={handleGetStarted}>Get Started</button>
     </div>
   );
 };

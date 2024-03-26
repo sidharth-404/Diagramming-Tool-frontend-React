@@ -67,9 +67,9 @@ const Registration = () => {
 
     try {
       const response = await registerUser(formData); // Use the API function
-      setMsg(response);
+      setMsg('User added successfully! Please login.');
       setshowMsgBox(true);
-      if (response === 'User added successfully! Please login.') {
+      if (msg === 'User added successfully! Please login.') {
         setTimeout(() => {
           navigateToLogin();
         }, 3000); 

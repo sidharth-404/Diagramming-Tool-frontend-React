@@ -1,7 +1,7 @@
 import React from "react";
 import "./MsgComponent.css";
 
-const MsgBoxComponent = ({ showMsgBox, closeMsgBox, msg }) => {
+const MsgBoxComponent = ({ showMsgBox, closeMsgBox, msg}) => {
   return (
     <div>
     
