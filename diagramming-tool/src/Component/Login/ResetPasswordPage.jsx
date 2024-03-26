@@ -51,17 +51,16 @@ const ResetPasswordPage = () => {
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await sendResetPasswordEmail(email);
-      if (response.data && response.data.message === 'User not found') {
-        setResponseMessage('User not found');
-      } else {
+      await sendResetPasswordEmail(email);
+    
         setOtpSent(true);
         setResponseMessage('OTP sent to your email.');
         setShowResponseBox(true);
-      }
+      
     } catch (error) {
-      console.error('Error sending reset password email:', error);
-      setResponseMessage('Error sending reset password email. Please try again.');
+      console.error(error);
+      alert(error);
+      setResponseMessage(error);
       setShowResponseBox(true);
     }
   };
@@ -89,14 +88,15 @@ const ResetPasswordPage = () => {
 
   const handleOkClick = () => {
     setShowResponseBox(false);
-    setResponseMessage('');
+    
     if (responseMessage === 'Password reset successfully.') {
       history('/login');
     } else if (responseMessage === 'OTP sent to your email.') {
       setShowOtpForm(true);
     } else if (responseMessage === 'User not found') {
-      // Stay on the email form
+     
     }
+    setResponseMessage('');
   };
 
   const handleCloseMsgBox = () => {
