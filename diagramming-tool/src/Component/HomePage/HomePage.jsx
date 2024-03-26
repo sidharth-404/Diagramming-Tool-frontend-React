@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import './HomePage.css'; 
-import diagImage from '../../Images/diag.png';
+import diagImage from '../../Images/Diagram.png';
 
 import exampleImage from '../../Images/example.jpg';
 import peopleImage from '../../Images/people.png';
 import featuresImage from '../../Images/features.png';
-import keImage from '../../Images/ke.png'; 
-import dig from '../../Images/dig.svg';
+import keyImage from '../../Images/privacy.png'; 
+import shapes from '../../Images/shapes.svg';
 
 const HomePage = () => {
   const [showOptions, setShowOptions] = useState(false);
@@ -22,7 +22,7 @@ const HomePage = () => {
         <h1 className="title">Welcome to Our Diagramming Tool</h1>
         <p className="subtitle">Visualize your ideas and concepts with ease</p>
         {/* Move this inside */}
-        <nav className="nav"></nav>
+     
       </header>
       <section>
         <button className="create-btn" onClick={toggleOptions}>
@@ -36,9 +36,9 @@ const HomePage = () => {
       </section>
       <img src={exampleImage} alt="Example" className="example-image" /> {/* Example image */}
       <img src={peopleImage} alt="People" className="bottom-left-image" />
-      <img src={featuresImage} alt="Features" className="bottom-leeft-image" />
-      <img src={keImage} alt="KE" className="bottom-leeeft-image" />
-      <img src={dig} alt="DI" className="dig-image" />
+      <img src={featuresImage} alt="Features" className="bottom-left-image2" />
+      <img src={keyImage} alt="KE" className="bottom-left-image3" />
+      <img src={shapes} alt="DI" className="dig-image" />
 
       <div className="bottom-left-text">
         <h2 className="bottom-left-title">Share with everyone</h2>
@@ -57,7 +57,7 @@ const HomePage = () => {
           <p>From brainstorming to presentation, our comprehensive suite of tools empowers you at every stage of your creative process, ensuring your ideas are brought to life with clarity and precision.</p>
         </div>
       </div>
-      {
+      
        <footer className="footer">
         <div className="footer-links">
           <a href="/about">About Us</a>
@@ -71,7 +71,7 @@ const HomePage = () => {
         <div className="copyright">
           <p>© 2024 Your Company Name. All rights reserved.</p>
         </div>
-      </footer> }
+      </footer> 
     </div>
   );
 };

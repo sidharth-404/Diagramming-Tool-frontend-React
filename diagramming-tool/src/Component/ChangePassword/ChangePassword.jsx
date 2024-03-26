@@ -9,6 +9,10 @@ const ChangePassword = () => {
       <h2>Change Password</h2>
       <form>
         <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input type="email" id="email" name="email" />
+        </div>
+        <div className="form-group">
           <label htmlFor="oldPassword">Old Password</label>
           <input type="password" id="oldPassword" name="oldPassword" />
         </div>

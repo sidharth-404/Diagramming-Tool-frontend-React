@@ -3,8 +3,7 @@ import './Home.css';
 import { iconComponents, iconTooltips } from './IconFunctions';
 import { Rectangle, Circle, Square, Diamond } from './NewShapes';
 import ShapeTypes from './ShapeTypes';
-import profileImage from './R.png'; // Import the profile image
-
+import profileImage from './profilelogo.png'; 
 
 const Home = () => {
   const [selectedShape, setSelectedShape] = useState(null);
@@ -22,23 +21,26 @@ const Home = () => {
     setShowProfileMenu(!showProfileMenu);
   };
 
-
-   // Function to handle profile menu option click
-   const handleProfileOptionClick = (option) => {
+  const handleProfileOptionClick = (option) => {
     // Logic for handling profile menu options
     switch (option) {
       case 'profile':
         // Your logic for "Your Profile" option
         break;
       case 'password':
-        // Your logic for "Change Password" option
+        // Redirect to change password page
+        window.location.href = 'http://localhost:3000/';
+        break;
+      case 'Signout':
+        // Your logic for "Sign Out" option
         break;
       default:
         break;
     }
     setShowProfileMenu(false); // Hide the profile menu after clicking an option
   };
-
+  
+  
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
