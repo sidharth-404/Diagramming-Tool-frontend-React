@@ -5,6 +5,7 @@
 
 // setupTests.js
 import '@testing-library/jest-dom';
+import 'jest-canvas-mock';
 class IntersectionObserver {
     constructor() {}
   
@@ -21,6 +22,8 @@ class IntersectionObserver {
   
 
 // import '@testing-library/jest-dom/extend-expect';
+
+
 
 
 

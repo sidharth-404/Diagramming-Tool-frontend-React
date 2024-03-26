@@ -13,6 +13,8 @@ package-lock.json
 
 diagramming-tool/package-lock.json
 diagramming-too/node_modules/
+/diagramming-tool/package-lock.json
+/diagramming-too/node_modules/
 # misc
 .DS_Store
 .env.local

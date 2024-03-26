@@ -1,0 +1,122 @@
+.container {
+  display: flex;
+}
+
+.sidebar {
+  flex: 1;
+  padding: 20px;
+  border-right: 1px solid #e0e0e0; /* Light gray border */
+}
+
+.main {
+  flex: 2;
+  padding: 20px;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 1.5rem; /* Larger heading font size */
+}
+
+button {
+  margin-right: 10px;
+  padding: 10px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  font-size: 1rem; /* Button text font size */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+button.selected {
+  background-color: #f0f0f0; /* Light gray background for selected button */
+}
+
+button:hover {
+  background-color: #f5f5f5; /* Slightly lighter background color on hover */
+}
+
+.tooltip {
+  position: absolute;
+  background-color: #333;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  top: calc(100% + 5px); /* Position the tooltip below the button */
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+button:hover .tooltip {
+  opacity: 1;
+}
+
+canvas {
+  border: 1px solid #e0e0e0; /* Light gray canvas border */
+  border-radius: 5px; /* Rounded corners */
+}
+
+.shape-button {
+  border: 1px solid #e0e0e0; /* Light gray border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px;
+  margin: 5px;
+  background-color: #fafafa; /* Light gray background */
+  cursor: pointer;
+}
+
+.shape-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px; /* Add some spacing between the icon and text */
+}
+.navbar {
+  background-color:lightslategrey; /* Background color of the navbar */
+  color: white; /* Text color */
+  padding: 10px 20px; /* Padding for the navbar content */
+}
+
+.navbar h1 {
+  margin: 0; /* Remove default margin */
+}
+/* Home.css */
+
+.profile-image {
+  width: 40px; /* Adjust width as needed */
+  height: 40px; /* Adjust height as needed */
+  border-radius: 50%; /* Makes the image round */
+  margin-left: 1400px; /* Aligns the image to the right */
+}
+
+
+/* Home.css */
+
+/* Profile Menu */
+.profile-menu {
+  position: absolute;
+  top: 50px; /* Adjust as needed */
+  right: 10px; /* Adjust as needed */
+  background-color: black;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+
+.profile-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-menu ul li {
+  cursor: pointer;
+  padding: 8px 16px;
+}
+
+.profile-menu ul li:hover {
+  background-color: #f0f0f0;
+}
+
