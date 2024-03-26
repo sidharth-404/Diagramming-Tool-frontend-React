@@ -66,12 +66,19 @@ const Registration = () => {
     }
 
     try {
-      const response = await registerUser(formData); // Use the API function
-      setMsg(response);
+      const response = await registerUser(formData); 
+      if (typeof response === 'object' && response.hasOwnProperty('userEmail')) {
+        setMsg('User added successfully! Please login.');
+       
+      } else {
+        setMsg(response); 
+      }
+   
       setshowMsgBox(true);
-      if (response === 'User added successfully! Please login.') {
+      
+      if (msg === 'User added successfully! Please login.') {
         setTimeout(() => {
-          navigateToLogin();
+          navigate('/login');
         }, 3000); 
       }
     } catch (error) {
@@ -84,16 +91,21 @@ const Registration = () => {
     navigate('/login');
   };
 
-  const handleOkClick = () => {
-    setshowMsgBox(false);
-    setMsg('');
-  };
+  
 
   const closelMsgBox = () => {
     setshowMsgBox(false);
     setMsg('');
   };
 
+  const handleOkClick = () => {
+    if (msg === 'User added successfully! Please login.') {
+      navigateToLogin();
+    }
+    setshowMsgBox(false);
+    setMsg('');
+   
+  };
   return (
     <div className="registration-container">
       <form onSubmit={handleSubmit}>
@@ -164,7 +176,7 @@ const Registration = () => {
       </form>
       <div className="background-right"></div>
 
-      <MsgComponent showMsgBox={showMsgBox} closeMsgBox={closelMsgBox} msg={msg} handleOkClick={handleOkClick} />
+      <MsgComponent showMsgBox={showMsgBox} msg={msg} closeMsgBox={closelMsgBox} handleClick={handleOkClick} />
     </div>
   );
 };

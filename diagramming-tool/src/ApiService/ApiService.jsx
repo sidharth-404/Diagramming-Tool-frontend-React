@@ -12,3 +12,24 @@ const registerUser = async (formData) => {
 };
 
 export { registerUser };
+
+export const sendResetPasswordEmail = async (email) => {
+  try{
+  const url = `${API_URL}/resetPassword`;
+  const response = await axios.post(url, { userEmail: email });
+  return response.data; 
+  }
+  catch (error) {
+    throw error.response ? error.response.data : 'Error sending OTP. Please try again.';
+  }
+};
+
+export const verifyResetPasswordOTP = async (email, newPassword, otp) => {
+  const url = `${API_URL}/resetPassword/verify`;
+  const response = await axios.patch(url, {
+    userEmail: email,
+    newPassword: newPassword,
+    otp: otp
+  });
+  return response.data; // Assuming your API returns some data upon successful request
+};

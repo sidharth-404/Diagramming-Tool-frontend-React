@@ -1,7 +1,7 @@
 import React from "react";
 import "./MsgComponent.css";
 
-const MsgBoxComponent = ({ showMsgBox, closeMsgBox, msg }) => {
+const MsgBoxComponent = ({ showMsgBox, closeMsgBox, msg ,handleClick}) => {
   return (
     <div>
     
@@ -34,7 +34,7 @@ const MsgBoxComponent = ({ showMsgBox, closeMsgBox, msg }) => {
               <button type="button" className="btn btn-danger" onClick={closeMsgBox}>
                 Cancel
               </button>
-              <button type="button" className="btn btn-primary" onClick={closeMsgBox}>
+              <button type="button" className="btn btn-primary" onClick={handleClick}>
                 OK
               </button>
             </div>
