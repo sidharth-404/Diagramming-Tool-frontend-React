@@ -12,7 +12,7 @@ const login = async (email, password) => {
    
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.error); // Extracting the error message
+      throw new Error(data.error); 
     }
    
     return response.json();

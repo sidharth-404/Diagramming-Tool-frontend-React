@@ -24,11 +24,11 @@ test('validates password field on form submission with empty password', async ()
   expect(await screen.findByText('Please enter your password.')).toBeInTheDocument();
 });
 
-jest.setTimeout(10000); // Set timeout to 10 seconds (10000 ms)
+jest.setTimeout(10000); 
 
 
 test('handles server error', async () => {
-  // Mock fetch to return an error response
+  
   jest.spyOn(global, 'fetch').mockResolvedValueOnce({
     ok: false,
     json: async () => ({ error: 'Server error' })
@@ -40,17 +40,14 @@ test('handles server error', async () => {
   fireEvent.click(screen.getByText('Sign In'));
   const expectedErrorMessage='Server error';
 
-  //expect(await screen.findByText('An error occurred.')).toBeInTheDocument();
+
   expect(await screen.findByText(expectedErrorMessage)).toBeInTheDocument();
-    //Wait for the error message to appear or a timeout of 5000 ms
-    // await waitFor(() => {
-    //   expect(screen.getByText(/An error occurred/i)).toBeInTheDocument();
-    // }, { timeout: 5000 });
+
 });
 
 
 test('submits form successfully with valid email and password', async () => {
-  // Mock fetch to return a successful response
+
   jest.spyOn(global, 'fetch').mockResolvedValueOnce({
     ok: true,
     json: async () => ({})
@@ -60,7 +57,7 @@ test('submits form successfully with valid email and password', async () => {
   fireEvent.change(screen.getByPlaceholderText('Enter your email here'), { target: { value: 'test@example.com' } });
   fireEvent.change(screen.getByPlaceholderText('Enter your password here'), { target: { value: 'password123' } });
   fireEvent.click(screen.getByText('Sign In'));
-  // Wait for form submission and any side effects to complete
+
   await waitFor(() => {
     expect(screen.queryByText('An error occurred.')).not.toBeInTheDocument();
   });

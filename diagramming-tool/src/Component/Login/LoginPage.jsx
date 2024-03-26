@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
 import authApi from './auth';
 
-function App() {
+function LoginApp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -59,5 +59,5 @@ function App() {
     </div>
   );
 }
-export default App;
+export default LoginApp;
 
