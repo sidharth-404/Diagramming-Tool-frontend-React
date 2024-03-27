@@ -11,6 +11,7 @@
     "axios": "^1.6.8",
     "diagram-js": "^14.2.0",
     "jest-canvas-mock": "^2.5.2",
+    "js-cookie": "^3.0.5",
     "konva": "^9.3.6",
     "mdb-react-ui-kit": "^7.2.0",
     "npm": "^10.5.0",

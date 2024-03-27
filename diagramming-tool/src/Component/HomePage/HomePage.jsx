@@ -8,6 +8,7 @@ import featuresImage from '../../Images/features.png';
 import keImage from '../../Images/ke.png'; 
 import dig from '../../Images/dig.svg';
 import { useNavigate, useNavigation } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const HomePage = () => {
   const [showOptions, setShowOptions] = useState(false);
@@ -15,7 +16,14 @@ const HomePage = () => {
 
   const toggleOptions = () => {
     // setShowOptions(!showOptions);
-    navigation('/login')
+    const token=Cookies.get('token')
+    if(token){
+    navigation('/dashboard')
+  }
+  else{
+    navigation('/login');
+  }
+
   };
 
   return (

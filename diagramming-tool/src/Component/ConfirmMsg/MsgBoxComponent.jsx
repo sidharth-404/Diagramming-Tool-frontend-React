@@ -1,5 +1,5 @@
 import React from "react";
-// import "./MsgComponent.css";
+import "./MsgComponent.css";
 
 const MsgBoxComponent = ({ showMsgBox, closeMsgBox, msg ,handleClick}) => {
   return (

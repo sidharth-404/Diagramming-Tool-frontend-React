@@ -45,7 +45,7 @@ function App() {
       }
       const data = await response.text();
       document.cookie = `token=${data}; path=/`;
-     navigation('/dashbord');
+     navigation('/dashboard');
       console.log('Login successful');
      
     } catch (error) {

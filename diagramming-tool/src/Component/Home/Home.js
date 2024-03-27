@@ -3,7 +3,9 @@ import './Home.css';
 import { iconComponents, iconTooltips } from './IconFunctions';
 import { Rectangle, Circle, Square, Diamond } from './NewShapes';
 import ShapeTypes from './ShapeTypes';
-import profileImage from './R.png'; // Import the profile image
+import profileImage from './R.png'// Import the profile image
+import { useNavigate, useNavigation } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 
 const Home = () => {
@@ -15,7 +17,9 @@ const Home = () => {
   const isDrawing = useRef(false);
   const draggedShape = useRef(null);
   const dragOffset = useRef({ x: 0, y: 0 });
-  const [showProfileMenu, setShowProfileMenu] = useState(false); // State to manage profile menu visibility
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const navigation=useNavigate();
+   // State to manage profile menu visibility
 
    // Function to toggle profile menu visibility
    const toggleProfileMenu = () => {
@@ -33,6 +37,10 @@ const Home = () => {
       case 'password':
         // Your logic for "Change Password" option
         break;
+        case 'Signout':
+          Cookies.remove('token');
+          navigation('/');
+          break;
       default:
         break;
     }
@@ -220,7 +228,7 @@ const Home = () => {
         )}
       </nav>
 
-    <div className="container">
+    <div className="dashboard-container">
       <div className="sidebar">
         <h2>Shapes</h2>
         <div className="sidebar">
