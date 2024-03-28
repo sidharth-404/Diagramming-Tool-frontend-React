@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import Home from "../Component/Home/Home";
+import Home from "../Component/Dashboard/Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 
 beforeEach(() => {
@@ -9,65 +9,65 @@ beforeEach(() => {
 
 describe("Home Page", () => {
   it("Checks Open Button Exist in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const openButton = screen.getByTestId(/openButton/i);
     expect(openButton).toBeInTheDocument();
   });
 
   it("Checks Save Button Exist in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const saveButton = screen.getByTestId(/saveButton/i);
     expect(saveButton).toBeInTheDocument();
   });
 
   it("Checks Undo Button Exist in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const undoButton = screen.getByTestId(/undoButton/i);
     expect(undoButton).toBeInTheDocument();
   });
 
   it("Checks Redo Button Exist in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const redoButton = screen.getByTestId(/redoButton/i);
     expect(redoButton).toBeInTheDocument();
   });
 
   it("Checks Delete Button Exist in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const deleteButton = screen.getByTestId(/deleteButton/i);
     expect(deleteButton).toBeInTheDocument();
   });
 
   it("Checks Page contain shapes heading", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const element = screen.getByText(/Shapes/i);
     expect(element).toBeInTheDocument();
   });
 
   it("Rectangle Button Exist in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const rect = screen.getByTestId(/rectangleButton/i);
     expect(rect).toBeInTheDocument();
   });
   it(" Circle button Exist in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const circ = screen.getByTestId(/circleButton/i);
     expect(circ).toBeInTheDocument();
   });
 
   it("Square Button Exist in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const squr = screen.getByTestId(/squareButton/i);
     expect(squr).toBeInTheDocument();
   });
 
   it("Diamond Button Exist in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const dmnd = screen.getByTestId(/diamondButton/i);
     expect(dmnd).toBeInTheDocument();
   });
   it("Canvas Exist in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const canvas = screen.getByTestId("canvas");
     expect(canvas).toBeInTheDocument();
   });
@@ -75,37 +75,37 @@ describe("Home Page", () => {
 
 describe("Button Working", () => {
   it("Clicks on Save Button", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const saveButton = screen.getByTestId(/saveButton/i);
     fireEvent.click(saveButton);
   });
 
   it("Clicks on Undo Button", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const undoButton = screen.getByTestId(/undoButton/i);
     fireEvent.click(undoButton);
   });
 
   it("Clicks on Redo Button", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const redoButton = screen.getByTestId(/redoButton/i);
     fireEvent.click(redoButton);
   });
 
   it("Clicks on Delete Button", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const deleteButton = screen.getByTestId(/deleteButton/i);
     fireEvent.click(deleteButton);
   });
 
   it("Clicks on Open Button", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const openButton = screen.getByTestId(/openButton/i);
     fireEvent.click(openButton);
   });
 
   it("Drawing Rectangle in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const canvas = screen.getByTestId("canvas");
     expect(canvas).toBeInTheDocument();
     const rect = screen.getByTestId(/rectangleButton/i);
@@ -117,7 +117,7 @@ describe("Button Working", () => {
   });
 
   it("Drawing Circle in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const canvas = screen.getByTestId("canvas");
     expect(canvas).toBeInTheDocument();
     const circleButton = screen.getByTestId(/circleButton/i);
@@ -130,7 +130,7 @@ describe("Button Working", () => {
   });
 
   test("Drawing Square in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const canvas = screen.getByTestId("canvas");
     expect(canvas).toBeInTheDocument();
 
@@ -144,7 +144,7 @@ describe("Button Working", () => {
   });
 
   test("Drawing Diamond in Home Page", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const canvas = screen.getByTestId("canvas");
     expect(canvas).toBeInTheDocument();
 
@@ -166,7 +166,7 @@ describe("Button Working", () => {
 });
 describe("Home component", () => {
   it("Draws shapes on the canvas", () => {
-    render(<Home />);
+    render(<CanvasComponent />);
     const canvas = screen.getByTestId("canvas");
     const context = canvas.getContext("2d");
     expect(context).toBeDefined();

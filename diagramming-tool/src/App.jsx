@@ -1,11 +1,11 @@
 import './App.css';
-import Home from './Component/Home/Home';
+import CanvasComponent from './Component/Dashboard/Canvas';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-       <Home/>
+       <CanvasComponent/>
       </header>
     </div>
   );

@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import "./Home.css";
+import "./Canvas.css";
 import { Rectangle, Circle, Square, Diamond } from "./NewShapes";
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
 import { MdDeleteForever, MdFileOpen } from "react-icons/md";
 import { TfiSave } from "react-icons/tfi";
 import ShapeTypes from "./ShapeTypes";
 
-const Home = () => {
+const CanvasComponent = () => {
   const [selectedShape, setSelectedShape] = useState(null);
   const [selectedButton, setSelectedButton] = useState(null);
   const [hoveredButton, setHoveredButton] = useState("");
@@ -32,7 +32,6 @@ const Home = () => {
         ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
         ctx.fillStyle = "white";
         ctx.fill();
-        // ctx.strokeStyle = 'red';
         ctx.lineWidth = 2;
         ctx.stroke();
       } else if (shape.type === ShapeTypes.SQUARE) {
@@ -108,7 +107,7 @@ const Home = () => {
   };
 
   return (
-    <div className="container">
+    <div className="dashboard-container">
       <div className="sidebar">
         <h2>Shapes</h2>
         <div className="sidebar">
@@ -199,4 +198,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default CanvasComponent;
