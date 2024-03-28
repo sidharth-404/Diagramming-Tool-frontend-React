@@ -1,4 +1,7 @@
 import '@testing-library/jest-dom';
+
+
+
 import 'jest-canvas-mock';
 class IntersectionObserver {
     constructor() {}
