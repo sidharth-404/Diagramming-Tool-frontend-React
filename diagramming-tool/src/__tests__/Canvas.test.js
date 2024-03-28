@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import Home from "../Component/Dashboard/Canvas";
+import Home from "../Component/Home/Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 
 beforeEach(() => {
