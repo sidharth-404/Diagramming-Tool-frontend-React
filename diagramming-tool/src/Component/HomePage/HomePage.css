@@ -1,0 +1,263 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* HomePage Styles */
+.home-page-container {
+    position: relative; /* Ensure the container is positioned relatively */
+    width: 100%;
+    height: 100vh; /* Set height to 100% of viewport height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+   
+}
+
+.diag-image {
+    width: 30%; /* Ensure image covers container width */
+    border-radius: 20px; /* Match container's border-radius */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+    margin-top:90px;
+}
+
+.header {
+    text-align: center;
+    max-width: 80%;
+}
+
+.title {
+    font-size: 3rem; /* Increase font size for emphasis */
+    color: #007bff; /* Change color to a vibrant blue */
+    margin-bottom: 30px; /* Increase margin for spacing */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Add text shadow for depth */
+    letter-spacing: 2px; /* Increase letter spacing for prominence */
+    font-weight: bold; /* Apply bold font weight for emphasis */
+    text-transform: uppercase; /* Convert text to uppercase for added impact */
+    line-height: 1.2; /* Adjust line height for readability */
+    transition: all 0.3s ease; /* Add transition for smooth hover effect */
+}
+
+.title:hover {
+    color: #ff6c00; /* Change color on hover for interactive feel */
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3); /* Adjust text shadow on hover for emphasis */
+}
+
+
+.subtitle {
+    font-size: 1.3rem;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color:white;
+    padding: 15px 20px;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.nav-link {
+    margin: 0 15px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ffd700;
+}
+
+.create-btn,
+.open-btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
+}
+
+.create-btn {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.open-btn {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.create-btn:hover,
+.open-btn:hover {
+    transform: translateY(-2px); /* Add subtle hover effect */
+}
+
+.options-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.option-description {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.option-btn {
+    padding: 12px 25px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.option-btn:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.logo {
+    max-width: 100px;
+    margin-top: 20px;
+    margin-left: 20px;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2)); /* Add shadow for depth */
+}
+
+/* At the bottom of your CSS */
+.bottom-text {
+    position: fixed;
+    bottom: 20px; /* Adjust as needed */
+    width: calc(100% - 80px); /* Adjust according to your logo width and margin */
+    display: flex;
+    justify-content: space-between;
+}
+
+.left-text,
+.right-text {
+    font-size: 1rem;
+    color: #666;
+}
+
+
+.example-image {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    max-width: 600px; /* Adjust as needed */
+    margin-bottom:-625px;
+    
+}
+
+.bottom-left-image {
+    position: absolute;
+    bottom: 20px; /* Adjust as needed */
+    left: 750px; /* Adjust as needed */
+    max-width: 100px; /* Adjust as needed */
+    top:800px;
+}
+.bottom-left-text {
+    position: absolute;
+    bottom: 20px; /* Adjust as needed */
+    left: 900px; /* Adjust as needed 
+    */
+    color: #666; /* Text color */
+    top:800px;
+}
+
+
+.bottom-left-title {
+    font-size: 1.2rem; /* Title font size */
+    margin-bottom: 5px; /* Adjust margin as needed */
+}
+
+.bottom-left-subtitle {
+    font-size: 1rem; /* Subtitle font size */
+    margin-bottom: 10px; /* Adjust margin as needed */
+}
+.bottom-leeft-image {
+    position: absolute;
+    bottom: 20px; /* Adjust as needed */
+    left: 757px; /* Adjust as needed */
+    max-width: 85px; /* Adjust as needed */
+    top:1000px;
+
+}
+.bottom-left-title2 {
+    font-size: 1.2rem; /* Title font size */
+    margin-bottom: 5px; /* Adjust margin as needed */
+    margin-top:130px;
+}
+
+.bottom-left-subtitle2 {
+    font-size: 1rem; /* Subtitle font size */
+    margin-bottom: 10px; /* Adjust margin as needed */
+}
+.bottom-leeeft-image{
+    position: absolute;
+    bottom: 20px; /* Adjust as needed */
+    left: 757px; /* Adjust as needed */
+    max-width: 90px; /* Adjust as needed */
+    top:1200px;
+
+}
+
+.bottom-left-title3 {
+    font-size: 1.2rem; /* Title font size */
+    margin-bottom: 5px; /* Adjust margin as needed */
+    margin-top:130px;
+}
+
+.bottom-left-subtitle3 {
+    font-size: 1rem; /* Subtitle font size */
+    margin-bottom: 10px; /* Adjust margin as needed */
+}
+.footer {
+    position: absolute;
+    bottom: -700px;
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+    background-color: black;
+    color: white; /* Set text color to white */
+}
+
+.footer-links {
+    margin-bottom: 10px;
+}
+
+.footer-links a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: white; /* Set text color to white */
+}
+
+.footer-contact p {
+    margin: 10px 0;
+    color: white; /* Set text color to white */
+}
+
+.copyright {
+    margin-top: 20px;
+    color: white; /* Set text color to white */
+}
