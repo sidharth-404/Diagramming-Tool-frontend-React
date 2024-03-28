@@ -3,6 +3,7 @@ import './ChangePassword.css'; // Import the CSS file
 import { changePasswordApi } from '../../ApiService/ApiService';
 import MsgBoxComponent from '../ConfirmMsg/MsgBoxComponent';
 import {useNavigate} from 'react-router-dom'
+import Cookies from 'js-cookie';
 
 const ChangePassword = () => {
   const [showMsgBox, setShowMsgBox] = useState(false);
@@ -12,7 +13,8 @@ const ChangePassword = () => {
     userEmail: '',
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    jwtToken:Cookies.get('token') 
   });
 
   const handleChange = (e) => {
@@ -26,7 +28,9 @@ const ChangePassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await changePasswordApi(formData); 
+
+      const response = await changePasswordApi(formData);
+      console.log(response);
       if (typeof response === 'object' && response.hasOwnProperty('userEmail')) {
         setMsg('User added successfully! Please login.');
       } else {

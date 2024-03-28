@@ -9,11 +9,7 @@ function App() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigation=useNavigate();
-//----------------------------------------
 
-
-
-//----------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 

@@ -46,11 +46,12 @@ export const changePasswordApi = async (formData) => {
     userEmail: formData.userEmail,
     currentPassword: formData.currentPassword,
     newPassword: formData.newPassword,
-    confirmPassword: formData.confirmPassword
+    confirmPassword: formData.confirmPassword,
+    jwtToken:formData.jwtToken
   });
   return response.data; 
 }
 catch (error) {
-  throw error.response ? error.response.data : 'Error sending OTP. Please try again.';
+  throw error.response ? error.response.data : 'Error changing password.';
 }
 };
