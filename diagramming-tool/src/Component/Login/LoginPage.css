@@ -1,6 +1,6 @@
 
 .center-container {
-  background-image: url('loginbgimg.jpg');
+  background-image: url('../../assets/loginbgimg.jpg');
   display: flex;
   justify-content: center;
   align-items: center;
@@ -26,22 +26,22 @@
   padding: 100px;
 }
 .custom-logo {
-  width: 150px; /* Adjust the width as needed */
-  height: auto; /* Maintain aspect ratio */
+  width: 150px; 
+  height: auto; 
 }
 
 .position-relative {
-  position: relative; /* Ensure the container is positioned relatively */
+  position: relative; 
 }
 
 .position-absolute {
-  position: absolute; /* Position the logo absolutely */
+  position: absolute; 
 }
 .top-0 {
-  top: 0; /* Align the logo to the top */
+  top: 0;
 }
 .start-0 {
-  left: 0; /* Align the logo to the start (left) */
+  left: 0; 
 }
 
 
@@ -51,7 +51,7 @@
   background-color: transparent;
   border: 2px solid #1A1A1A;
   border-radius: 15px;
-  /* box-sizing: border-box; */
+ 
   color: #000000;
   cursor: pointer;
   display: inline-block;
@@ -90,3 +90,4 @@
   box-shadow: none;
   transform: translateY(0);
 }
+
