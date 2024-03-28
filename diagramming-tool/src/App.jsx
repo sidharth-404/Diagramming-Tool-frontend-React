@@ -6,6 +6,7 @@ import Home from './Component/HomePage/HomePage.js';
 
 import LoginPage from './Component/Login/LoginPage';
 import './Component/Login/LoginPage.css';
+import ResetPasswordPage from './Component/Login/ResetPasswordPage';
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route exact path="/" element={<Home/>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Registration />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Routes>
       </div>
     </Router>

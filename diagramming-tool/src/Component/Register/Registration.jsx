@@ -25,7 +25,7 @@ const Registration = () => {
       [name]: value
     });
 
-    // Validate input fields
+    
     if (name === 'firstName') {
       setErrors({
         ...errors,
@@ -66,7 +66,7 @@ const Registration = () => {
     }
 
     try {
-      const response = await registerUser(formData); // Use the API function
+      const response = await registerUser(formData); 
       setMsg(response);
       setshowMsgBox(true);
       if (response === 'User added successfully! Please login.') {
