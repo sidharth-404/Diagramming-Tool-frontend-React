@@ -4,7 +4,7 @@ import { iconComponents, iconTooltips } from './IconFunctions';
 import { Rectangle, Circle, Square, Diamond } from './NewShapes';
 import ShapeTypes from './ShapeTypes';
 import profileImage from './R.png'// Import the profile image
-import { useNavigate, useNavigation } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 
@@ -20,22 +20,33 @@ const Home = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navigation=useNavigate();
    // State to manage profile menu visibility
-
-   // Function to toggle profile menu visibility
+   useEffect(()=>{
+    if(!Cookies.get('token')){
+      navigation('/');
+    }
+  })
    const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
   };
-
+//-----------------------------------------
+  const handlePreventNavigation = (event) => {
+    event.preventDefault();
+  if (Cookies.get('token')){
+    navigation('/dashboard')
+  }
+  };
+  window.addEventListener('popstate', handlePreventNavigation);
+//-----------------------------------------
 
    // Function to handle profile menu option click
    const handleProfileOptionClick = (option) => {
     // Logic for handling profile menu options
     switch (option) {
       case 'profile':
-        // Your logic for "Your Profile" option
+        navigation('/userprofile');
         break;
       case 'password':
-        // Your logic for "Change Password" option
+            navigation('/changepassword');
         break;
         case 'Signout':
           Cookies.remove('token');
@@ -85,72 +96,7 @@ const Home = () => {
     draw();
   }, [draw]);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-
-    const handleMouseDown = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const clickedShape = shapes.find((shape) => {
-        if (
-          shape.type === ShapeTypes.RECTANGLE ||
-          shape.type === ShapeTypes.SQUARE
-        ) {
-          return (
-            x >= shape.x &&
-            x <= shape.x + shape.width &&
-            y >= shape.y &&
-            y <= shape.y + shape.height
-          );
-        } else if (shape.type === ShapeTypes.CIRCLE) {
-          return (
-            Math.sqrt((x - shape.x) ** 2 + (y - shape.y) ** 2) <= shape.radius
-          );
-        } else if (shape.type === ShapeTypes.DIAMOND) {
-          const centerX = shape.x + shape.width / 2;
-          const centerY = shape.y + shape.height / 2;
-          const dx = Math.abs(x - centerX);
-          const dy = Math.abs(y - centerY);
-          return dx / (shape.width / 2) + dy / (shape.height / 2) <= 1;
-        }
-        return false;
-      });
-
-      if (clickedShape) {
-        isDrawing.current = true;
-        draggedShape.current = clickedShape;
-        dragOffset.current = { x: x - clickedShape.x, y: y - clickedShape.y };
-        setSelectedShape(clickedShape.id);
-      }
-    };
-
-    const handleMouseMove = (e) => {
-      if (isDrawing.current) {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left - dragOffset.current.x;
-        const y = e.clientY - rect.top - dragOffset.current.y;
-        draggedShape.current.x = x;
-        draggedShape.current.y = y;
-        draw();
-      }
-    };
-
-    const handleMouseUp = () => {
-      isDrawing.current = false;
-    };
-
-    canvas.addEventListener("mousedown", handleMouseDown);
-    canvas.addEventListener("mousemove", handleMouseMove);
-    canvas.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      canvas.removeEventListener("mousedown", handleMouseDown);
-      canvas.removeEventListener("mousemove", handleMouseMove);
-      canvas.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [shapes, draw]);
+  
 
   const addShape = (type) => {
     const newShape = {

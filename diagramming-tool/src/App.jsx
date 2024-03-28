@@ -6,6 +6,8 @@ import Login from './Component/Login/LoginPage.jsx';
 import HomePage from './Component/HomePage/HomePage.jsx';
 import ResetPasswordPage from './Component/Login/ResetPasswordPage.jsx'
 import Home from './Component/Home/Home.js';
+import ChangePassword from './Component/ChangePassword/ChangePassword.jsx';
+import UserProfile from './Component/UserProfie/UserProfile.jsx';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path="/register" element={<Registration />} />
           <Route path='/reset' element={<ResetPasswordPage/>}/>
           <Route path='/dashboard' element={<Home/>}/>
+          <Route path='/changepassword' element={<ChangePassword/>}/>
+          <Route path='/userprofile' element={<UserProfile/>}/>
         </Routes>
       </div>
     </Router>

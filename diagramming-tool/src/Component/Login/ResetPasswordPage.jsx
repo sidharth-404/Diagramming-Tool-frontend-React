@@ -75,7 +75,7 @@ const ResetPasswordPage = () => {
       clearFormFields();
     } catch (error) {
       console.error('Error verifying OTP and resetting password:', error);
-      setResponseMessage('Error resetting password. Please try again.');
+      setResponseMessage(error);
       setShowResponseBox(true);
     }
   };

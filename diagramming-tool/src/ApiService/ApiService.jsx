@@ -25,11 +25,32 @@ export const sendResetPasswordEmail = async (email) => {
 };
 
 export const verifyResetPasswordOTP = async (email, newPassword, otp) => {
+  try{
   const url = `${API_URL}/resetPassword/verify`;
   const response = await axios.patch(url, {
     userEmail: email,
     newPassword: newPassword,
     otp: otp
   });
-  return response.data; // Assuming your API returns some data upon successful request
+  return response.data; 
+}
+catch (error) {
+  throw error.response ? error.response.data : 'Error sending OTP. Please try again.';
+}
+};
+
+export const changePasswordApi = async (formData) => {
+  try{
+  const url = `${API_URL}/changePassword`;
+  const response = await axios.patch(url, {
+    userEmail: formData.userEmail,
+    currentPassword: formData.currentPassword,
+    newPassword: formData.newPassword,
+    confirmPassword: formData.confirmPassword
+  });
+  return response.data; 
+}
+catch (error) {
+  throw error.response ? error.response.data : 'Error sending OTP. Please try again.';
+}
 };

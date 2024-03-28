@@ -16,7 +16,7 @@ const HomePage = () => {
 
   const toggleOptions = () => {
     // setShowOptions(!showOptions);
-    const token=Cookies.get('token')
+    const token=Cookies.get('token');
     if(token){
     navigation('/dashboard')
   }
