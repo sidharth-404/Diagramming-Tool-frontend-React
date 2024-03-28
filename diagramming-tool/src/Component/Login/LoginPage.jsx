@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
-import authApi from './auth';
+import authApi from '../../ApiService/auth';
 
 function LoginApp() {
   const [email, setEmail] = useState('');
