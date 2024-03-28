@@ -5,7 +5,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './Component/HomePage/HomePage.js';
 import LoginPage from './Component/Login/LoginPage';
 import './Component/Login/LoginPage.css';
+
+import ResetPasswordPage from './Component/Login/ResetPasswordPage';
+
 import CanvasComponent from './Component/Dashboard/Canvas';
+
 
 function App() {
   return (
@@ -18,7 +22,11 @@ function App() {
           <Route exact path="/" element={<Home/>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Registration />} />
+
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+
           <Route path="/dashboard" element={<CanvasComponent/>}/>
+
         </Routes>
       </div>
     </Router>

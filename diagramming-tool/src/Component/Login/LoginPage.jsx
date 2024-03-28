@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
 import authApi from '../../ApiService/auth';
+import {Link} from 'react-router-dom'
 
 function LoginApp() {
   const [email, setEmail] = useState('');
@@ -52,7 +53,9 @@ function LoginApp() {
           </form>
 
           <div className='text-center'>
-            <p>Not a member? <a href='#!'>Register</a></p>
+          
+            <p>Not a member? <Link to='/register'>Register</Link></p>
+            <p>Reset Password?<Link to='/reset-password' className='link'> Reset here.</Link></p>
           </div>
         </MDBContainer>
       </div>
