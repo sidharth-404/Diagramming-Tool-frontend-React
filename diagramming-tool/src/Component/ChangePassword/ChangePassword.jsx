@@ -1,7 +1,7 @@
-// ChangePassword.js
+
 
 import React from 'react';
-import './ChangePassword.css'; // Import the CSS file
+import './ChangePassword.css';
 
 const ChangePassword = () => {
   return (
