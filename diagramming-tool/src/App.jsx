@@ -15,27 +15,25 @@ import { Canvas } from '@syncfusion/ej2-react-diagrams';
 function App() {
   return (
 
-    // <Router>
-    //   <div className="App">
-    //     <header className="App-header"> 
-    //     </header>
-    //     <Routes>
-    //       <Route exact path="/" element={<Home/>} />
-    //       <Route path="/login" element={<LoginPage />} />
-    //       <Route path="/register" element={<Registration />} />
+    <Router>
+      <div className="App">
+        <header className="App-header"> 
+        </header>
+        <Routes>
+          <Route exact path="/" element={<Home/>} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<Registration />} />
 
-    //       <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-    //       <Route path="/dashboard" element={<CanvasComponent/>}/>
+          <Route path="/dashboard" element={<CanvasComponent/>}/>
 
-    //     </Routes>
-    //   </div>
-    // </Router>
+        </Routes>
+      </div>
+    </Router>
     
 
-    <div>
-<CanvasComponent/>
-    </div>
+
   );
 }
 
