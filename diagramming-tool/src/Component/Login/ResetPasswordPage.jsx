@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { sendResetPasswordEmail, verifyResetPasswordOTP } from '../../ApiService/ApiService'; 
 import MsgBoxComponent from '../ConfirmMsg/MsgBoxComponent'; 
 import './ResetPasswordPage.css';
+import { toast } from 'react-toastify'; // Import toast from react-toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS for react-toastify
 
 const ResetPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -16,9 +18,26 @@ const ResetPasswordPage = () => {
   const [responseMessage, setResponseMessage] = useState('');
   const [showResponseBox, setShowResponseBox] = useState(false);
   const [showOtpForm, setShowOtpForm] = useState(false); 
+  const [showEmailForm, setShowEmailForm] = useState(true); 
+  const [timeLeft, setTimeLeft] = useState(120); // 2 minutes in seconds
   const history = useNavigate();
 
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
+
+  useEffect(() => {
+    if (otpSent && timeLeft > 0) {
+      const timer = setInterval(() => {
+        setTimeLeft((prevTime) => prevTime - 1);
+      }, 1000);
+
+      return () => clearInterval(timer);
+    } else if (timeLeft === 0) {
+      setShowOtpForm(false);
+      setShowEmailForm(true);
+      setShowResponseBox(true);
+      setResponseMessage('OTP expired. Please request a new OTP.');
+    }
+  }, [otpSent, timeLeft]);
 
   const handleNewPasswordChange = (e) => {
     const newPasswordValue = e.target.value;
@@ -52,11 +71,12 @@ const ResetPasswordPage = () => {
     e.preventDefault();
     try {
       await sendResetPasswordEmail(email);
-    
-        setOtpSent(true);
-        setResponseMessage('OTP sent to your email.');
-        setShowResponseBox(true);
-      
+      setOtpSent(true);
+      setTimeLeft(120); // Reset timer
+      setShowEmailForm(false);
+      setShowOtpForm(true);
+      setResponseMessage('OTP sent to your email.');
+      setShowResponseBox(true);
     } catch (error) {
       console.error(error);
       alert(error);
@@ -94,7 +114,7 @@ const ResetPasswordPage = () => {
     } else if (responseMessage === 'OTP sent to your email.') {
       setShowOtpForm(true);
     } else if (responseMessage === 'User not found') {
-     
+      
     }
     setResponseMessage('');
   };
@@ -107,7 +127,7 @@ const ResetPasswordPage = () => {
   return (
     <div className="reset-password-container">
       <h2>Reset Password</h2>
-      {!otpSent ? (
+      {showEmailForm && (
         <form onSubmit={handleEmailSubmit}>
           <div>
             <label>Email:</label>
@@ -115,7 +135,8 @@ const ResetPasswordPage = () => {
           </div>
           <button type="submit">Send OTP</button>
         </form>
-      ) : (
+      )}
+      {otpSent && (
         <div>
           <MsgBoxComponent showMsgBox={showResponseBox} closeMsgBox={handleCloseMsgBox} msg={responseMessage} handleClick={handleOkClick} />
           {showOtpForm && (
@@ -145,6 +166,7 @@ const ResetPasswordPage = () => {
                 {confirmPasswordError && <div className="error">{confirmPasswordError}</div>}
               </div>
               <button type="submit">Reset Password</button>
+              <p>Time Left to Enter OTP and Password: {Math.floor(timeLeft / 60)}:{timeLeft % 60}</p>
             </form>
           )}
         </div>

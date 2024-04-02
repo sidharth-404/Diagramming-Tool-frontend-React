@@ -2,8 +2,9 @@ import './App.css';
 import Registration from './Component/Register/Registration.jsx';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Component/Login/LoginPage.jsx';
-import Home from './Component/HomePage/HomePage.js';
+import Home from './Component/HomePage/HomePage.jsx';
 import ResetPasswordPage from './Component/Login/ResetPasswordPage.jsx'
+
 
 function App() {
   return (
