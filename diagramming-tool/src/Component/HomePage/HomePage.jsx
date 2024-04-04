@@ -7,12 +7,21 @@ import peopleImage from '../../assets/people.png';
 import featuresImage from '../../assets/features.png';
 import keImage from '../../assets/ke.png'; 
 import dig from '../../assets/dig.svg';
+import Cookies from 'js-cookie';
+import { useNavigate} from 'react-router-dom';
 
 const HomePage = () => {
   const [showOptions, setShowOptions] = useState(false);
+  const navigation=useNavigate();
 
   const toggleOptions = () => {
-    setShowOptions(!showOptions);
+    const token=Cookies.get('token');
+    if(token){
+    navigation('/dashboard')
+  }
+  else{
+    navigation('/login');
+  }
   };
 
   return (
