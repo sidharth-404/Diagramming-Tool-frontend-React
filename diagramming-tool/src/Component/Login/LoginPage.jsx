@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
-import authApi from '../../ApiService/auth';
+import {login} from '../../ApiService/auth';
 import {Link,useNavigate} from 'react-router-dom'
 
 function LoginApp() {
@@ -26,27 +26,11 @@ function LoginApp() {
 
     setError('');
     try {
-      const response = await fetch('http://localhost:8080/api/diagrammingtool/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          "userEmail": email,
-          "password": password,
-        }),
-      });
+    
  
-      if (!response.ok) {
-        const data = await response.text();
-        console.log(data);
-        throw new Error(data );
-       
-      }
-      const data = await response.text();
+      const data=await login(email,password);
       document.cookie = `token=${data}; path=/`;
       navigation('/dashboard');
-      console.log('Login successful');
       
     } catch (error) {
       setError(error.message || 'An error occurred.');
