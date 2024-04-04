@@ -1,6 +1,9 @@
+
+
 import { render, screen, fireEvent } from "@testing-library/react";
-import Home from "../Component/Home/Canvas";
+import CanvasComponent from "../Component/Dashboard/Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
+
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -164,6 +167,37 @@ describe("Button Working", () => {
     expect(ctx.stroke).toHaveBeenCalled();
   });
 });
+it("Drawing Line in Home Page", () => {
+  render(<CanvasComponent />);
+  const canvas = screen.getByTestId("canvas");
+  expect(canvas).toBeInTheDocument();
+  const lineButton = screen.getByTestId('lineButton');
+  fireEvent.click(lineButton);
+  const ctx = canvas.getContext("2d");
+  expect(ctx).toBeDefined();
+  
+});
+
+it("Drawing Connector in Home Page", () => {
+  render(<CanvasComponent />);
+  const canvas = screen.getByTestId("canvas");
+  expect(canvas).toBeInTheDocument();
+  const connectorButton = screen.getByTestId(/connectorLineButton/i);
+  fireEvent.click(connectorButton);
+  const ctx = canvas.getContext("2d");
+  
+});
+
+it("Drawing Bidirectional Connector in Home Page", () => {
+  render(<CanvasComponent />);
+  const canvas = screen.getByTestId("canvas");
+  expect(canvas).toBeInTheDocument();
+  const bidirectionalConnectorButton = screen.getByTestId(/bidirectionalConnectorButton/i);
+  fireEvent.click(bidirectionalConnectorButton);
+  const ctx = canvas.getContext("2d");
+  
+});
+
 describe("Home component", () => {
   it("Draws shapes on the canvas", () => {
     render(<CanvasComponent />);
@@ -172,4 +206,55 @@ describe("Home component", () => {
     expect(context).toBeDefined();
     expect(context.clearRect).toHaveBeenCalled();
   });
+
+  describe('CanvasComponent', () => {
+  
+  
+    it('should rotate a line around its midpoint', () => {
+      const { getByTestId } = render(<CanvasComponent />);
+      
+      const lineButton = screen.getByTestId('lineButton');
+      fireEvent.click(lineButton);
+  
+      // Rotate the selected shape
+      const rotateIcon = screen.getByTestId('rotate-icon');
+      fireEvent.click(rotateIcon);
+  
+      // Assert the rotation
+      // You need to implement this assertion based on your rotation logic
+    });
+  
+    it('should rotate a connector line around its midpoint', () => {
+      const { getByTestId } = render(<CanvasComponent />);
+      // Select a connector line shape
+      const connectorLineButton = screen.getByTestId('connectorLineButton');
+      fireEvent.click(connectorLineButton);
+  
+      // Rotate the selected shape
+      const rotateIcon = screen.getByTestId('rotate-icon');
+      fireEvent.click(rotateIcon);
+  
+      // Assert the rotation
+      // You need to implement this assertion based on your rotation logic
+    });
+  
+    it('should rotate a bidirectional connector line around its midpoint', () => {
+      const { getByTestId } = render(<CanvasComponent />);
+      // Select a bidirectional connector line shape
+      const bidirectionalConnectorButton = screen.getByTestId('bidirectionalConnectorButton');
+      fireEvent.click(bidirectionalConnectorButton);
+  
+      // Rotate the selected shape
+      const rotateIcon = screen.getByTestId('rotate-icon');
+      fireEvent.click(rotateIcon);
+  
+      // Assert the rotation
+      // You need to implement this assertion based on your rotation logic
+    });
+  });
+
+
 });
+
+
+

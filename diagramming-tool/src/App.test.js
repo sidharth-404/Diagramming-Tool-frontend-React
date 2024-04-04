@@ -1,6 +1,7 @@
 
 
 import React from 'react';
+import App from './App';
 
 import { render, screen } from '@testing-library/react';
 import HomePage from './Component/HomePage/HomePage';
@@ -10,8 +11,8 @@ test('renders HomePage component without crashing', () => {
   
   expect(screen.getByTestId('home-page-container')).toBeInTheDocument();
 
-import { render } from '@testing-library/react';
-import App from './App';
+
+
 
 test('renders App component', () => {
   render(<App />);
