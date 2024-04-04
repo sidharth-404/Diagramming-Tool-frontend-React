@@ -3,10 +3,11 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import HomePage from './HomePage';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 describe('HomePage', () => {
   it('renders the component correctly', () => {
-    render(<HomePage />);
+    render(<Router><HomePage /></Router>);
    
     expect(screen.getByText('Welcome to Our Diagramming Tool')).toBeInTheDocument();
    
@@ -14,7 +15,7 @@ describe('HomePage', () => {
   });
 
   it('toggles options when "Get Started" button is clicked', () => {
-    render(<HomePage />);
+    render(<Router><HomePage /></Router>);
     
     fireEvent.click(screen.getByText('Get Started'));
    
@@ -26,19 +27,19 @@ describe('HomePage', () => {
   });
 
   it('renders the diagram image', () => {
-    render(<HomePage />);
+    render(<Router><HomePage /></Router>);
     
     expect(screen.getByAltText('Diagram')).toBeInTheDocument();
   });
 
   it('renders the example image', () => {
-    render(<HomePage />);
+    render(<Router><HomePage /></Router>);
     
     expect(screen.getByAltText('Example')).toBeInTheDocument();
   });
 
   it('renders footer links', () => {
-    render(<HomePage />);
+    render(<Router><HomePage /></Router>);
   
     expect(screen.getByText('About Us')).toBeInTheDocument();
     expect(screen.getByText('Contact Us')).toBeInTheDocument();
@@ -47,13 +48,13 @@ describe('HomePage', () => {
   });
 
   it('renders footer contact information', () => {
-    render(<HomePage />);
+    render(<Router><HomePage /></Router>);
    
     expect(screen.getByText('Contact: diagrammingtool@example.com')).toBeInTheDocument();
   });
 
   it('renders copyright information', () => {
-    render(<HomePage />);
+    render(<Router><HomePage /></Router>);
    
     expect(screen.getByText('© 2024 Your Company Name. All rights reserved.')).toBeInTheDocument();
   });
