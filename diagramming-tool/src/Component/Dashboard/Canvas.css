@@ -27,15 +27,16 @@ h2 {
   border: none;
   background-color: transparent;
   font-size: 1rem;
+  background-color: rgb(225, 233, 233);
   transition: background-color 0.3s ease;
 }
 
 button.selected {
-  background-color: #f0f0f0;
+  background-color: #151010;
 }
 
 button:hover {
-  background-color: #f3e9e9;
+  background-color: #b61212;
 }
 
 .tooltip {
