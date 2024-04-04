@@ -25,7 +25,7 @@ const Registration = () => {
       [name]: value
     });
 
-    // Validate input fields
+    
     if (name === 'firstName') {
       setErrors({
         ...errors,
@@ -67,13 +67,7 @@ const Registration = () => {
 
     try {
       const response = await registerUser(formData); 
-      if (typeof response === 'object' && response.hasOwnProperty('userEmail')) {
-        setMsg('User added successfully! Please login.');
-       
-      } else {
-        setMsg(response); 
-      }
-   
+      setMsg(response);
       setshowMsgBox(true);
       
       if (msg === 'User added successfully! Please login.') {

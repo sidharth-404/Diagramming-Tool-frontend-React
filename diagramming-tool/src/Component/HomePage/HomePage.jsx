@@ -1,28 +1,27 @@
 import React, { useState } from 'react';
 import './HomePage.css'; 
-import diagImage from '../../Images/diag.png';
+import diagImage from '../../Assets/diag.png';
 
-import exampleImage from '../../Images/example.jpg';
-import peopleImage from '../../Images/people.png';
-import featuresImage from '../../Images/features.png';
-import keImage from '../../Images/ke.png'; 
-import dig from '../../Images/dig.svg';
-import { useNavigate } from 'react-router-dom';
+import exampleImage from '../../Assets/example.jpg';
+import peopleImage from '../../Assets/people.png';
+import featuresImage from '../../Assets/features.png';
+import keImage from '../../Assets/ke.png'; 
+import dig from '../../Assets/dig.svg';
 
 const HomePage = () => {
   const [showOptions, setShowOptions] = useState(false);
-const nav=useNavigate();
+
   const toggleOptions = () => {
-    nav('/login')
+    setShowOptions(!showOptions);
   };
 
   return (
-    <div className="home-page-container" data-testid="home-page-container"> {/* Add data-testid here */}
+    <div className="home-page-container" data-testid="home-page-container"> 
       <img src={diagImage} alt="Diagram" className="diag-image" />
       <header className="header">
         <h1 className="title">Welcome to Our Diagramming Tool</h1>
         <p className="subtitle">Visualize your ideas and concepts with ease</p>
-        {/* Move this inside */}
+       
         <nav className="nav"></nav>
       </header>
       <section>
@@ -35,7 +34,7 @@ const nav=useNavigate();
           </div>
         )}
       </section>
-      <img src={exampleImage} alt="Example" className="example-image" /> {/* Example image */}
+      <img src={exampleImage} alt="Example" className="example-image" /> 
       <img src={peopleImage} alt="People" className="bottom-left-image" />
       <img src={featuresImage} alt="Features" className="bottom-leeft-image" />
       <img src={keImage} alt="KE" className="bottom-leeeft-image" />

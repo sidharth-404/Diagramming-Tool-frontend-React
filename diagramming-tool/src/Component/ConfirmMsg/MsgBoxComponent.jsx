@@ -4,7 +4,6 @@ import "./MsgComponent.css";
 const MsgBoxComponent = ({ showMsgBox, closeMsgBox, msg ,handleClick}) => {
   return (
     <div>
-    
       {showMsgBox && (
         <div className="modal-backdrop fade show"></div>
       )}
@@ -46,4 +45,3 @@ const MsgBoxComponent = ({ showMsgBox, closeMsgBox, msg ,handleClick}) => {
 };
 
 export default MsgBoxComponent;
-
