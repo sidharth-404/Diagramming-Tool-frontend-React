@@ -2,12 +2,14 @@
 import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
 import authApi from '../../ApiService/auth';
-import {Link} from 'react-router-dom'
+import {Link,useNavigate} from 'react-router-dom'
 
 function LoginApp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigation=useNavigate();
+ 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,9 +26,26 @@ function LoginApp() {
 
     setError('');
     try {
-      // eslint-disable-next-line no-unused-vars
-      const response = await authApi.login(email, password); 
+      const response = await fetch('http://localhost:8080/api/diagrammingtool/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "userEmail": email,
+          "password": password,
+        }),
+      });
  
+      if (!response.ok) {
+        const data = await response.text();
+        console.log(data);
+        throw new Error(data );
+       
+      }
+      const data = await response.text();
+      document.cookie = `token=${data}; path=/`;
+      navigation('/dashboard');
       console.log('Login successful');
       
     } catch (error) {

@@ -11,7 +11,12 @@ import { ChromePicker } from "react-color";
 
 
 const CanvasComponent = () => {
+<<<<<<< HEAD
   const [selectedShapes, setSelectedShapes] = useState([]);
+=======
+  const [selectedShapeId, setSelectedShapeId] = useState(null);
+  const [selectedShape, setSelectedShape] = useState(null);
+>>>>>>> b8ffe4d (delete shape function added)
   const [selectedButton, setSelectedButton] = useState(null);
   const [hoveredButton, setHoveredButton] = useState("");
   const canvasRef = useRef(null);
@@ -240,26 +245,18 @@ const CanvasComponent = () => {
       targetX: 100, // Initial target X position
       targetY: 100, // Initial target Y position
     };
-    const newShapes = [...shapes, newShape];
-    setShapes(newShapes);
-    setHistory([...history, newShapes]);
-    setHistoryIndex(history.length);
+    setShapes([...shapes, newShape]);
+    setSelectedShape(newShape.id);
   };
 
-  const undo = () => {
-    if (historyIndex > 0) {
-      setHistoryIndex(historyIndex - 1);
-      setShapes(history[historyIndex - 1]);
+  const handleUndo = () => {};
+  const handleRedo = () => {};
+  const handleDelete = () => {
+    if (selectedShapeId) {
+      setShapes(shapes.filter((shape) => shape.id !== selectedShapeId));
+      setSelectedShapeId(null); 
     }
   };
-
-  const redo = () => {
-    if (historyIndex < history.length - 1) {
-      setHistoryIndex(historyIndex + 1);
-      setShapes(history[historyIndex + 1]);
-    }
-  };
-
   const handleSave = () => {};
 
   const handleOpen = () => {};
@@ -478,11 +475,8 @@ const CanvasComponent = () => {
     <div className="dashboard-container">
       <div className="sidebar">
         <h2>Shapes</h2>
-        <div className="sidebar">
-          <button
-            data-testid="rectangleButton"
-            onClick={() => addShape(ShapeTypes.RECTANGLE)}
-          >
+        <div className="shapebutton-container">
+          <button data-testid="rectangleButton" onClick={() => addShape(ShapeTypes.RECTANGLE)}>
             <Rectangle width={100} height={60} />
           </button>
           <button
@@ -507,55 +501,43 @@ const CanvasComponent = () => {
       </div>
       <div className="main">
         <div className="button-container">
-          <button
-            data-testid="openButton"
+          <button data-testid="openButton"
             onClick={() => handleButtonClick("open")}
             className={selectedButton === "open" ? "selected" : ""}
           >
             <MdFileOpen />
             {hoveredButton === "open" && <span className="tooltip">Open</span>}
           </button>
-          <button
-            data-testid="saveButton"
+          <button data-testid="saveButton"
             onClick={() => handleButtonClick("save")}
             className={selectedButton === "save" ? "selected" : ""}
           >
             <TfiSave />
             {hoveredButton === "save" && <span className="tooltip">Save</span>}
           </button>
-          <button
-            data-testid="undoButton"
+          <button data-testid="undoButton1"
             onClick={() => handleButtonClick("undo")}
             className={selectedButton === "undo" ? "selected" : ""}
           >
             <IoArrowUndo />
             {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
           </button>
-          <button
-            data-testid="redoButton"
+          <button data-testid="redoButton"
             onClick={() => handleButtonClick("redo")}
             className={selectedButton === "redo" ? "selected" : ""}
           >
             <IoArrowRedo />
             {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
           </button>
-          {/* Removed delete button */}
-          <div className="button-container">
-            <button
-              data-testid="colorButton"
-              onClick={() => handleButtonClick("color")}
-              className={selectedButton === "color" ? "selected" : ""}
-            >
-              <MdColorLens />
-              {hoveredButton === "color" && <span className="tooltip">Color</span>}
-            </button>
-            {selectedButton === "color" && (
-              <ChromePicker
-                color={selectedColor}
-                onChange={handleChangeColor}
-              />
+          <button data-testid="deleteButton"
+            onClick={() => handleButtonClick("delete")}
+            className={selectedButton === "delete" ? "selected" : ""}
+          >
+            <MdDeleteForever />
+            {hoveredButton === "delete" && (
+              <span className="tooltip">Delete</span>
             )}
-          </div>
+          </button>
         </div>
         <div>
           <h1>Draw Here!!</h1>
