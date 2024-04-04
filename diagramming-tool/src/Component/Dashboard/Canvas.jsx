@@ -1,17 +1,17 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import "./Canvas.css";
 import { Rectangle, Circle, Square, Diamond } from "./NewShapes";
-import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
-import { MdDeleteForever, MdFileOpen } from "react-icons/md";
-import { TfiSave } from "react-icons/tfi";
 import ShapeTypes from "./ShapeTypes";
 
 const CanvasComponent = () => {
-  const [selectedShapeId, setSelectedShapeId] = useState(null);
-  const [selectedButton, setSelectedButton] = useState(null);
-  const [hoveredButton, setHoveredButton] = useState("");
+  const [selectedShape, setSelectedShape] = useState(null);
   const canvasRef = useRef(null);
   const [shapes, setShapes] = useState([]);
+  const isDrawing = useRef(false);
+  const draggedShape = useRef(null);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const [editingShapeId, setEditingShapeId] = useState(null);
+  const [textInputs, setTextInputs] = useState({});
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -58,124 +58,131 @@ const CanvasComponent = () => {
         default:
           break;
       }
-    });
+      if (textInputs[shape.id]) {
+        let centerX, centerY;
+        switch (shape.type) {
+          case ShapeTypes.RECTANGLE:
+            centerX = shape.x + (shape.width * 2) / 2;
+            centerY = shape.y + shape.height / 2;
+            break;
+          case ShapeTypes.SQUARE:
+            centerX = shape.x + shape.width / 2;
+            centerY = shape.y + shape.height / 2;
+            break;
+          case ShapeTypes.CIRCLE:
+            centerX = shape.x;
+            centerY = shape.y;
+            break;
+          case ShapeTypes.DIAMOND:
+            centerX = shape.x + shape.width / 2;
+            centerY = shape.y + shape.height / 2;
+            break;
+          default:
+            break;
+        }
 
-    if (selectedShapeId) {
-      const selectedShape = shapes.find((shape) => shape.id === selectedShapeId);
-      if (selectedShape) {
-        drawSelectionPoints(ctx, selectedShape);
+        let fontSize = 14;
+        ctx.font = `${fontSize}px Arial`;
+        let text = textInputs[shape.id];
+
+
+        let textWidth = ctx.measureText(text).width;
+
+        while (textWidth > shape.width) {
+          fontSize -= 1;
+          ctx.font = `${fontSize}px Arial`;
+          textWidth = ctx.measureText(text).width;
+        }
+
+        ctx.fillStyle = "black";
+        ctx.font = `${fontSize}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, centerX, centerY);
       }
-    }
-  }, [shapes, selectedShapeId]);
+    });
+  }, [shapes, textInputs]);
+
 
   useEffect(() => {
     draw();
   }, [draw]);
 
-  const drawSelectionPoints = (ctx, shape) => {
-    const pointSize = 5;
-    const halfPointSize = pointSize / 2;
-    ctx.fillStyle = "blue";
 
-    switch (shape.type) {
-      case ShapeTypes.RECTANGLE:
-        ctx.fillRect(shape.x - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width * 2 - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.height - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width * 2 - halfPointSize, shape.y + shape.height - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width - halfPointSize, shape.y - halfPointSize, pointSize, pointSize); 
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.height / 2 - halfPointSize, pointSize, pointSize); 
-        ctx.fillRect(shape.x + shape.width * 2 - halfPointSize, shape.y + shape.height / 2 - halfPointSize, pointSize, pointSize); 
-        ctx.fillRect(shape.x + shape.width - halfPointSize, shape.y + shape.height - halfPointSize, pointSize, pointSize);
-        break;
-      case ShapeTypes.CIRCLE:
-        ctx.fillRect(shape.x - halfPointSize, shape.y - shape.radius - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.radius - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - shape.radius - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.radius - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - shape.radius / Math.sqrt(2) - halfPointSize, shape.y - shape.radius / Math.sqrt(2) - halfPointSize, pointSize, pointSize); 
-        ctx.fillRect(shape.x + shape.radius / Math.sqrt(2) - halfPointSize, shape.y - shape.radius / Math.sqrt(2) - halfPointSize, pointSize, pointSize); 
-        ctx.fillRect(shape.x - shape.radius / Math.sqrt(2) - halfPointSize, shape.y + shape.radius / Math.sqrt(2) - halfPointSize, pointSize, pointSize); 
-        ctx.fillRect(shape.x + shape.radius / Math.sqrt(2) - halfPointSize, shape.y + shape.radius / Math.sqrt(2) - halfPointSize, pointSize, pointSize);
-        break;
-      case ShapeTypes.SQUARE:
-        ctx.fillRect(shape.x - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.size - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.size - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.size - halfPointSize, shape.y + shape.size - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.size / 2 - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.size / 2 - halfPointSize, shape.y + shape.size - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.size / 2 - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.size - halfPointSize, shape.y + shape.size / 2 - halfPointSize, pointSize, pointSize);
-        break;
-      case ShapeTypes.DIAMOND:
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.height / 2 - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width - halfPointSize, shape.y + shape.height / 2 - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width / 2 - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width / 2 - halfPointSize, shape.y + shape.height - halfPointSize, pointSize, pointSize);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleCanvasClick = (event) => {
+  useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
 
-    const offsetX = event.nativeEvent.offsetX;
-    const offsetY = event.nativeEvent.offsetY;
+    const getClickedShape = (x, y) => {
+      return shapes.find((shape) => {
+        if (shape.type === ShapeTypes.RECTANGLE) {
+          return (
+            x >= shape.x &&
+            x <= shape.x + shape.width * 2 &&
+            y >= shape.y &&
+            y <= shape.y + shape.height
+          );
+        } else if (shape.type === ShapeTypes.SQUARE) {
+          return (
+            x >= shape.x &&
+            x <= shape.x + shape.width &&
+            y >= shape.y &&
+            y <= shape.y + shape.height
+          );
+        } else if (shape.type === ShapeTypes.CIRCLE) {
+          return (
+            Math.sqrt((x - shape.x) ** 2 + (y - shape.y) ** 2) <= shape.radius
+          );
+        } else if (shape.type === ShapeTypes.DIAMOND) {
+          const centerX = shape.x + shape.width / 2;
+          const centerY = shape.y + shape.height / 2;
+          const dx = Math.abs(x - centerX);
+          const dy = Math.abs(y - centerY);
+          return dx / (shape.width / 2) + dy / (shape.height / 2) <= 1;
+        }
+        return false;
+      });
+    };
 
-    let clickedShapeId = null;
+    const handleMouseDown = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
-    shapes.forEach((shape) => {
-      switch (shape.type) {
-        case ShapeTypes.RECTANGLE:
-          if (
-            offsetX >= shape.x &&
-            offsetX <= shape.x + shape.width * 2 &&
-            offsetY >= shape.y &&
-            offsetY <= shape.y + shape.height
-          ) {
-            clickedShapeId = shape.id;
-          }
-          break;
-        case ShapeTypes.CIRCLE:
-          const distance = Math.sqrt(Math.pow(offsetX - shape.x, 2) + Math.pow(offsetY - shape.y, 2));
-          if (distance <= shape.radius) {
-            clickedShapeId = shape.id;
-          }
-          break;
-        case ShapeTypes.SQUARE:
-          if (
-            offsetX >= shape.x &&
-            offsetX <= shape.x + shape.size &&
-            offsetY >= shape.y &&
-            offsetY <= shape.y + shape.size
-          ) {
-            clickedShapeId = shape.id;
-          }
-          break;
-        case ShapeTypes.DIAMOND:
-          if (isPointInsideDiamond(offsetX, offsetY, shape)) {
-            clickedShapeId = shape.id;
-          }
-          break;
-        default:
-          break;
+      const clickedShape = getClickedShape(x, y);
+
+      if (clickedShape) {
+        isDrawing.current = true;
+        draggedShape.current = clickedShape;
+        dragOffset.current = { x: x - clickedShape.x, y: y - clickedShape.y };
+        setSelectedShape(clickedShape.id);
       }
-    });
+    };
 
-    setSelectedShapeId((prevId) =>
-      prevId === clickedShapeId ? null : clickedShapeId
-    );
-  };
+    const handleMouseMove = (e) => {
+      if (isDrawing.current) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left - dragOffset.current.x;
+        const y = e.clientY - rect.top - dragOffset.current.y;
+        draggedShape.current.x = x;
+        draggedShape.current.y = y;
+        draw();
+      }
+    };
 
-  const isPointInsideDiamond = (pointX, pointY, diamond) => {
-    const deltaX = pointX - (diamond.x + diamond.width / 2);
-    const deltaY = pointY - (diamond.y + diamond.height / 2);
-    return Math.abs(deltaX / (diamond.width / 2)) + Math.abs(deltaY / (diamond.height / 2)) <= 1;
-  };
+    const handleMouseUp = () => {
+      isDrawing.current = false;
+    };
+
+    canvas.addEventListener("mousedown", handleMouseDown);
+    canvas.addEventListener("mousemove", handleMouseMove);
+    canvas.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      canvas.removeEventListener("mousedown", handleMouseDown);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      canvas.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [shapes, draw]);
 
   const addShape = (type) => {
     const newShape = {
@@ -191,33 +198,62 @@ const CanvasComponent = () => {
     setShapes([...shapes, newShape]);
   };
 
-  const handleUndo = () => {};
-  const handleRedo = () => {};
-  const handleDelete = () => {};
-  const handleSave = () => {};
-  const handleOpen = () => {};
+  const getClickedShapeDouble = (x, y) => {
+    return shapes.find((shape) => {
+      if (shape.type === ShapeTypes.RECTANGLE) {
+        return (
+          x >= shape.x &&
+          x <= shape.x + shape.width * 2 &&
+          y >= shape.y &&
+          y <= shape.y + shape.height
+        );
+      } else if (shape.type === ShapeTypes.SQUARE) {
+        return (
+          x >= shape.x &&
+          x <= shape.x + shape.width &&
+          y >= shape.y &&
+          y <= shape.y + shape.height
+        );
+      } else if (shape.type === ShapeTypes.CIRCLE) {
+        return (
+          Math.sqrt((x - shape.x) ** 2 + (y - shape.y) ** 2) <= shape.radius
+        );
+      } else if (shape.type === ShapeTypes.DIAMOND) {
+        const centerX = shape.x + shape.width / 2;
+        const centerY = shape.y + shape.height / 2;
+        const dx = Math.abs(x - centerX);
+        const dy = Math.abs(y - centerY);
+        return dx / (shape.width / 2) + dy / (shape.height / 2) <= 1;
+      }
+      return false;
+    });
+  };
 
-  const handleButtonClick = (button) => {
-    setSelectedButton(button);
-    switch (button) {
-      case "open":
-        handleOpen();
-        break;
-      case "undo":
-        handleUndo();
-        break;
-      case "redo":
-        handleRedo();
-        break;
-      case "delete":
-        handleDelete();
-        break;
-      case "save":
-        handleSave();
-        break;
-      default:
-        break;
+
+  const handleDoubleClick = (event) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const clickedShape = getClickedShapeDouble(mouseX, mouseY);
+
+    if (clickedShape) {
+      setEditingShapeId(clickedShape.id);
+      setTextInputs({
+        ...textInputs,
+        [clickedShape.id]: textInputs[clickedShape.id] || "Add text",
+      });
     }
+  };
+
+  const handleInputChange = (event, shapeId) => {
+    setTextInputs({
+      ...textInputs,
+      [shapeId]: event.target.value,
+    });
   };
 
   return (
@@ -245,16 +281,35 @@ const CanvasComponent = () => {
         </div>
         <div>
           <h1>Draw Here!!</h1>
-          <canvas
-            data-testid="canvas"
-            ref={canvasRef}
-            aria-label="Canvas"
-            width={800}
-            height={600}
-            style={{ border: "1px solid black" }}
-            onClick={handleCanvasClick}
-          ></canvas>
+          <div style={{ position: "relative", width: "800px", height: "600px" }}>
+            <canvas
+              data-testid="canvas"
+              ref={canvasRef}
+              aria-label="Canvas"
+              width={800}
+              height={600}
+              style={{ border: "1px solid black" }}
+              onDoubleClick={handleDoubleClick}
+            ></canvas>
+            {editingShapeId && (
+              <input
+                data-testid="editingtextinput"
+                type="text"
+                className="add-text-input"
+                value={textInputs[editingShapeId]}
+                onChange={(event) => handleInputChange(event, editingShapeId)}
+                onBlur={() => setEditingShapeId(null)}
+                style={{
+                  position: "absolute",
+                  left: shapes.find((shape) => shape.id === editingShapeId).x + shapes.find((shape) => shape.id === editingShapeId).width / 2,
+                  top: shapes.find((shape) => shape.id === editingShapeId).y + shapes.find((shape) => shape.id === editingShapeId).height / 2,
+                  textAlign: "center",
+                }}
+              />
+            )}
+          </div>
         </div>
+
       </div>
     </div>
   );

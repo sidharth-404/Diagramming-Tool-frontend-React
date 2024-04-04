@@ -15,3 +15,4 @@ const ShapeTypes = {
   
   export default ShapeTypes;
   
+  // "test": "react-scripts test --watchAll --coverage --no-threads",`
