@@ -27,7 +27,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom --testMatch='**/App.test.js'",
+    "test": "react-scripts test --watchAll --coverage --no-threads",
     "eject": "react-scripts eject"
 
   },

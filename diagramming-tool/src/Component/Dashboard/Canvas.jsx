@@ -11,12 +11,8 @@ import { ChromePicker } from "react-color";
 
 
 const CanvasComponent = () => {
-<<<<<<< HEAD
-  const [selectedShapes, setSelectedShapes] = useState([]);
-=======
   const [selectedShapeId, setSelectedShapeId] = useState(null);
   const [selectedShape, setSelectedShape] = useState(null);
->>>>>>> b8ffe4d (delete shape function added)
   const [selectedButton, setSelectedButton] = useState(null);
   const [hoveredButton, setHoveredButton] = useState("");
   const canvasRef = useRef(null);
