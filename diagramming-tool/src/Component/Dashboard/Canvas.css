@@ -5,7 +5,7 @@
 .sidebar button{
   background-color: transparent;
 }
-.sidebar {
+.sidebar  {
   flex: 1;
   padding: 20px;
   border-right: 1px solid black;
@@ -23,8 +23,7 @@ h2 {
   font-size: 1.5rem;
 }
 
-
-.main button{
+.button-container button {
   margin-right: 10px;
   padding: 10px;
   cursor: pointer;
@@ -32,7 +31,9 @@ h2 {
   background-color:black;
   font-size: 1rem;
   transition: background-color 0.3s ease;
-
+}
+button.selected {
+  background-color: rgb(126, 121, 121);
 }
 
 

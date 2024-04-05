@@ -13,7 +13,6 @@
     "js-cookie": "^3.0.5",
     "konva": "^9.3.6",
     "mdb-react-ui-kit": "^7.2.0",
-    "npm": "^10.5.0",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
     "react-dnd": "^16.0.1",
@@ -21,13 +20,13 @@
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
     "react-router-dom": "^6.22.3",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --watchAll --coverage --no-threads",
+    "test": "react-scripts test --env=jsdom --testMatch=**/Component/Dashboard/Canvas.test.jsx --coverage",
     "eject": "react-scripts eject"
 
   },
@@ -55,8 +54,6 @@
     ]
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.24.3",
-    "@babel/preset-react": "^7.24.1",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.2",
     "@testing-library/react-hooks": "^8.0.1",
