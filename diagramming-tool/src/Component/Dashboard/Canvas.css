@@ -2,10 +2,13 @@
   display: flex;
 }
 
-.sidebar {
+.sidebar button{
+  background-color: transparent;
+}
+.sidebar  {
   flex: 1;
   padding: 20px;
-  border-right: 1px solid #e0e0e0;
+  border-right: 1px solid black;
   display: flex;
   flex-direction: column;
 }
@@ -20,28 +23,28 @@ h2 {
   font-size: 1.5rem;
 }
 
-.dashboard-container button {
+.button-container button {
   margin-right: 10px;
   padding: 10px;
   cursor: pointer;
   border: none;
-  background-color: transparent;
+  background-color:black;
   font-size: 1rem;
   transition: background-color 0.3s ease;
 }
 
 button.selected {
-  background-color: #f0f0f0;
+  background-color: rgb(126, 121, 121);
 }
 
 button:hover {
-  background-color: #f3e9e9;
+  background-color:rgb(176, 171, 171);
 }
 
 .tooltip {
   position: absolute;
   background-color: #333;
-  color: white;
+  color: black;
   padding: 5px;
   border-radius: 5px;
   top: calc(100% + 5px);
@@ -56,7 +59,7 @@ button:hover .tooltip {
 }
 
 canvas {
-  border: 1px solid #e0e0e0;
+  border: 1px solid black;
   border-radius: 5px;
   background-image:
     repeating-linear-gradient(0deg,
@@ -72,12 +75,12 @@ canvas {
 }
 
 .shape-button {
-  border: 1px solid #e0e0e0;
+  border: 1px solid black;
   /* Added border */
   border-radius: 5px;
   padding: 10px;
   margin: 5px;
-  background-color: #fafafa;
+  background-color: black;
   cursor: pointer;
 }
 
