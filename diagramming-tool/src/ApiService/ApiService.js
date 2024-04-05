@@ -6,8 +6,9 @@ const registerUser = async (formData) => {
   try {
     const response = await axios.post(`${API_URL}/addUser`, formData);
     return response.data;
-  } catch (error) {
-    throw error.response ? error.response.data : 'Error adding user. Please try again.';
+  }catch (error) {
+    console.error('Error in add user:', error);
+    throw error;
   }
 };
  
@@ -20,7 +21,8 @@ export const sendResetPasswordEmail = async (email) => {
   return response.data; 
   }
   catch (error) {
-    throw error.response ? error.response.data : 'Error sending OTP. Please try again.';
+    console.error('Error in password rest:', error);
+    throw error;
   }
 };
 
@@ -31,8 +33,10 @@ export const verifyResetPasswordOTP = async (email, newPassword, otp) => {
     newPassword: newPassword,
     otp: otp
   });
-  return response.data; // Assuming your API returns some data upon successful request
+  return response.data; 
 };
+
+
 export const saveCanvasImageToDB = async (imageData, userId) => {
   try {
     const response = await axios.post(`${API_URL}/images`, {
@@ -44,6 +48,16 @@ export const saveCanvasImageToDB = async (imageData, userId) => {
     return response.data;
   } catch (error) {
     console.error('Error saving canvas image to database:', error);
+    throw error;
+  }
+};
+
+export const getUserByEmail = async (jwtToken) => {
+  try {
+    const response = await axios.get(`${API_URL}/user/${jwtToken}`);
+        return response.data;
+  } catch (error) {
+    console.error('Error in fetching user data:', error);
     throw error;
   }
 };

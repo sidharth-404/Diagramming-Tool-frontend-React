@@ -6,8 +6,9 @@ import { MdDeleteForever, MdFileOpen } from "react-icons/md";
 import { TfiSave } from "react-icons/tfi";
 import ShapeTypes from "./ShapeTypes";
 import SavePopup from "../SavePopup/SavePopup";
-import { saveCanvasImageToDB } from '../../ApiService/ApiService'; 
+import { saveCanvasImageToDB,getUserByEmail } from '../../ApiService/ApiService'; 
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
+import Cookies from 'js-cookie';
 
 const CanvasComponent = ({ userId }) => {
   const [showMsgBox, setShowMsgBox] = useState(false); 
@@ -126,91 +127,104 @@ const CanvasComponent = ({ userId }) => {
 
   const handleDelete = () => {};
 
-  const handleSave = (fileName, format, saveToDatabase) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-  
-    const tempCanvas = document.createElement("canvas");
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    const tempCtx = tempCanvas.getContext("2d");
-  
-  
-    if (format === "jpeg") {
-      tempCtx.fillStyle = "white";
-      tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  const handleSave = async (fileName, format, saveToDatabase) => {
+    const jwtToken = Cookies.get('token');
+    if (!jwtToken) {
+      console.error('JWT token not found in localStorage.');
+      return;
     }
-  
-    shapes.forEach((shape) => {
-      if (shape.type === ShapeTypes.RECTANGLE) {
+
+    try {
+      const userResponse = await getUserByEmail(jwtToken);
+      const userId = userResponse.userId;
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+    
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext("2d");
+    
+    
+      if (format === "jpeg") {
         tempCtx.fillStyle = "white";
-        tempCtx.lineWidth = 2;
-        tempCtx.fillRect(shape.x, shape.y, shape.width * 2, shape.height);
-        tempCtx.strokeRect(shape.x, shape.y, shape.width * 2, shape.height);
-      } else if (shape.type === ShapeTypes.CIRCLE) {
-        tempCtx.beginPath();
-        tempCtx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
-        tempCtx.fillStyle = "white";
-        tempCtx.fill();
-        tempCtx.lineWidth = 2;
-        tempCtx.stroke();
-      } else if (shape.type === ShapeTypes.SQUARE) {
-        tempCtx.fillStyle = "white";
-        tempCtx.lineWidth = 2;
-        tempCtx.fillRect(shape.x, shape.y, shape.size, shape.size);
-        tempCtx.strokeRect(shape.x, shape.y, shape.size, shape.size);
-      } else if (shape.type === ShapeTypes.DIAMOND) {
-        tempCtx.beginPath();
-        tempCtx.lineWidth = 2;
-        tempCtx.moveTo(shape.x + shape.width / 2, shape.y);
-        tempCtx.lineTo(shape.x + shape.width, shape.y + shape.height / 2);
-        tempCtx.lineTo(shape.x + shape.width / 2, shape.y + shape.height);
-        tempCtx.lineTo(shape.x, shape.y + shape.height / 2);
-        tempCtx.closePath();
-        tempCtx.fillStyle = "white";
-        tempCtx.fill();
-        tempCtx.stroke();
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       }
-    });
-  
-    tempCanvas.toBlob((blob) => {
-      if (!blob) {
-        console.error("Failed to convert canvas to blob.");
-        return;
-      }
-  
-      const reader = new FileReader();
-      reader.onload = () => {
-        const canvasDataUrl = reader.result;
-        if (canvasDataUrl) {
-          if (saveToDatabase) {
-            const base64String = canvasDataUrl.split(",")[1];
-            saveCanvasImageToDB(base64String, userId)
-              .then(() => {
-                console.log("Canvas image saved to database.");
-                setShowMsgBox(true);
-                setMsg("Image saved successfully!");
-                setShowSavePopup(false);
-              })
-              .catch((error) => {
-                console.error("Error saving canvas image to database:", error);
-                setShowSavePopup(false);
-                setShowMsgBox(true);
-                setMsg("Error in saving");
-              });
-          } else {
-           
-            const link = document.createElement("a");
-            link.download = fileName + "." + format;
-            link.href = canvasDataUrl;
-            link.click();
-            URL.revokeObjectURL(link.href);
-            setShowSavePopup(false);
-          }
+    
+      shapes.forEach((shape) => {
+        if (shape.type === ShapeTypes.RECTANGLE) {
+          tempCtx.fillStyle = "white";
+          tempCtx.lineWidth = 2;
+          tempCtx.fillRect(shape.x, shape.y, shape.width * 2, shape.height);
+          tempCtx.strokeRect(shape.x, shape.y, shape.width * 2, shape.height);
+        } else if (shape.type === ShapeTypes.CIRCLE) {
+          tempCtx.beginPath();
+          tempCtx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
+          tempCtx.fillStyle = "white";
+          tempCtx.fill();
+          tempCtx.lineWidth = 2;
+          tempCtx.stroke();
+        } else if (shape.type === ShapeTypes.SQUARE) {
+          tempCtx.fillStyle = "white";
+          tempCtx.lineWidth = 2;
+          tempCtx.fillRect(shape.x, shape.y, shape.size, shape.size);
+          tempCtx.strokeRect(shape.x, shape.y, shape.size, shape.size);
+        } else if (shape.type === ShapeTypes.DIAMOND) {
+          tempCtx.beginPath();
+          tempCtx.lineWidth = 2;
+          tempCtx.moveTo(shape.x + shape.width / 2, shape.y);
+          tempCtx.lineTo(shape.x + shape.width, shape.y + shape.height / 2);
+          tempCtx.lineTo(shape.x + shape.width / 2, shape.y + shape.height);
+          tempCtx.lineTo(shape.x, shape.y + shape.height / 2);
+          tempCtx.closePath();
+          tempCtx.fillStyle = "white";
+          tempCtx.fill();
+          tempCtx.stroke();
         }
-      };
-      reader.readAsDataURL(blob);
-    }, "image/" + format);
+      });
+    
+      tempCanvas.toBlob((blob) => {
+        if (!blob) {
+          console.error("Failed to convert canvas to blob.");
+          return;
+        }
+    
+        const reader = new FileReader();
+        reader.onload = () => {
+          const canvasDataUrl = reader.result;
+          if (canvasDataUrl) {
+            if (saveToDatabase) {
+              const base64String = canvasDataUrl.split(",")[1];
+              saveCanvasImageToDB(base64String, userId)
+                .then(() => {
+                  console.log("Canvas image saved to database.");
+                  setShowMsgBox(true);
+                  setMsg("Image saved successfully!");
+                  setShowSavePopup(false);
+                })
+                .catch((error) => {
+                  console.error("Error saving canvas image to database:", error);
+                  setShowSavePopup(false);
+                  setShowMsgBox(true);
+                  setMsg("Error in saving");
+                });
+            } else {
+             
+              const link = document.createElement("a");
+              link.download = fileName + "." + format;
+              link.href = canvasDataUrl;
+              link.click();
+              URL.revokeObjectURL(link.href);
+              setShowSavePopup(false);
+            }
+          }
+        };
+        reader.readAsDataURL(blob);
+      }, "image/" + format);
+    } catch (error) {
+      console.error('Error in fetching user data:', error);
+    }
   };
 
   const handleOpen = () => {};
