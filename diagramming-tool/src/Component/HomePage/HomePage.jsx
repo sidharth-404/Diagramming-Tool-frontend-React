@@ -57,7 +57,7 @@ const HomePage = () => {
           <p>From brainstorming to presentation, our comprehensive suite of tools empowers you at every stage of your creative process, ensuring your ideas are brought to life with clarity and precision.</p>
         </div>
       </div>
-      {
+      
        <footer className="footer">
         <div className="footer-links">
           <a href="/about">About Us</a>
@@ -71,7 +71,7 @@ const HomePage = () => {
         <div className="copyright">
           <p>© 2024 Your Company Name. All rights reserved.</p>
         </div>
-      </footer> }
+      </footer> 
     </div>
   );
 };
