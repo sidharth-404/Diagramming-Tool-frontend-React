@@ -3,7 +3,7 @@
     justify-content: center;
     align-items: center;
     height: 100vh; 
-    background-image: url('../../Assets/image.jpg'); 
+    background-image: url('../../assets/image.jpg'); 
     background-size: cover; 
   }
   .registration-heading {

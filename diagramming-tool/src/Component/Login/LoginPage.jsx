@@ -1,13 +1,15 @@
 
 import React, { useState,useEffect } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
-import authApi from '../../ApiService/auth';
-import {Link} from 'react-router-dom'
+import {login} from '../../ApiService/auth';
+import {Link,useNavigate} from 'react-router-dom'
 
 function LoginApp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigation=useNavigate();
+ 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,10 +26,11 @@ function LoginApp() {
 
     setError('');
     try {
-      // eslint-disable-next-line no-unused-vars
-      const response = await authApi.login(email, password); 
+    
  
-      console.log('Login successful');
+      const data=await login(email,password);
+      document.cookie = `token=${data}; path=/`;
+      navigation('/dashboard');
       
     } catch (error) {
       setError(error.message || 'An error occurred.');

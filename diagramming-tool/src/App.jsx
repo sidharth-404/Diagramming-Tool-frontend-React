@@ -14,21 +14,19 @@ function App() {
   return (
 
     <Router>
-      <div className="App">
-        <header className="App-header"> 
-        </header>
+      
         <Routes>
           <Route exact path="/" element={<HomePage/>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Registration />} />
-
-          <Route path="/reset" element={<ResetPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<CanvasComponent/>}/>
 
         </Routes>
-      </div>
-    </Router>
     
+    </Router>
+
+   
 
   );
 }
