@@ -1,4 +1,4 @@
-const ShapeTypes = {
+export const ShapeTypes = {
     RECTANGLE: 'rectangle',
     CIRCLE: 'circle',
     SQUARE: 'square',

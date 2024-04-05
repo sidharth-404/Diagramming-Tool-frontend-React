@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
 import authApi from '../../ApiService/auth';
-import {Link} from 'react-router-dom'
+import {Link} from 'react-router-dom';
 
-function LoginApp() {
+function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -24,7 +24,7 @@ function LoginApp() {
 
     setError('');
     try {
-      // eslint-disable-next-line no-unused-vars
+      
       const response = await authApi.login(email, password); 
  
       console.log('Login successful');
@@ -54,13 +54,13 @@ function LoginApp() {
 
           <div className='text-center'>
           
-            <p>Not a member? <Link to='/register'>Register</Link></p>
-            <p>Reset Password?<Link to='/reset-password' className='link'> Reset here.</Link></p>
+            <p>Not a member? <Link to='/register'>Register</Link></p> 
+           <p>Reset Password?<Link to='/reset-password' className='link'> Reset here.</Link></p>
           </div>
         </MDBContainer>
       </div>
     </div>
   );
 }
-export default LoginApp;
+export default LoginPage;
 
