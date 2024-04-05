@@ -1,6 +1,11 @@
+import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import Home from "../Component/Home/Canvas";
+import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
+import ShapeTypes from './ShapeTypes';
+
+
+
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -115,6 +120,7 @@ describe("Button Working", () => {
     expect(ctx.fillRect).toHaveBeenCalledWith(100, 100, 200, 100);
     expect(ctx.strokeRect).toHaveBeenCalledWith(100, 100, 200, 100);
   });
+  
 
   it("Drawing Circle in Home Page", () => {
     render(<CanvasComponent />);
@@ -163,7 +169,7 @@ describe("Button Working", () => {
     expect(ctx.fill).toHaveBeenCalled();
     expect(ctx.stroke).toHaveBeenCalled();
   });
-});
+ });
 describe("Home component", () => {
   it("Draws shapes on the canvas", () => {
     render(<CanvasComponent />);
@@ -171,5 +177,88 @@ describe("Home component", () => {
     const context = canvas.getContext("2d");
     expect(context).toBeDefined();
     expect(context.clearRect).toHaveBeenCalled();
+  });
+});
+
+
+describe("Canvas Component", () => {
+ 
+ 
+  it("selects a shape on canvas click", () => {
+    render(<CanvasComponent />);
+    const canvas = screen.getByTestId("canvas");
+    const rectangleButton = screen.getByTestId("rectangleButton");
+
+    fireEvent.click(rectangleButton); 
+
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } }); 
+    const selectedRectangle = screen.getByTestId("rectangleButton");
+    expect(selectedRectangle).toBeInTheDocument();
+  });
+
+  
+    it("selects a circle on canvas click", () => {
+      render(<CanvasComponent />);
+      const canvas = screen.getByTestId("canvas");
+      const circleButton = screen.getByTestId("circleButton");
+   
+      fireEvent.click(circleButton); 
+   
+      fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } }); 
+      const selectedCircle = screen.getByTestId("circleButton");
+      expect(selectedCircle).toBeInTheDocument();
+    });
+    it("selects a square on canvas click", () => {
+      render(<CanvasComponent />);
+      const canvas = screen.getByTestId("canvas");
+      const squareButton = screen.getByTestId("squareButton");
+   
+      fireEvent.click(squareButton); 
+   
+      fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } }); 
+      const selectedSquare = screen.getByTestId("squareButton");
+      expect(selectedSquare).toBeInTheDocument();
+    });
+    it("selects a diamond on canvas click", () => {
+      render(<CanvasComponent />);
+      const canvas = screen.getByTestId("canvas");
+      const diamondButton = screen.getByTestId("diamondButton");
+   
+      fireEvent.click(diamondButton); 
+   
+      fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } }); 
+      const selectedDiamond = screen.getByTestId("diamondButton");
+      expect(selectedDiamond).toBeInTheDocument();
+    });
+   
+
+
+  it("Does not draw a line when the mouse is not dragged", () => {
+    render(<CanvasComponent />);
+    const canvas = screen.getByTestId("canvas");
+    expect(canvas).toBeInTheDocument();
+
+    fireEvent.mouseDown(canvas, { nativeEvent: { offsetX: 100, offsetY: 100 } });
+    fireEvent.mouseUp(canvas, { nativeEvent: { offsetX: 100, offsetY: 100 } });
+
+    const context = canvas.getContext("2d");
+    expect(context).toBeDefined();
+    expect(context.beginPath).not.toHaveBeenCalled();
+    expect(context.moveTo).not.toHaveBeenCalled();
+    expect(context.lineTo).not.toHaveBeenCalled();
+    expect(context.stroke).not.toHaveBeenCalled();
+  });
+  test('dragging a line', () => {
+    render(<CanvasComponent />);
+    const canvas = screen.getByTestId('canvas');
+    fireEvent.mouseDown(canvas, { nativeEvent: { offsetX: 100, offsetY: 100 } });
+    fireEvent.mouseMove(canvas, { nativeEvent: { offsetX: 200, offsetY: 200 } });
+  
+    fireEvent.mouseUp(canvas);
+  
+    const canvasContext = canvas.getContext('2d');
+    expect(canvasContext).toBeDefined();
+    expect(canvasContext.beginPath).toHaveBeenCalledTimes(0);
+    expect(canvasContext.stroke).toHaveBeenCalledTimes(0);
   });
 });
