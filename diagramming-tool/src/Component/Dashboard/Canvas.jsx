@@ -8,6 +8,8 @@ import ShapeTypes from "./ShapeTypes";
 
 
 
+
+
 const CanvasComponent = () => {
   
   const [selectedShapeId, setSelectedShapeId] = useState(null);
@@ -125,6 +127,15 @@ const CanvasComponent = () => {
       ctx.lineWidth = 2;
       ctx.stroke();
     });
+    lines.forEach((line) => {
+     
+      ctx.beginPath();
+      ctx.moveTo(line.startPoint.x, line.startPoint.y);
+      ctx.lineTo(line.endPoint.x, line.endPoint.y);
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
 
     if (selectedShapeId) {
       const selectedShape = shapes.find((shape) => shape.id === selectedShapeId);
@@ -146,6 +157,7 @@ const CanvasComponent = () => {
   }, [draw]);
   
   
+
 
 
   const drawSelectionPoints = (ctx, shape) => {
