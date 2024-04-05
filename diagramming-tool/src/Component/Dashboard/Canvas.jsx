@@ -10,9 +10,9 @@ import ShapeTypes from "./ShapeTypes";
 
 const CanvasComponent = () => {
   const [selectedShapeId, setSelectedShapeId] = useState(null);
-  const [selectedShape, setSelectedShape] = useState(null);
+  const [setSelectedShape] = useState(null);
   const [selectedButton, setSelectedButton] = useState(null);
-  const [hoveredButton, setHoveredButton] = useState("");
+  const [hoveredButton] = useState("");
   const canvasRef = useRef(null);
   const [shapes, setShapes] = useState([]);
   const [dragging, setDragging] = useState(false);
