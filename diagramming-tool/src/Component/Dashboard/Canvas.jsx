@@ -10,16 +10,22 @@ import { saveCanvasImageToDB,getUserByEmail } from '../../ApiService/ApiService'
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
 import Cookies from 'js-cookie';
 
+
+
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
+  const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false); 
   const [selectedShapeId, setSelectedShapeId] = useState(null);
-  const [selectedShape, setSelectedShape] = useState(null);
+  const [setSelectedShape] = useState(null);
   const [selectedButton, setSelectedButton] = useState(null);
-  const [hoveredButton, setHoveredButton] = useState("");
-  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [hoveredButton] = useState("");
   const canvasRef = useRef(null);
   const [shapes, setShapes] = useState([]);
+  const [dragging, setDragging] = useState(false);
+  const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
+  const [endPoint, setEndPoint] = useState({ x: 0, y: 0 });
+  const [lines, setLines] = useState([]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -67,18 +73,36 @@ const CanvasComponent = () => {
           break;
       }
     });
+    lines.forEach((line) => {
+     
+      ctx.beginPath();
+      ctx.moveTo(line.startPoint.x, line.startPoint.y);
+      ctx.lineTo(line.endPoint.x, line.endPoint.y);
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
 
     if (selectedShapeId) {
       const selectedShape = shapes.find((shape) => shape.id === selectedShapeId);
       if (selectedShape) {
         drawSelectionPoints(ctx, selectedShape);
       }
+    }if (dragging) {
+      ctx.beginPath();
+      ctx.moveTo(startPoint.x, startPoint.y);
+      ctx.lineTo(endPoint.x, endPoint.y);
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
-  }, [shapes, selectedShapeId]);
+  }, [shapes, selectedShapeId, dragging, startPoint, endPoint,lines]);
+  
 
   useEffect(() => {
     draw();
   }, [draw]);
+
 
   const drawSelectionPoints = (ctx, shape) => {
     const pointSize = 5;
@@ -126,7 +150,58 @@ const CanvasComponent = () => {
         break;
     }
   };
-
+  const handleCanvasMouseDown = (event) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+  
+    const offsetX = event.nativeEvent.offsetX;
+    const offsetY = event.nativeEvent.offsetY;
+  
+    
+    if (selectedShapeId) {
+      setDragging(true);
+      setStartPoint({ x: offsetX, y: offsetY });
+      setEndPoint({ x: offsetX, y: offsetY });
+    }
+  };
+  
+  const handleCanvasMouseMove = (event) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+  
+    const offsetX = event.nativeEvent.offsetX;
+    const offsetY = event.nativeEvent.offsetY;
+  
+  
+    if (dragging) {
+      setEndPoint({ x: offsetX, y: offsetY });
+    }
+  };
+  
+  const handleCanvasMouseUp = (event) => {
+    if (dragging) {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+  
+      const offsetX = event.nativeEvent.offsetX;
+      const offsetY = event.nativeEvent.offsetY;
+      setLines([...lines, { startPoint, endPoint }]);
+   
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.beginPath();
+        ctx.moveTo(startPoint.x, startPoint.y);
+        ctx.lineTo(offsetX, offsetY);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+  
+      setDragging(false);
+    }
+  };
+  
+  
   const handleCanvasClick = (event) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -405,6 +480,9 @@ const CanvasComponent = () => {
             height={600}
             style={{ border: "1px solid black" }}
             onClick={handleCanvasClick}
+            onMouseDown={handleCanvasMouseDown}
+            onMouseMove={handleCanvasMouseMove}
+            onMouseUp={handleCanvasMouseUp}
           ></canvas>
         </div>
       </div>
