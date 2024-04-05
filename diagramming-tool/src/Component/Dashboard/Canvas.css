@@ -2,6 +2,9 @@
   display: flex;
 }
 
+.sidebar button{
+  background-color: transparent;
+}
 .sidebar {
   flex: 1;
   padding: 20px;
@@ -20,19 +23,19 @@ h2 {
   font-size: 1.5rem;
 }
 
-.dashboard-container button {
+
+.main button{
   margin-right: 10px;
   padding: 10px;
   cursor: pointer;
   border: none;
-  background-color: transparent;
+  background-color:black;
   font-size: 1rem;
   transition: background-color 0.3s ease;
+
 }
 
-button.selected {
-  background-color: #f0f0f0;
-}
+
 
 button:hover {
   background-color: #f3e9e9;

@@ -11,11 +11,11 @@ const login = async (email, password) => {
     });
    
     if (!response.ok) {
-      const data = await response.json();
+      const data = await response.text();
       throw new Error(data.error); 
     }
    
-    return response.json();
+    return response.text();
   };
    
-  export default login;
+  export{login};

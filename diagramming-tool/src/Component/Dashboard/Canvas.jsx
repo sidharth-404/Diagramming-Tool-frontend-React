@@ -10,6 +10,7 @@ import ShapeTypes from "./ShapeTypes";
 
 const CanvasComponent = () => {
   const [selectedShapeId, setSelectedShapeId] = useState(null);
+  const [selectedShape, setSelectedShape] = useState(null);
   const [selectedButton, setSelectedButton] = useState(null);
   const [hoveredButton, setHoveredButton] = useState("");
   const canvasRef = useRef(null);
@@ -264,11 +265,17 @@ const CanvasComponent = () => {
       size: 80,
     };
     setShapes([...shapes, newShape]);
+    setSelectedShape(newShape.id);
   };
 
   const handleUndo = () => {};
   const handleRedo = () => {};
-  const handleDelete = () => {};
+  const handleDelete = () => {
+    if (selectedShapeId) {
+      setShapes(shapes.filter((shape) => shape.id !== selectedShapeId));
+      setSelectedShapeId(null); 
+    }
+  };
   const handleSave = () => {};
   const handleOpen = () => {};
 
@@ -299,7 +306,7 @@ const CanvasComponent = () => {
     <div className="dashboard-container">
       <div className="sidebar">
         <h2>Shapes</h2>
-        <div>
+        <div className="shapebutton-container">
           <button data-testid="rectangleButton" onClick={() => addShape(ShapeTypes.RECTANGLE)}>
             <Rectangle width={100} height={60} />
           </button>
@@ -316,7 +323,43 @@ const CanvasComponent = () => {
       </div>
       <div className="main">
         <div className="button-container">
-          {/* Buttons for undo, redo, delete, save, open */}
+          <button data-testid="openButton"
+            onClick={() => handleButtonClick("open")}
+            className={selectedButton === "open" ? "selected" : ""}
+          >
+            <MdFileOpen />
+            {hoveredButton === "open" && <span className="tooltip">Open</span>}
+          </button>
+          <button data-testid="saveButton"
+            onClick={() => handleButtonClick("save")}
+            className={selectedButton === "save" ? "selected" : ""}
+          >
+            <TfiSave />
+            {hoveredButton === "save" && <span className="tooltip">Save</span>}
+          </button>
+          <button data-testid="undoButton1"
+            onClick={() => handleButtonClick("undo")}
+            className={selectedButton === "undo" ? "selected" : ""}
+          >
+            <IoArrowUndo />
+            {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
+          </button>
+          <button data-testid="redoButton"
+            onClick={() => handleButtonClick("redo")}
+            className={selectedButton === "redo" ? "selected" : ""}
+          >
+            <IoArrowRedo />
+            {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
+          </button>
+          <button data-testid="deleteButton"
+            onClick={() => handleButtonClick("delete")}
+            className={selectedButton === "delete" ? "selected" : ""}
+          >
+            <MdDeleteForever />
+            {hoveredButton === "delete" && (
+              <span className="tooltip">Delete</span>
+            )}
+          </button>
         </div>
         <div>
           <h1>Draw Here!!</h1>

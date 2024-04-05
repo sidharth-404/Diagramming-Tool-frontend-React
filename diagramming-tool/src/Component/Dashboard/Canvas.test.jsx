@@ -182,6 +182,22 @@ describe("Home component", () => {
 
 
 describe("Canvas Component", () => {
+
+  test('deleting a shape', () => {
+    render(<CanvasComponent />);
+    const rectangleButton =screen.getByTestId('rectangleButton');
+    fireEvent.click(rectangleButton);
+
+    
+    const deleteButton = screen.getByTestId('deleteButton');
+    fireEvent.click(deleteButton);
+
+   
+    const canvas = screen.getByTestId('canvas');
+    const ctx = canvas.getContext('2d');
+    expect(ctx).toBeDefined();
+    expect(ctx.clearRect).toHaveBeenCalled(); 
+  });
  
  
   it("selects a shape on canvas click", () => {
