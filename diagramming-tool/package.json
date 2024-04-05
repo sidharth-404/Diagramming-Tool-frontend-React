@@ -30,7 +30,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom --testMatch='**/Component/Dashboard/Canvas.test.jsx'",
+    "test": "react-scripts test --env=jsdom --testMatch=**/Component/Dashboard/Canvas.test.jsx --coverage",
     "eject": "react-scripts eject"
   },
   "resolutions": {
