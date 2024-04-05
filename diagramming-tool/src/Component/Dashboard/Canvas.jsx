@@ -5,13 +5,16 @@ import ShapeTypes from "./ShapeTypes";
 
 const CanvasComponent = () => {
   const [selectedShape, setSelectedShape] = useState(null);
+  const [selectedShapes, setSelectedShapes] = useState([]);
   const canvasRef = useRef(null);
   const [shapes, setShapes] = useState([]);
-  const isDrawing = useRef(false);
+  const isDragging = useRef(false);
+  const isSelecting = useRef(false);
   const draggedShape = useRef(null);
   const dragOffset = useRef({ x: 0, y: 0 });
   const [editingShapeId, setEditingShapeId] = useState(null);
   const [textInputs, setTextInputs] = useState({});
+  const [selectionArea, setSelectionArea] = useState({ x1: 0, y1: 0, x2: 0, y2: 0 });
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -85,7 +88,6 @@ const CanvasComponent = () => {
         ctx.font = `${fontSize}px Arial`;
         let text = textInputs[shape.id];
 
-
         let textWidth = ctx.measureText(text).width;
 
         while (textWidth > shape.width) {
@@ -100,13 +102,119 @@ const CanvasComponent = () => {
         ctx.textBaseline = "middle";
         ctx.fillText(text, centerX, centerY);
       }
+      if (selectedShapes.includes(shape.id)) {
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 4;
+      } else {
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+      }
     });
-  }, [shapes, textInputs]);
-
+  }, [shapes, textInputs, selectedShapes]);
 
   useEffect(() => {
     draw();
   }, [draw]);
+
+  const getClickedShape = (x, y) => {
+    return shapes.find((shape) => {
+      if (shape.type === ShapeTypes.RECTANGLE) {
+        return (
+          x >= shape.x &&
+          x <= shape.x + shape.width * 2 &&
+          y >= shape.y &&
+          y <= shape.y + shape.height
+        );
+      } else if (shape.type === ShapeTypes.SQUARE) {
+        return (
+          x >= shape.x &&
+          x <= shape.x + shape.width &&
+          y >= shape.y &&
+          y <= shape.y + shape.height
+        );
+      } else if (shape.type === ShapeTypes.CIRCLE) {
+        return (
+          Math.sqrt((x - shape.x) ** 2 + (y - shape.y) ** 2) <= shape.radius
+        );
+      } else if (shape.type === ShapeTypes.DIAMOND) {
+        const centerX = shape.x + shape.width / 2;
+        const centerY = shape.y + shape.height / 2;
+        const dx = Math.abs(x - centerX);
+        const dy = Math.abs(y - centerY);
+        return dx / (shape.width / 2) + dy / (shape.height / 2) <= 1;
+      }
+      return false;
+    });
+  };
+
+  const handleMouseDown = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const clickedShape = getClickedShape(x, y);
+    if (clickedShape) {
+      isDragging.current = true;
+      draggedShape.current = clickedShape;
+      dragOffset.current = { x: x - clickedShape.x, y: y - clickedShape.y };
+      setSelectedShape(clickedShape.id);
+    } else {
+      isSelecting.current = true;
+      setSelectionArea({ x1: x, y1: y, x2: x, y2: y });
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (isDragging.current) {
+      // Move the dragged shape
+      draggedShape.current.x = x - dragOffset.current.x;
+      draggedShape.current.y = y - dragOffset.current.y;
+      draw();
+    } else if (isSelecting.current) {
+      // Update the selection area
+      setSelectionArea({ x1: selectionArea.x1, y1: selectionArea.y1, x2: x, y2: y });
+      const selectedShapes = shapes.filter((shape) => {
+        if (shape.type === ShapeTypes.RECTANGLE) {
+          return (
+            x >= shape.x &&
+            x <= shape.x + shape.width * 2 &&
+            y >= shape.y &&
+            y <= shape.y + shape.height
+          );
+        } else if (shape.type === ShapeTypes.SQUARE) {
+          return (
+            x >= shape.x &&
+            x <= shape.x + shape.width &&
+            y >= shape.y &&
+            y <= shape.y + shape.height
+          );
+        } else if (shape.type === ShapeTypes.CIRCLE) {
+          return (
+            Math.sqrt((x - shape.x) ** 2 + (y - shape.y) ** 2) <= shape.radius
+          );
+        } else if (shape.type === ShapeTypes.DIAMOND) {
+          const centerX = shape.x + shape.width / 2;
+          const centerY = shape.y + shape.height / 2;
+          const dx = Math.abs(x - centerX);
+          const dy = Math.abs(y - centerY);
+          return dx / (shape.width / 2) + dy / (shape.height / 2) <= 1;
+        }
+        return false;
+      }).map((shape) => shape.id);
+      setSelectedShapes(selectedShapes);
+      draw();
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+    isSelecting.current = false;
+    draggedShape.current = null;
+  };
 
   const addShape = (type) => {
     const newShape = {
@@ -153,7 +261,6 @@ const CanvasComponent = () => {
     });
   };
 
-
   const handleDoubleClick = (event) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -179,6 +286,20 @@ const CanvasComponent = () => {
       [shapeId]: event.target.value,
     });
   };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    canvas.addEventListener("mousedown", handleMouseDown);
+    canvas.addEventListener("mousemove", handleMouseMove);
+    canvas.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      canvas.removeEventListener("mousedown", handleMouseDown);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      canvas.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [shapes, draw]);
 
   return (
     <div className="dashboard-container">
@@ -231,9 +352,20 @@ const CanvasComponent = () => {
                 }}
               />
             )}
+            {isSelecting.current && (
+              <div
+                style={{
+                  position: "absolute",
+                  border: "1px dashed blue",
+                  left: Math.min(selectionArea.x1, selectionArea.x2),
+                  top: Math.min(selectionArea.y1, selectionArea.y2),
+                  width: Math.abs(selectionArea.x2 - selectionArea.x1),
+                  height: Math.abs(selectionArea.y2 - selectionArea.y1),
+                }}
+              ></div>
+            )}
           </div>
         </div>
-
       </div>
     </div>
   );

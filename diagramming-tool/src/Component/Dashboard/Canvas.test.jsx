@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
+import ShapeTypes from "./ShapeTypes";
 
 
 
@@ -129,15 +130,15 @@ describe("CanvasComponent", () => {
     expect(textInput).toBeInTheDocument();
   });
 
-  it("sets editing shape ID and text input for circle shape on double click", () => {
+  it("displays text input for circle shape on double click", () => {
     render(<CanvasComponent />);
     const canvas = screen.getByTestId('canvas');
     const circleButton = screen.getByTestId('circleButton');
     fireEvent.click(circleButton);
     const rect = canvas.getBoundingClientRect();
-    const centerX = 200; 
-    const centerY = 200; 
-    const radius = 50;   
+    const centerX = 100; 
+    const centerY = 100; 
+    
     fireEvent.doubleClick(canvas, {
       clientX: rect.left + centerX,
       clientY: rect.top + centerY,
