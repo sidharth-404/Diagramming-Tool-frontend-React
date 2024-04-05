@@ -1,9 +1,9 @@
 /* eslint-disable no-undef */
 module.exports = {
-  transform: {
-    '^.+\\.jsx?$': 'babel-jest'
-  },
-  moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
-  }
+    transform: {
+      '^.+\\.jsx?$': 'babel-jest'
+    },
+    moduleNameMapper: {
+      '^@components(.*)$': '<rootDir>/src/Component$1' // Adjust the mapping based on your project structure
+    }
 };

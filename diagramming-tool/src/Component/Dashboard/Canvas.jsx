@@ -6,12 +6,19 @@ import { MdDeleteForever, MdFileOpen } from "react-icons/md";
 import { TfiSave } from "react-icons/tfi";
 import ShapeTypes from "./ShapeTypes";
 
+
+
 const CanvasComponent = () => {
   const [selectedShapeId, setSelectedShapeId] = useState(null);
+  const [setSelectedShape] = useState(null);
   const [selectedButton, setSelectedButton] = useState(null);
-  const [hoveredButton, setHoveredButton] = useState("");
+  const [hoveredButton] = useState("");
   const canvasRef = useRef(null);
   const [shapes, setShapes] = useState([]);
+  const [dragging, setDragging] = useState(false);
+  const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
+  const [endPoint, setEndPoint] = useState({ x: 0, y: 0 });
+  const [lines, setLines] = useState([]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -59,18 +66,36 @@ const CanvasComponent = () => {
           break;
       }
     });
+    lines.forEach((line) => {
+     
+      ctx.beginPath();
+      ctx.moveTo(line.startPoint.x, line.startPoint.y);
+      ctx.lineTo(line.endPoint.x, line.endPoint.y);
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
 
     if (selectedShapeId) {
       const selectedShape = shapes.find((shape) => shape.id === selectedShapeId);
       if (selectedShape) {
         drawSelectionPoints(ctx, selectedShape);
       }
+    }if (dragging) {
+      ctx.beginPath();
+      ctx.moveTo(startPoint.x, startPoint.y);
+      ctx.lineTo(endPoint.x, endPoint.y);
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
-  }, [shapes, selectedShapeId]);
+  }, [shapes, selectedShapeId, dragging, startPoint, endPoint,lines]);
+  
 
   useEffect(() => {
     draw();
   }, [draw]);
+
 
   const drawSelectionPoints = (ctx, shape) => {
     const pointSize = 5;
@@ -118,7 +143,58 @@ const CanvasComponent = () => {
         break;
     }
   };
-
+  const handleCanvasMouseDown = (event) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+  
+    const offsetX = event.nativeEvent.offsetX;
+    const offsetY = event.nativeEvent.offsetY;
+  
+    
+    if (selectedShapeId) {
+      setDragging(true);
+      setStartPoint({ x: offsetX, y: offsetY });
+      setEndPoint({ x: offsetX, y: offsetY });
+    }
+  };
+  
+  const handleCanvasMouseMove = (event) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+  
+    const offsetX = event.nativeEvent.offsetX;
+    const offsetY = event.nativeEvent.offsetY;
+  
+  
+    if (dragging) {
+      setEndPoint({ x: offsetX, y: offsetY });
+    }
+  };
+  
+  const handleCanvasMouseUp = (event) => {
+    if (dragging) {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+  
+      const offsetX = event.nativeEvent.offsetX;
+      const offsetY = event.nativeEvent.offsetY;
+      setLines([...lines, { startPoint, endPoint }]);
+   
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.beginPath();
+        ctx.moveTo(startPoint.x, startPoint.y);
+        ctx.lineTo(offsetX, offsetY);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+  
+      setDragging(false);
+    }
+  };
+  
+  
   const handleCanvasClick = (event) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -189,11 +265,17 @@ const CanvasComponent = () => {
       size: 80,
     };
     setShapes([...shapes, newShape]);
+    setSelectedShape(newShape.id);
   };
 
   const handleUndo = () => {};
   const handleRedo = () => {};
-  const handleDelete = () => {};
+  const handleDelete = () => {
+    if (selectedShapeId) {
+      setShapes(shapes.filter((shape) => shape.id !== selectedShapeId));
+      setSelectedShapeId(null); 
+    }
+  };
   const handleSave = () => {};
   const handleOpen = () => {};
 
@@ -224,7 +306,7 @@ const CanvasComponent = () => {
     <div className="dashboard-container">
       <div className="sidebar">
         <h2>Shapes</h2>
-        <div>
+        <div className="shapebutton-container">
           <button data-testid="rectangleButton" onClick={() => addShape(ShapeTypes.RECTANGLE)}>
             <Rectangle width={100} height={60} />
           </button>
@@ -241,7 +323,43 @@ const CanvasComponent = () => {
       </div>
       <div className="main">
         <div className="button-container">
-          {/* Buttons for undo, redo, delete, save, open */}
+          <button data-testid="openButton"
+            onClick={() => handleButtonClick("open")}
+            className={selectedButton === "open" ? "selected" : ""}
+          >
+            <MdFileOpen />
+            {hoveredButton === "open" && <span className="tooltip">Open</span>}
+          </button>
+          <button data-testid="saveButton"
+            onClick={() => handleButtonClick("save")}
+            className={selectedButton === "save" ? "selected" : ""}
+          >
+            <TfiSave />
+            {hoveredButton === "save" && <span className="tooltip">Save</span>}
+          </button>
+          <button data-testid="undoButton1"
+            onClick={() => handleButtonClick("undo")}
+            className={selectedButton === "undo" ? "selected" : ""}
+          >
+            <IoArrowUndo />
+            {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
+          </button>
+          <button data-testid="redoButton"
+            onClick={() => handleButtonClick("redo")}
+            className={selectedButton === "redo" ? "selected" : ""}
+          >
+            <IoArrowRedo />
+            {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
+          </button>
+          <button data-testid="deleteButton"
+            onClick={() => handleButtonClick("delete")}
+            className={selectedButton === "delete" ? "selected" : ""}
+          >
+            <MdDeleteForever />
+            {hoveredButton === "delete" && (
+              <span className="tooltip">Delete</span>
+            )}
+          </button>
         </div>
         <div>
           <h1>Draw Here!!</h1>
@@ -253,6 +371,9 @@ const CanvasComponent = () => {
             height={600}
             style={{ border: "1px solid black" }}
             onClick={handleCanvasClick}
+            onMouseDown={handleCanvasMouseDown}
+            onMouseMove={handleCanvasMouseMove}
+            onMouseUp={handleCanvasMouseUp}
           ></canvas>
         </div>
       </div>
