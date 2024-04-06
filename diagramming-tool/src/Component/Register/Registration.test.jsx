@@ -2,7 +2,7 @@
 
 
 import React from 'react';
-import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { render, fireEvent, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Registration from './Registration';
 import '@testing-library/jest-dom';
