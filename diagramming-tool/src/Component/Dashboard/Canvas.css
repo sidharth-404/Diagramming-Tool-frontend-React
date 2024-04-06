@@ -91,5 +91,11 @@ canvas {
   margin-right: 5px;
 }
 
+.add-text-input {
+  padding: 5px;
+  border: 2px dashed #4e96e7; 
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
 
-/* this is original */

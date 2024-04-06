@@ -4,6 +4,7 @@ import 'jsdom-global/register';
 
 
 import 'jest-canvas-mock';
+
 class IntersectionObserver {
     constructor() {}
      observe() {    
