@@ -1,5 +1,5 @@
 
-import React, { useState,useEffect } from 'react';
+import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
 import {login} from '../../ApiService/auth';
 import {Link,useNavigate} from 'react-router-dom'

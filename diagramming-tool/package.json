@@ -23,12 +23,12 @@
     "react-router-dom": "^6.22.3",
     "react-scripts": "5.0.1",
     "react-toastify": "^10.0.5",
+    "text-encoding": "^0.7.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "jest --watchAll --coverage --no-threads",
     "test": "react-scripts test --watchAll --coverage --no-threads",
     "eject": "react-scripts eject"
   },

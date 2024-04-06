@@ -7,7 +7,7 @@ const registerUser = async (formData) => {
     const response = await axios.post(`${API_URL}/addUser`, formData);
     return response.data;
   }catch (error) {
-    console.error('Error in add user:', error);
+    
     throw error;
   }
 };
@@ -21,7 +21,7 @@ export const sendResetPasswordEmail = async (email) => {
   return response.data; 
   }
   catch (error) {
-    console.error('Error in password rest:', error);
+   
     throw error;
   }
 };
@@ -47,7 +47,7 @@ export const saveCanvasImageToDB = async (imageData, userId) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error saving canvas image to database:', error);
+    
     throw error;
   }
 };
@@ -57,7 +57,7 @@ export const getUserByEmail = async (jwtToken) => {
     const response = await axios.get(`${API_URL}/user/${jwtToken}`);
         return response.data;
   } catch (error) {
-    console.error('Error in fetching user data:', error);
+    
     throw error;
   }
 };
