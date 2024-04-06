@@ -1,4 +1,4 @@
-const axios=require('axios');
+const axios=import('axios');
  
 const API_URL = 'http://localhost:8080/api/diagrammingtool';
  
