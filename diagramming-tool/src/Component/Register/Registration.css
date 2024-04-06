@@ -71,3 +71,9 @@ button {
     margin-top: 5px;
     
   }
+
+  .red-asterisk::after {
+    content: "*";
+    color: red;
+  }
+  

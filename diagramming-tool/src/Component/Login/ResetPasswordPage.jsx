@@ -1,3 +1,5 @@
+
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -39,7 +41,6 @@ const ResetPasswordPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    
     console.log('Password reset logic here');
   };
 
