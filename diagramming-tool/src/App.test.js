@@ -1,26 +1,15 @@
-
-
 import React from 'react';
-
 import { render, screen } from '@testing-library/react';
-import HomePage from './Component/HomePage/HomePage';
-
-test('renders HomePage component without crashing', () => {
-  render(<HomePage/>);})
-  
-  expect(screen.getByTestId('home-page-container')).toBeInTheDocument();
-
-import { render } from '@testing-library/react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
-
-test('renders App component', () => {
-  render(<App />);
-
+describe('App component', () => {
+  test('renders homepage by default', () => {
+    render(
+      <Router>
+        <App />
+      </Router>
+    );
+    const homePageElement = screen.getByText(/Welcome to Our Diagramming Tool/i);
+    expect(homePageElement).toBeInTheDocument();
+  });
 });
-
-
-
-
-
-
-

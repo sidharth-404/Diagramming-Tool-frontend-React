@@ -1,3 +1,5 @@
+
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -39,7 +41,6 @@ const ResetPasswordPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    
     console.log('Password reset logic here');
   };
 
@@ -48,13 +49,14 @@ const ResetPasswordPage = () => {
       <h2>Reset Password</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Email:</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <label htmlFor="email">Email:</label>
+          <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
         <div>
-          <label>New Password:</label>
+          <label htmlFor="newPassword">New Password:</label>
           <input
             type="password"
+            id="newPassword"
             value={newPassword}
             onChange={handleNewPasswordChange}
             required
@@ -62,9 +64,10 @@ const ResetPasswordPage = () => {
           {newPasswordError && <div className="error">{newPasswordError}</div>}
         </div>
         <div>
-          <label>Confirm New Password:</label>
+          <label htmlFor="confirmPassword">Confirm New Password:</label>
           <input
             type="password"
+            id="confirmPassword"
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
             required

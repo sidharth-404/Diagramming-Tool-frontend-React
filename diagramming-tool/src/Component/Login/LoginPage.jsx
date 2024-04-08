@@ -1,14 +1,24 @@
 
 import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
-import authApi from '../../ApiService/auth';
-import {Link} from 'react-router-dom'
+import { login } from '../../ApiService/auth';
+import { Link, useNavigate } from 'react-router-dom';
+import DiagramPage from './DiagramPage'; 
 
 function LoginApp() {
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showDiagramPopup, setShowDiagramPopup] = useState(false); 
+  const navigation = useNavigate();
 
+ 
+  const toggleDiagramPopup = () => {
+    setShowDiagramPopup(!showDiagramPopup);
+  };
+
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -24,17 +34,13 @@ function LoginApp() {
 
     setError('');
     try {
-      // eslint-disable-next-line no-unused-vars
-      const response = await authApi.login(email, password); 
- 
-      console.log('Login successful');
-      
+      const data = await login(email, password);
+      document.cookie = `token=${data}; path=/`;
+      navigation('/dashboard');
     } catch (error) {
       setError(error.message || 'An error occurred.');
     }
   };
-
-
 
   return (
     <div className='center-container'>
@@ -53,14 +59,23 @@ function LoginApp() {
           </form>
 
           <div className='text-center'>
-          
             <p>Not a member? <Link to='/register'>Register</Link></p>
             <p>Reset Password?<Link to='/reset-password' className='link'> Reset here.</Link></p>
           </div>
+          
+           <button onClick={toggleDiagramPopup}>Open</button>
+
+
+{showDiagramPopup && <DiagramPage onClose={toggleDiagramPopup} />}
         </MDBContainer>
       </div>
-    </div>
+    
+     
+      </div>
   );
 }
+
 export default LoginApp;
+
+
 

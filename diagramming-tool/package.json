@@ -1,3 +1,4 @@
+
 {
   "name": "diagramming-tool",
   "version": "0.1.0",
@@ -29,7 +30,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom --testMatch=**/Component/Dashboard/Canvas.test.jsx --coverage",
+    "test": "react-scripts test --watchAll --coverage --no-threads",
     "eject": "react-scripts eject"
   },
   "resolutions": {
@@ -66,3 +67,4 @@
     "jsdom": "^16.7.0"
   }
 }
+ 

@@ -7,8 +7,9 @@ import './Component/Login/LoginPage.css';
 import ResetPasswordPage from './Component/Login/ResetPasswordPage';
 
 import CanvasComponent from './Component/Dashboard/Canvas';
-import { Canvas } from '@syncfusion/ej2-react-diagrams';
 import HomePage from './Component/HomePage/HomePage';
+import DiagramPage from './Component/Login/DiagramPage';
+import ExistingPage from './Component/Login/ExistingPage';
 
 
 function App() {
@@ -25,15 +26,18 @@ function App() {
 
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<CanvasComponent/>}/>
+          <Route  path="/diagram" element={<DiagramPage/>} />
+          <Route path="/existing" element={<ExistingPage/>}/>
+          
 
         </Routes>
       </div>
     </Router>
-
     
-
+   
 
   );
 }
 
 export default App;
+
