@@ -25,9 +25,9 @@ const CanvasComponent = () => {
  
 
   
-  const handleColorButtonClick = () => {
-    setShowColorPicker(!showColorPicker);
-  };
+  // const handleColorButtonClick = () => {
+  //   setShowColorPicker(!showColorPicker);
+  // };
 
   const handleColorChange = (color) => {
     setSelectedColor(color.hex);
@@ -292,30 +292,39 @@ const CanvasComponent = () => {
       size: 80,
       color: "white",
     };
+    // const newShapes = [...shapes, newShape];
+    // setShapes(newShapes);
+    // // Update history only if the shape is added
+    // if (historyIndex === history.length - 1) {
+    //   setHistory([...history, newShapes]);
+    //   setHistoryIndex(historyIndex + 1);
     const newShapes = [...shapes, newShape];
-    setShapes(newShapes);
-    // Update history only if the shape is added
-    if (historyIndex === history.length - 1) {
-      setHistory([...history, newShapes]);
-      setHistoryIndex(historyIndex + 1);
-    }
+
+  // Update history only if the shape is added
+  const newHistory = historyIndex === history.length - 1
+    ? history.slice(0, historyIndex + 1).concat([newShapes])
+    : [...history, newShapes];
+
+  setShapes(newShapes);
+  setHistory(newHistory);
+  setHistoryIndex(newHistory.length - 1); // Update history index
+    
   };
 
   const undo = () => {
     if (historyIndex > 0) {
-      const newIndex = historyIndex - 1;
-      setShapes(history[newIndex]);
-      setHistoryIndex(newIndex);
+      setShapes(history[historyIndex - 1]); // Update shapes with the previous state
+      setHistoryIndex(historyIndex - 1); // Update history index
     }
   };
   
   const redo = () => {
     if (historyIndex < history.length - 1) {
-      const newIndex = historyIndex + 1;
-      setShapes(history[newIndex]);
-      setHistoryIndex(newIndex);
+      setShapes(history[historyIndex + 1]); // Update shapes with the next state
+      setHistoryIndex(historyIndex + 1); // Update history index
     }
   };
+  
   
   
 
@@ -481,35 +490,40 @@ const CanvasComponent = () => {
       <div className="sidebar">
         <h2>Shapes</h2>
         <div>
-          <button onClick={() => addShape(ShapeTypes.RECTANGLE)}>
+        <button data-testid="rectangleButton" onClick={() => addShape(ShapeTypes.RECTANGLE)}>
             <Rectangle width={100} height={60} />
           </button>
-          <button onClick={() => addShape(ShapeTypes.CIRCLE)}>
+          <button data-testid="circleButton" onClick={() => addShape(ShapeTypes.CIRCLE)}>
             <Circle radius={50} />
           </button>
-          <button onClick={() => addShape(ShapeTypes.SQUARE)}>
+          <button data-testid="squareButton" onClick={() => addShape(ShapeTypes.SQUARE)}>
             <Square size={80} />
           </button>
-          <button onClick={() => addShape(ShapeTypes.DIAMOND)}>
+          <button data-testid="diamondButton" onClick={() => addShape(ShapeTypes.DIAMOND)}>
             <Diamond width={100} height={100} />
           </button>
         </div>
       </div>
       <div className="main">
         <div className="button-container">
-          <button onClick={undo}>
+
+          <button  data-testid="/undoButton/i" onClick={undo}>
             <IoArrowUndo />
           </button>
-          <button onClick={redo}>
+
+          <button data-testid="/redoButton/i" onClick={redo}>
             <IoArrowRedo />
+
           </button>
           <button>
             <MdDeleteForever />
           </button>
-          <button>
+
+          <button data-testid="/openButton/i">
             <MdFileOpen />
           </button>
-          <button onClick={() => setShowColorPicker(!showColorPicker)}>
+
+          <button data-testid="colorPicker" testonClick={() => setShowColorPicker(!showColorPicker)}>
             <MdColorLens />
           </button>
           {showColorPicker && (
@@ -536,6 +550,7 @@ const CanvasComponent = () => {
       </div>
     </div>
   );
+  
 };
 
 export default CanvasComponent;
