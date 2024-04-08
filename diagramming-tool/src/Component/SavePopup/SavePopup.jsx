@@ -14,12 +14,15 @@ const SavePopup = ({ onSave, onCancel }) => {
   };
 
   const handleSaveCopy = () => {
-    onSave(fileName, selectedFormat, false); 
+    onSave(fileName, selectedFormat, false);
   };
 
   const handleSaveToDatabase = () => {
-    onSave(fileName, selectedFormat, true); 
+    onSave(fileName, selectedFormat, true);
   };
+
+  // Function to check if both filename and format are filled
+  const canDownload = fileName.trim() !== "" && selectedFormat.trim() !== "";
 
   return (
     <div className="save-popup">
@@ -48,7 +51,7 @@ const SavePopup = ({ onSave, onCancel }) => {
           </select>
         </div>
         <div className="button-group">
-          <button type="button" onClick={handleSaveCopy}>
+          <button type="button" onClick={handleSaveCopy} disabled={!canDownload}>
             Download
           </button>
           <button type="button" onClick={handleSaveToDatabase}>
@@ -64,6 +67,3 @@ const SavePopup = ({ onSave, onCancel }) => {
 };
 
 export default SavePopup;
-
-
-

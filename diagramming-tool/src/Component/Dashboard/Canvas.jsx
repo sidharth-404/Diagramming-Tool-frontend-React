@@ -403,17 +403,19 @@ const CanvasComponent = () => {
       setSelectedShapeId(null); 
     }
   };
+
+
  
   const handleSave = async (fileName, format, saveToDatabase) => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
       console.error('JWT token not found in localStorage.');
-      return;
+      //return;
     }
   
     try {
-      const userResponse = await getUserByEmail(jwtToken);
-      const userId = userResponse.userId;
+      // const userResponse = await getUserByEmail(jwtToken);
+      // const userId = userResponse.userId;
   
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -444,7 +446,7 @@ const CanvasComponent = () => {
           if (canvasDataUrl) {
             if (saveToDatabase) {
               const base64String = canvasDataUrl.split(",")[1];
-              saveCanvasImageToDB(base64String,userId)
+              saveCanvasImageToDB(base64String)
                 .then(() => {
                   console.log("Canvas image saved to database.");
                   setShowMsgBox(true);
@@ -610,6 +612,7 @@ const CanvasComponent = () => {
           showMsgBox={showMsgBox}
           closeMsgBox={() => setShowMsgBox(false)}
           msg={msg}
+          handleClick={() => setShowMsgBox(false)}
         />
       )}
     </div>
