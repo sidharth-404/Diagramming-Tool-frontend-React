@@ -6,6 +6,7 @@ import {Link,useNavigate} from 'react-router-dom'
 import DiagramPage from './DiagramPage'; 
 
 function LoginApp() {
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,8 +15,7 @@ function LoginApp() {
   const toggleDiagramPopup = () => {
     setShowDiagramPopup(!showDiagramPopup);
   };
- 
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -52,8 +52,6 @@ function LoginApp() {
     }
   };
 
-
-
   return (
     <div className='center-container'>
       <div className='box'>
@@ -71,15 +69,19 @@ function LoginApp() {
           </form>
 
           <div className='text-center'>
-          
             <p>Not a member? <Link to='/register'>Register</Link></p>
             <p>Reset Password?<Link to='/reset-password' className='link'> Reset here.</Link></p>
           </div>
           {showDiagramPopup && <DiagramPage onClose={toggleDiagramPopup} />}
         </MDBContainer>
       </div>
-    </div>
+    
+     
+      </div>
   );
 }
+
 export default LoginApp;
+
+
 

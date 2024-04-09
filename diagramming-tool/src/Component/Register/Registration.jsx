@@ -27,15 +27,25 @@ const Registration = () => {
  
    
     if (name === 'firstName') {
-      setErrors({
-        ...errors,
-        firstName: value.length < 2 || value.length > 20 ? 'First Name must be between 2 and 20 characters' : ''
-      });
+      if (!/^[a-zA-Z]*$/.test(value)) {
+        setErrors({
+          ...errors,
+          firstName: 'Numbers not allowed in the first name'
+        });
+      } else {
+        setErrors({
+          ...errors,
+          firstName: value.trim() === '' ? 'First Name is required' : (value.length < 2 || value.length > 20 ? 'First Name must be between 2 and 20 characters' : '')
+        });
+      }
+     
     } else if (name === 'lastName') {
       setErrors({
         ...errors,
         lastName: value.length < 2 || value.length > 20 ? 'Last Name must be between 2 and 20 characters' : ''
       });
+    
+ 
     } else if (name === 'userEmail') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       setErrors({
@@ -100,7 +110,7 @@ const Registration = () => {
         <div className="form-left">
           <h2 className="registration-heading">Registration</h2>
           <div className="form-group">
-            <label htmlFor="firstName">First Name:</label>
+            <label htmlFor="firstName"className="red-asterisk">First Name:</label>
             <input
               type="text"
               id="firstName"
@@ -112,7 +122,7 @@ const Registration = () => {
             {errors.firstName && <span className="error">{errors.firstName}</span>}
           </div>
           <div className="form-group">
-            <label htmlFor="lastName">Last Name:</label>
+            <label htmlFor="lastName"className="red-asterisk">Last Name:</label>
             <input
               type="text"
               id="lastName"
@@ -136,7 +146,7 @@ const Registration = () => {
             {errors.userEmail && <span className="error">{errors.userEmail}</span>}
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password:</label>
+            <label htmlFor="password"className="red-asterisk">Password:</label>
             <input
               type="password"
               id="password"
@@ -148,7 +158,7 @@ const Registration = () => {
             {errors.password && <span className="error">{errors.password}</span>}
           </div>
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password:</label>
+            <label htmlFor="confirmPassword"className="red-asterisk">Confirm Password:</label>
             <input
               type="password"
               id="confirmPassword"
