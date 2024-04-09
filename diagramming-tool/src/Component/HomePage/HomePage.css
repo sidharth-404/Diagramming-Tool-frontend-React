@@ -174,14 +174,14 @@ body {
     bottom: 20px; 
     left: 750px; 
     max-width: 100px; 
-    top:800px;
+    top:900px;
 }
 .bottom-left-text {
     position: absolute;
     bottom: 20px; 
     left: 900px; 
     color: #666; 
-    top:800px;
+    top:900px;
 }
 
 
@@ -199,7 +199,7 @@ body {
     bottom: 20px;
     left: 757px;
     max-width: 85px;
-    top:1000px;
+    top:1100px;
 
 }
 .bottom-left-title2 {
@@ -217,7 +217,7 @@ body {
     bottom: 20px;
     left: 757px; 
     max-width: 90px; 
-    top:1200px;
+    top:1280px;
 
 }
 

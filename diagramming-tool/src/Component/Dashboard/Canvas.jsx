@@ -6,7 +6,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import "./Canvas.css";
 import { Rectangle, Circle, Square, Diamond } from "./NewShapes";
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
-import { MdDeleteForever, MdFileOpen, MdColorLens } from "react-icons/md";
+import { MdDeleteForever, MdFileOpen, MdColorLens, MdSave } from "react-icons/md";
 import ShapeTypes from "./ShapeTypes";
 import { SketchPicker } from "react-color";
 import { TfiSave } from "react-icons/tfi";
@@ -162,6 +162,16 @@ const CanvasComponent = () => {
 
 
 
+  // const handleChangeColor = (color) => {
+  //   setSelectedColor(color.hex);
+  //   if (selectedShapeId !== null) {
+  //     setShapes((prevShapes) =>
+  //       prevShapes.map((shape) =>
+  //         shape.id === selectedShapeId ? { ...shape, color: color.hex } : shape
+  //       )
+  //     );
+  //   }
+  // };
   const handleChangeColor = (color) => {
     setSelectedColor(color.hex);
     if (selectedShapeId !== null) {
@@ -172,6 +182,7 @@ const CanvasComponent = () => {
       );
     }
   };
+  
 
   const drawSelectionPoints = (ctx, shape) => {
         ctx.fillStyle = "blue";
@@ -226,57 +237,57 @@ const CanvasComponent = () => {
         break;
     }
   };
-  const handleCanvasMouseDown = (event) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // const handleCanvasMouseDown = (event) => {
+  //   const canvas = canvasRef.current;
+  //   if (!canvas) return;
   
-    const offsetX = event.nativeEvent.offsetX;
-    const offsetY = event.nativeEvent.offsetY;
+  //   const offsetX = event.nativeEvent.offsetX;
+  //   const offsetY = event.nativeEvent.offsetY;
   
     
-    if (selectedShapeId) {
-      setDragging(true);
-      setStartPoint({ x: offsetX, y: offsetY });
-      setEndPoint({ x: offsetX, y: offsetY });
-    }
-  };
+  //   if (selectedShapeId) {
+  //     setDragging(true);
+  //     setStartPoint({ x: offsetX, y: offsetY });
+  //     setEndPoint({ x: offsetX, y: offsetY });
+  //   }
+  // };
   
-  const handleCanvasMouseMove = (event) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // const handleCanvasMouseMove = (event) => {
+  //   const canvas = canvasRef.current;
+  //   if (!canvas) return;
   
-    const offsetX = event.nativeEvent.offsetX;
-    const offsetY = event.nativeEvent.offsetY;
+  //   const offsetX = event.nativeEvent.offsetX;
+  //   const offsetY = event.nativeEvent.offsetY;
   
   
-    if (dragging) {
-      setEndPoint({ x: offsetX, y: offsetY });
-    }
-  };
+  //   if (dragging) {
+  //     setEndPoint({ x: offsetX, y: offsetY });
+  //   }
+  // };
   
-  const handleCanvasMouseUp = (event) => {
-    if (dragging) {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
+  // const handleCanvasMouseUp = (event) => {
+  //   if (dragging) {
+  //     const canvas = canvasRef.current;
+  //     if (!canvas) return;
   
-      const offsetX = event.nativeEvent.offsetX;
-      const offsetY = event.nativeEvent.offsetY;
-      setLines([...lines, { startPoint, endPoint }]);
+  //     const offsetX = event.nativeEvent.offsetX;
+  //     const offsetY = event.nativeEvent.offsetY;
+  //     setLines([...lines, { startPoint, endPoint }]);
    
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.beginPath();
-        ctx.moveTo(startPoint.x, startPoint.y);
-        ctx.lineTo(offsetX, offsetY);
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
+  //     const ctx = canvas.getContext("2d");
+  //     if (ctx) {
+  //       ctx.beginPath();
+  //       ctx.moveTo(startPoint.x, startPoint.y);
+  //       ctx.lineTo(offsetX, offsetY);
+  //       ctx.strokeStyle = "black";
+  //       ctx.lineWidth = 2;
+  //       ctx.stroke();
+  //     }
   
-      setDragging(false);
-    }
-  };
-  
+  //     setDragging(false);
+  //   }
+  // };
+ 
   
   const handleCanvasClick = (event) => {
     const canvas = canvasRef.current;
@@ -398,7 +409,7 @@ const CanvasComponent = () => {
       }
     }
   };
-
+ 
   const handleMouseUp = () => {
     setDragStartPosition(null);
     setIsResizing(false);
@@ -508,115 +519,115 @@ const CanvasComponent = () => {
     }
   };
 
-  const resizeShape = (shape, deltaX, deltaY) => {
-    const newShape = { ...shape };
-    switch (shape.type) {
-      case ShapeTypes.RECTANGLE:
-        switch (resizePointIndex) {
-          case 0: // Top-left
-            newShape.x += deltaX;
-            newShape.y += deltaY;
-            newShape.width -= deltaX;
-            newShape.height -= deltaY;
-            break;
-          case 1: // Top-middle
-            newShape.y += deltaY;
-            newShape.height -= deltaY;
-            break;
-          case 2: // Top-right
-            newShape.y += deltaY;
-            newShape.width += deltaX;
-            newShape.height -= deltaY;
-            break;
-          case 3: // Left-middle
-            newShape.x += deltaX;
-            newShape.width -= deltaX;
-            break;
-          case 4: // Right-middle
-            newShape.width += deltaX;
-            break;
-          case 5: // Bottom-left
-            newShape.x += deltaX;
-            newShape.width -= deltaX;
-            newShape.height += deltaY;
-            break;
-          case 6: // Bottom-middle
-            newShape.height += deltaY;
-            break;
-          case 7: // Bottom-right
-            newShape.width += deltaX;
-            newShape.height += deltaY;
-            break;
-            case ShapeTypes.CIRCLE:
-        const newRadius = Math.max(shape.radius + (deltaX + deltaY) / 2, 0); // Ensure radius is non-negative
-        newShape.radius = newRadius;
-        break;
-      case ShapeTypes.SQUARE:
-        // Similar to RECTANGLE but all sides are equal
-        switch (resizePointIndex) {
-          case 0: // Top-left
-            newShape.x += deltaX;
-            newShape.y += deltaY;
-            newShape.size -= Math.max(deltaX, deltaY);
-            break;
-          case 1: // Top-middle
-            newShape.y += deltaY;
-            newShape.size -= 2 * deltaY;
-            break;
-          case 2: // Top-right
-            newShape.y += deltaY;
-            newShape.size += Math.max(deltaX, deltaY);
-            break;
-          case 3: // Left-middle
-            newShape.x += deltaX;
-            newShape.size -= 2 * deltaX;
-            break;
-          case 4: // Right-middle
-            newShape.size += 2 * deltaX;
-            break;
-          case 5: // Bottom-left
-            newShape.x += deltaX;
-            newShape.size -= Math.max(deltaX, deltaY);
-            break;
-          case 6: // Bottom-middle
-            newShape.size -= 2 * deltaY;
-            break;
-          case 7: // Bottom-right
-            newShape.size += Math.max(deltaX, deltaY);
-            break;
-          default:
-            break;
-        }
-        break;
-      case ShapeTypes.DIAMOND:
-        switch (resizePointIndex) {
-          case 0: // Left-middle
-            newShape.x += deltaX;
-            newShape.width -= deltaX;
-            break;
-          case 1: // Right-middle
-            newShape.width += deltaX;
-            break;
-          case 2: // Top-middle
-            newShape.y += deltaY;
-            newShape.height -= deltaY;
-            break;
-          case 3: // Bottom-middle
-            newShape.height += deltaY;
-            break;
-          default:
-            break;
-        }
-        break;
 
-    return newShape;
-          default:
-            break;
-        }
-    setShapes([...shapes, newShape]);
-    setSelectedShape(newShape.id);
-  };
-}
+const resizeShape = (shape, deltaX, deltaY) => {
+  const newShape = { ...shape };
+  switch (shape.type) {
+    case ShapeTypes.RECTANGLE:
+      switch (resizePointIndex) {
+        case 0: // Top-left
+          newShape.x += deltaX;
+          newShape.y += deltaY;
+          newShape.width -= deltaX;
+          newShape.height -= deltaY;
+          break;
+        case 1: // Top-middle
+          newShape.y += deltaY;
+          newShape.height -= deltaY;
+          break;
+        case 2: // Top-right
+          newShape.y += deltaY;
+          newShape.width += deltaX;
+          newShape.height -= deltaY;
+          break;
+        case 3: // Left-middle
+          newShape.x += deltaX;
+          newShape.width -= deltaX;
+          break;
+        case 4: // Right-middle
+          newShape.width += deltaX;
+          break;
+        case 5: // Bottom-left
+          newShape.x += deltaX;
+          newShape.width -= deltaX;
+          newShape.height += deltaY;
+          break;
+        case 6: // Bottom-middle
+          newShape.height += deltaY;
+          break;
+        case 7: // Bottom-right
+          newShape.width += deltaX;
+          newShape.height += deltaY;
+          break;
+        default:
+          break;
+      }
+      break;
+    case ShapeTypes.CIRCLE:
+      const newRadius = Math.max(shape.radius + (deltaX + deltaY) / 2, 0); // Ensure radius is non-negative
+      newShape.radius = newRadius;
+      break;
+    case ShapeTypes.SQUARE:
+      // Similar to RECTANGLE but all sides are equal
+      switch (resizePointIndex) {
+        case 0: // Top-left
+          newShape.x += deltaX;
+          newShape.y += deltaY;
+          newShape.size -= Math.max(deltaX, deltaY);
+          break;
+        case 1: // Top-middle
+          newShape.y += deltaY;
+          newShape.size -= 2 * deltaY;
+          break;
+        case 2: // Top-right
+          newShape.y += deltaY;
+          newShape.size += Math.max(deltaX, deltaY);
+          break;
+        case 3: // Left-middle
+          newShape.x += deltaX;
+          newShape.size -= 2 * deltaX;
+          break;
+        case 4: // Right-middle
+          newShape.size += 2 * deltaX;
+          break;
+        case 5: // Bottom-left
+          newShape.x += deltaX;
+          newShape.size -= Math.max(deltaX, deltaY);
+          break;
+        case 6: // Bottom-middle
+          newShape.size -= 2 * deltaY;
+          break;
+        case 7: // Bottom-right
+          newShape.size += Math.max(deltaX, deltaY);
+          break;
+        default:
+          break;
+      }
+      break;
+    case ShapeTypes.DIAMOND:
+      switch (resizePointIndex) {
+        case 0: // Left-middle
+          newShape.x += deltaX;
+          newShape.width -= deltaX;
+          break;
+        case 1: // Right-middle
+          newShape.width += deltaX;
+          break;
+        case 2: // Top-middle
+          newShape.y += deltaY;
+          newShape.height -= deltaY;
+          break;
+        case 3: // Bottom-middle
+          newShape.height += deltaY;
+          break;
+        default:
+          break;
+      }
+      break;
+  }
+  return newShape;
+};
+
   const getClickedShapeDouble = (x, y) => {
     return shapes.find((shape) => {
       if (shape.type === ShapeTypes.RECTANGLE) {
@@ -689,8 +700,14 @@ const CanvasComponent = () => {
   };
 
 
+  // const handleDelete = () => {
+  //   if (selectedShapeId) {
+  //     setShapes(shapes.filter((shape) => shape.id !== selectedShapeId));
+  //     setSelectedShapeId(null); 
+  //   }
+  // };
   const handleDelete = () => {
-    if (selectedShapeId) {
+    if (selectedShapeId !== null) {
       setShapes(shapes.filter((shape) => shape.id !== selectedShapeId));
       setSelectedShapeId(null); 
     }
@@ -707,12 +724,20 @@ const CanvasComponent = () => {
       case "undo":
         handleUndo();
         break;
+        case "delete": // Add case for delete button
+        handleDelete();
+        break;
       case "redo":
         handleRedo();
         break;
       
   };
 }
+
+<SketchPicker
+  color={selectedColor}
+  onChange={handleChangeColor}
+/>
 
 
   return (
@@ -747,6 +772,21 @@ const CanvasComponent = () => {
             onClick={() => handleButtonClick("save")}
             className={selectedButton === "save" ? "selected" : ""}
           >
+             <button
+             onClick={() => setShowColorPicker(!showColorPicker)}
+             className={showColorPicker ? "selected" : ""}
+              >
+           <MdColorLens />
+          {showColorPicker && <span className="tooltip">Choose Color</span>}
+         </button>
+  {showColorPicker && (
+  <div className="color-picker-container">
+    <SketchPicker
+      color={selectedColor}
+      onChange={handleChangeColor}
+    />
+  </div>
+)}
             <TfiSave />
             {hoveredButton === "save" && <span className="tooltip">Save</span>}
           </button>
@@ -785,9 +825,9 @@ const CanvasComponent = () => {
             style={{ border: "1px solid black" }}
             onDoubleClick={handleDoubleClick}
             onClick={handleCanvasClick}
-            onMouseDown={handleCanvasMouseDown}
-            onMouseMove={handleCanvasMouseMove}
-            onMouseUp={handleCanvasMouseUp}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
           ></canvas>
           {editingShapeId && (
               <input
