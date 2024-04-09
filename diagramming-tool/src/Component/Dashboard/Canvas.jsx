@@ -5,12 +5,19 @@ import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
 import { MdDeleteForever, MdFileOpen } from "react-icons/md";
 import { TfiSave } from "react-icons/tfi";
 import ShapeTypes from "./ShapeTypes";
+import SavePopup from "../SavePopup/SavePopup";
+import { saveCanvasImageToDB,getUserByEmail } from '../../ApiService/ApiService'; 
+import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
+import Cookies from 'js-cookie';
 
 
 
 
 
 const CanvasComponent = () => {
+  const [msg, setMsg] = useState("");
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [showMsgBox, setShowMsgBox] = useState(false); 
   
   const [selectedShapeId, setSelectedShapeId] = useState(null);
   const [selectedShape,setSelectedShape] = useState(null);
@@ -396,7 +403,83 @@ const CanvasComponent = () => {
       setSelectedShapeId(null); 
     }
   };
-  const handleSave = () => {};
+
+
+ 
+  const handleSave = async (fileName, format, saveToDatabase) => {
+    const jwtToken = Cookies.get('token');
+    if (!jwtToken) {
+      console.error('JWT token not found in localStorage.');
+      //return;
+    }
+  
+    try {
+      // const userResponse = await getUserByEmail(jwtToken);
+      // const userId = userResponse.userId;
+  
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+  
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext("2d");
+  
+     
+      if (format === "jpeg") {
+        tempCtx.fillStyle = "white";
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      }
+  
+     
+      tempCtx.drawImage(canvas, 0, 0);
+  
+      tempCanvas.toBlob((blob) => {
+        if (!blob) {
+          console.error("Failed to convert canvas to blob.");
+          return;
+        }
+  
+        const reader = new FileReader();
+        reader.onload = () => {
+          const canvasDataUrl = reader.result;
+          if (canvasDataUrl) {
+            if (saveToDatabase) {
+              const base64String = canvasDataUrl.split(",")[1];
+              saveCanvasImageToDB(base64String)
+                .then(() => {
+                  console.log("Canvas image saved to database.");
+                  setShowMsgBox(true);
+                  setMsg("Image saved successfully!");
+                  setShowSavePopup(false);
+                })
+                .catch((error) => {
+                  console.error("Error saving canvas image to database:", error);
+                  setShowSavePopup(false);
+                  setShowMsgBox(true);
+                  setMsg("Error in saving");
+                });
+            } else {
+              const link = document.createElement("a");
+              link.download = fileName + "." + format;
+              link.href = canvasDataUrl;
+              link.click();
+              URL.revokeObjectURL(link.href);
+              setShowSavePopup(false);
+            }
+          }
+        };
+        reader.readAsDataURL(blob);
+      }, "image/" + format);
+    } catch (error) {
+      console.error('Error in fetching user data:', error);
+    }
+  };
+  
+  
+
+
+
   const handleOpen = () => {};
 
   const handleButtonClick = (button) => {
@@ -415,7 +498,7 @@ const CanvasComponent = () => {
         handleDelete();
         break;
       case "save":
-        handleSave();
+        setShowSavePopup(true);
         break;
       default:
         break;
@@ -516,6 +599,22 @@ const CanvasComponent = () => {
           </div>
         </div>
         </div>
+      
+      {showSavePopup && (
+        <SavePopup
+          onSave={handleSave}
+          onCancel={() => setShowSavePopup(false)}
+        />
+      )}
+
+{showMsgBox && (
+        <MsgBoxComponent
+          showMsgBox={showMsgBox}
+          closeMsgBox={() => setShowMsgBox(false)}
+          msg={msg}
+          handleClick={() => setShowMsgBox(false)}
+        />
+      )}
     </div>
   );
 
