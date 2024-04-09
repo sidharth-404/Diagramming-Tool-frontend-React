@@ -62,7 +62,11 @@
   background-color: #f0f0f0;
 }
 
-/* Responsive Styling */
+.mandatory {
+  color: red;
+}
+
+
 @media (max-width: 500px) {
   .save-popup-content {
     width: 90%;

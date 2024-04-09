@@ -1,10 +1,12 @@
-
+import '@testing-library/jest-dom';
 const axios = require('axios');
 const { registerUser, saveCanvasImageToDB, getUserByEmail,sendResetPasswordEmail,verifyResetPasswordOTP } = require('./ApiService');
 const MockAdapter = require('axios-mock-adapter');
 
 const mock = new MockAdapter(axios);
 const API_URL = 'http://localhost:8080/api/diagrammingtool';
+
+
 
 describe('API Functions', () => {
   afterEach(() => {

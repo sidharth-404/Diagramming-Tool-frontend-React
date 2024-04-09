@@ -21,7 +21,7 @@ const SavePopup = ({ onSave, onCancel }) => {
     onSave(fileName, selectedFormat, true);
   };
 
-  // Function to check if both filename and format are filled
+  
   const canDownload = fileName.trim() !== "" && selectedFormat.trim() !== "";
 
   return (
@@ -29,7 +29,7 @@ const SavePopup = ({ onSave, onCancel }) => {
       <div className="save-popup-content">
         <h2>Save Image</h2>
         <div className="form-group">
-          <label htmlFor="fileName">File Name:</label>
+          <label htmlFor="fileName">File Name <span className="mandatory">*</span> </label>
           <input
             type="text"
             id="fileName"
@@ -40,7 +40,7 @@ const SavePopup = ({ onSave, onCancel }) => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="format">Format:</label>
+          <label htmlFor="format">Format <span className="mandatory">*</span></label>
           <select
             id="format"
             value={selectedFormat}
