@@ -356,4 +356,109 @@ describe("Canvas Component", () => {
     expect(canvasContext.beginPath).toHaveBeenCalledTimes(0);
     expect(canvasContext.stroke).toHaveBeenCalledTimes(0);
   });
+
+  it("Drawing Line in Home Page", () => {
+    render(<CanvasComponent />);
+    const canvas = screen.getByTestId("canvas");
+    expect(canvas).toBeInTheDocument();
+    const lineButton = screen.getByTestId('lineButton');
+    fireEvent.click(lineButton);
+    const ctx = canvas.getContext("2d");
+    expect(ctx).toBeDefined();
+   
+  });
+   
+  it("Drawing Connector in Home Page", () => {
+    render(<CanvasComponent />);
+    const canvas = screen.getByTestId("canvas");
+    expect(canvas).toBeInTheDocument();
+    const connectorButton = screen.getByTestId(/connectorLineButton/i);
+    fireEvent.click(connectorButton);
+    const ctx = canvas.getContext("2d");
+   
+  });
+   
+  it("Drawing Bidirectional Connector in Home Page", () => {
+    render(<CanvasComponent />);
+    const canvas = screen.getByTestId("canvas");
+    expect(canvas).toBeInTheDocument();
+    const bidirectionalConnectorButton = screen.getByTestId(/bidirectionalConnectorButton/i);
+    fireEvent.click(bidirectionalConnectorButton);
+    const ctx = canvas.getContext("2d");
+   
+  });
+
+  it('should rotate a line around its midpoint', () => {
+    const { getByTestId } = render(<CanvasComponent />);
+   
+    const lineButton = screen.getByTestId('lineButton');
+    fireEvent.click(lineButton);
+
+   
+    const rotateIcon = screen.getByTestId('rotate-icon');
+    fireEvent.click(rotateIcon);
+
+ 
+  });
+
+  it('should rotate a connector line around its midpoint', () => {
+    const { getByTestId } = render(<CanvasComponent />);
+   
+    const connectorLineButton = screen.getByTestId('connectorLineButton');
+    fireEvent.click(connectorLineButton);
+
+   
+    const rotateIcon = screen.getByTestId('rotate-icon');
+    fireEvent.click(rotateIcon);
+
+
+  });
+
+  it('should rotate a bidirectional connector line around its midpoint', () => {
+    const { getByTestId } = render(<CanvasComponent />);
+ 
+    const bidirectionalConnectorButton = screen.getByTestId('bidirectionalConnectorButton');
+    fireEvent.click(bidirectionalConnectorButton);
+
+   
+    const rotateIcon = screen.getByTestId('rotate-icon');
+    fireEvent.click(rotateIcon);
+
+
+  });
+  it("selects a line on canvas click", () => {
+    render(<CanvasComponent />);
+    const canvas = screen.getByTestId("canvas");
+    const lineButton = screen.getByTestId("lineButton");
+   
+    fireEvent.click(lineButton);
+   
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 100, offsetY: 100 } });
+    const selectedLine = screen.getByTestId("lineButton");
+    expect(selectedLine).toBeInTheDocument();
+  });
+ 
+  it("selects a connector line on canvas click", () => {
+    render(<CanvasComponent />);
+    const canvas = screen.getByTestId("canvas");
+    const connectorLineButton = screen.getByTestId("connectorLineButton");
+   
+    fireEvent.click(connectorLineButton);
+   
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 100, offsetY: 100 } });
+    const selectedConnectorLine = screen.getByTestId("connectorLineButton");
+    expect(selectedConnectorLine).toBeInTheDocument();
+  });
+ 
+
+  it("selects a bidirectionalconnector line on canvas click", () => {
+    render(<CanvasComponent />);
+    const canvas=screen.getByTestId("canvas");
+    const bidirectionalConnectorButton = screen.getByTestId("bidirectionalConnectorButton");
+    fireEvent.click(bidirectionalConnectorButton);
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 100, offsetY: 100 } });
+    const selectedBidirectionalConnectorLine = screen.getByTestId("bidirectionalConnectorButton");
+
+    expect(selectedBidirectionalConnectorLine).toBeInTheDocument();
+  });
 });
