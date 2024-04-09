@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { setupJestCanvasMock } from "jest-canvas-mock";
+import { BrowserRouter as Router } from "react-router-dom";
 import CanvasComponent from "./Canvas";
 
 beforeEach(() => {
@@ -8,7 +9,7 @@ beforeEach(() => {
 });
 describe('CanvasComponent', () => {
   test('adding a rectangle shape', () => {
-     render(<CanvasComponent />);
+     render(<Router><CanvasComponent /></Router>);
     const rectangleButton = screen.getByTestId('rectangleButton');
     fireEvent.click(rectangleButton);
 
@@ -24,7 +25,7 @@ describe('CanvasComponent', () => {
   });
 
   test('deleting a shape', () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent /></Router>);
     const rectangleButton =screen.getByTestId('rectangleButton');
     fireEvent.click(rectangleButton);
 
@@ -43,33 +44,33 @@ describe('CanvasComponent', () => {
 
 describe("Home Page", () => {
   it("Checks Open Button Exist in Home Page", () => {
-    render(<CanvasComponent/>);
+    render(<Router><CanvasComponent /></Router>);
     const openButton = screen.getByTestId(/openButton/i);
     expect(openButton).toBeInTheDocument();
   });
 
   
   it("Checks Delete Button Exist in Home Page", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent /></Router>);
     const deleteButton = screen.getByTestId(/deleteButton/i);
     expect(deleteButton).toBeInTheDocument();
   });
 
   it("Checks Page contain shapes heading", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent /></Router>);
     const element = screen.getByText(/Shapes/i);
     expect(element).toBeInTheDocument();
   });
 
   
   it("Circle button Exist in Home Page", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent /></Router>);
     const circ = screen.getByTestId(/circleButton/i);
     expect(circ).toBeInTheDocument();
   });
 
   it("Canvas Exist in Home Page", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent /></Router>);
     const canvas = screen.getByTestId("canvas");
     expect(canvas).toBeInTheDocument();
   });
@@ -77,31 +78,31 @@ describe("Home Page", () => {
 
 describe("Button Working", () => {
   it("Clicks on Save Button", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent /></Router>);
     const saveButton = screen.getByTestId("saveButton");
     fireEvent.click(saveButton);
   });
 
   it("Clicks on Undo Button", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent /></Router>);
     const undoButton = screen.getByTestId("undoButton1");
     fireEvent.click(undoButton);
   });
 
   it("Clicks on Redo Button", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent /></Router>);
     const redoButton = screen.getByTestId("redoButton");
     fireEvent.click(redoButton);
   });
 
   it("Clicks on Delete Button", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent /></Router>);
     const deleteButton = screen.getByTestId("deleteButton");
     fireEvent.click(deleteButton);
   });
 
   it("Clicks on Open Button", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent /></Router>);
     const openButton = screen.getByTestId("openButton");
     fireEvent.click(openButton);
   });

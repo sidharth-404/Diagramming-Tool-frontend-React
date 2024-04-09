@@ -3,12 +3,17 @@ import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
 import {login} from '../../ApiService/auth';
 import {Link,useNavigate} from 'react-router-dom'
+import DiagramPage from './DiagramPage'; 
 
 function LoginApp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigation=useNavigate();
+  const [showDiagramPopup, setShowDiagramPopup] = useState(false); 
+  const toggleDiagramPopup = () => {
+    setShowDiagramPopup(!showDiagramPopup);
+  };
  
 
   const handleSubmit = async (e) => {
@@ -27,13 +32,23 @@ function LoginApp() {
     setError('');
     try {
     
- 
+    
       const data=await login(email,password);
-      document.cookie = `token=${data}; path=/`;
-      navigation('/dashboard');
+      const result=await data.text();
+    if(!data.ok)
+    {
+      
+      throw new Error(result);
+    }
+      document.cookie = `token=${result}; path=/`;
+      toggleDiagramPopup();
+      
+      //navigation('/dashboard');
+      console.log(data);
       
     } catch (error) {
-      setError(error.message || 'An error occurred.');
+      setError(error.message );
+      
     }
   };
 
@@ -60,6 +75,7 @@ function LoginApp() {
             <p>Not a member? <Link to='/register'>Register</Link></p>
             <p>Reset Password?<Link to='/reset-password' className='link'> Reset here.</Link></p>
           </div>
+          {showDiagramPopup && <DiagramPage onClose={toggleDiagramPopup} />}
         </MDBContainer>
       </div>
     </div>

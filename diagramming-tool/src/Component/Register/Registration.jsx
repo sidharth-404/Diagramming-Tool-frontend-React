@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Registration.css';
 import MsgComponent from '../ConfirmMsg/MsgBoxComponent';
-import { registerUser } from '../../ApiService/ApiService' 
-
+import { registerUser } from '../../ApiService/ApiService'
+ 
 const Registration = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -12,20 +12,20 @@ const Registration = () => {
     password: '',
     confirmPassword: ''
   });
-
+ 
   const [showMsgBox, setshowMsgBox] = useState(false);
   const [msg, setMsg] = useState('');
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
-
+ 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
     });
-
-    
+ 
+   
     if (name === 'firstName') {
       setErrors({
         ...errors,
@@ -56,7 +56,7 @@ const Registration = () => {
       });
     }
   };
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (Object.values(errors).some(error => error !== '')) {
@@ -64,36 +64,36 @@ const Registration = () => {
       setshowMsgBox(true);
       return;
     }
-
+ 
     try {
-      const response = await registerUser(formData); 
+      const response = await registerUser(formData);
       setMsg(response);
       setshowMsgBox(true);
       if (response === 'User added successfully! Please login.') {
         setTimeout(() => {
           navigateToLogin();
-        }, 3000); 
+        }, 3000);
       }
     } catch (error) {
       setMsg(error);
       setshowMsgBox(true);
     }
   };
-
+ 
   const navigateToLogin = () => {
     navigate('/login');
   };
-
+ 
   const handleOkClick = () => {
     setshowMsgBox(false);
     setMsg('');
   };
-
+ 
   const closelMsgBox = () => {
     setshowMsgBox(false);
     setMsg('');
   };
-
+ 
   return (
     <div className="registration-container">
       <form onSubmit={handleSubmit}>
@@ -124,7 +124,7 @@ const Registration = () => {
             {errors.lastName && <span className="error">{errors.lastName}</span>}
           </div>
           <div className="form-group">
-            <label htmlFor="email">Email:</label>
+            <label htmlFor="userEmail">Email:</label>
             <input
               type="email"
               id="userEmail"
@@ -163,10 +163,10 @@ const Registration = () => {
         </div>
       </form>
       <div className="background-right"></div>
-
+ 
       <MsgComponent showMsgBox={showMsgBox} closeMsgBox={closelMsgBox} msg={msg} handleOkClick={handleOkClick} />
     </div>
   );
 };
-
+ 
 export default Registration;

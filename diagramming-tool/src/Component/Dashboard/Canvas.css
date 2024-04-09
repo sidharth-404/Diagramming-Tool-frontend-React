@@ -29,7 +29,7 @@ h2 {
   padding: 10px;
   cursor: pointer;
   border: none;
-  background-color:black;
+  background-color:rgb(240, 233, 233);
   font-size: 1rem;
   transition: background-color 0.3s ease;
 
@@ -38,12 +38,12 @@ h2 {
 
 
 button:hover {
-  background-color: #f3e9e9;
+  background-color: #6bea6f;
 }
 
 .tooltip {
   position: absolute;
-  background-color: #333;
+  background-color: #413c3c;
   color: white;
   padding: 5px;
   border-radius: 5px;
@@ -91,3 +91,52 @@ canvas {
 }
 
 /* this is original */
+.navbar {
+  background-color:lightslategrey; /* Background color of the navbar */
+  color: white; /* Text color */
+  padding: 10px 20px; /* Padding for the navbar content */
+  display: flex;
+  align-items: center;
+  height:50px;
+  position:relative;
+}
+
+.navbar h1 {
+  margin: 0; /* Remove default margin */
+}
+/* Home.css */
+
+.profile-image {
+  width: 40px; /* Adjust width as needed */
+  height: 40px; /* Adjust height as needed */
+  border-radius: 50%; /* Makes the image round */
+  position: absolute;
+  right:10px;
+}
+
+
+.profile-menu {
+  position: absolute;
+  top: 50px; /* Adjust as needed */
+  right: 10px; /* Adjust as needed */
+  background-color: rgb(18, 14, 14);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+
+.profile-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-menu ul li {
+  cursor: pointer;
+  padding: 8px 16px;
+}
+
+.profile-menu ul li:hover {
+  background-color: #f0f0f0;
+}
