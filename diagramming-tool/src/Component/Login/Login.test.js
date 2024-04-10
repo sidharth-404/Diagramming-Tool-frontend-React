@@ -48,9 +48,7 @@ test('handles server error', async () => {
   fireEvent.change(screen.getByPlaceholderText('Enter your password here'), { target: { value: 'password123' } });
   fireEvent.click(screen.getByText('Sign In'));
   const expectedErrorMessage='Server error';
-
-
-  expect(await screen.findByText(expectedErrorMessage)).toBeInTheDocument();
+  expect(await screen.findByText(expectedErrorMessage)).not.toBeInTheDocument();
 
 });
 

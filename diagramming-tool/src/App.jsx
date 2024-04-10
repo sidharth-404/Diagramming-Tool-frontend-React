@@ -5,11 +5,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './Component/Login/LoginPage';
 import './Component/Login/LoginPage.css';
 import ResetPasswordPage from './Component/Login/ResetPasswordPage';
-
+import ChangePassword from './Component/ChangePassword/ChangePassword.jsx';
 import CanvasComponent from './Component/Dashboard/Canvas';
 import HomePage from './Component/HomePage/HomePage';
-import DiagramPage from './Component/Login/DiagramPage';
 import ExistingPage from './Component/Login/ExistingPage';
+import UserProfile from './Component/UserProfile/UserProfile.jsx';
+
 
 
 function App() {
@@ -26,9 +27,9 @@ function App() {
 
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<CanvasComponent/>}/>
-          <Route  path="/diagram" element={<DiagramPage/>} />
+          <Route path='/userprofile' element={<UserProfile/>}/>
+          <Route path='/changepassword' element={<ChangePassword/>}/>
           <Route path="/existing" element={<ExistingPage/>}/>
-          
 
         </Routes>
       </div>

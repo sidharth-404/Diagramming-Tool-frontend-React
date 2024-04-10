@@ -1,36 +1,36 @@
 import React, { useState } from 'react';
-import './HomePage.css'; 
-import diagImage from '../../Assets/diag.png';
+import './HomePage.css';
+import diagImage from '../../assets/diag.png';
 
-import exampleImage from '../../Assets/example.jpg';
-import peopleImage from '../../Assets/people.png';
-import featuresImage from '../../Assets/features.png';
-import keImage from '../../Assets/ke.png'; 
-import dig from '../../Assets/dig.svg';
+import exampleImage from '../../assets/example.jpg';
+import peopleImage from '../../assets/people.png';
+import featuresImage from '../../assets/features.png';
+import keImage from '../../assets/ke.png';
+import dig from '../../assets/dig.svg';
 import Cookies from 'js-cookie';
-import { useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
   const [showOptions, setShowOptions] = useState(false);
-  const navigation=useNavigate();
+  const navigation = useNavigate();
 
   const toggleOptions = () => {
-    const token=Cookies.get('token');
-    if(token){
-    navigation('/dashboard')
-  }
-  else{
-    navigation('/login');
-  }
+    const token = Cookies.get('token');
+    if (token) {
+      navigation('/dashboard')
+    }
+    else {
+      navigation('/login');
+    }
   };
 
   return (
-    <div className="home-page-container" data-testid="home-page-container"> 
+    <div className="home-page-container" data-testid="home-page-container">
       <img src={diagImage} alt="Diagram" className="diag-image" />
       <header className="header">
         <h1 className="title">Welcome to Our Diagramming Tool</h1>
         <p className="subtitle">Visualize your ideas and concepts with ease</p>
-       
+
         <nav className="nav"></nav>
       </header>
       <section>
@@ -43,7 +43,7 @@ const HomePage = () => {
           </div>
         )}
       </section>
-      <img src={exampleImage} alt="Example" className="example-image" /> 
+      <img src={exampleImage} alt="Example" className="example-image" />
       <img src={peopleImage} alt="People" className="bottom-left-image" />
       <img src={featuresImage} alt="Features" className="bottom-leeft-image" />
       <img src={keImage} alt="KE" className="bottom-leeeft-image" />
@@ -67,20 +67,20 @@ const HomePage = () => {
         </div>
       </div>
       {
-       <footer className="footer">
-        <div className="footer-links">
-          <a href="/about">About Us</a>
-          <a href="/contact">Contact Us</a>
-          <a href="/privacy-policy">Privacy Policy</a>
-          <a href="/terms-of-service">Terms of Service</a>
-        </div>
-        <div className="footer-contact">
-          <p>Contact: contact@example.com</p>
-        </div>
-        <div className="copyright">
-          <p>© 2024 Your Company Name. All rights reserved.</p>
-        </div>
-      </footer> }
+        <footer className="footer">
+          <div className="footer-links">
+            <a href="/about">About Us</a>
+            <a href="/contact">Contact Us</a>
+            <a href="/privacy-policy">Privacy Policy</a>
+            <a href="/terms-of-service">Terms of Service</a>
+          </div>
+          <div className="footer-contact">
+            <p>Contact: contact@example.com</p>
+          </div>
+          <div className="copyright">
+            <p>© 2024 Your Company Name. All rights reserved.</p>
+          </div>
+        </footer>}
     </div>
   );
 };

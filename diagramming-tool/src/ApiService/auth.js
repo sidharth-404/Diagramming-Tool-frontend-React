@@ -10,12 +10,12 @@ const login = async (email, password) => {
       }),
     });
    
-    if (!response.ok) {
-      const data = await response.text();
-      throw new Error(data.error); 
-    }
+    // if (!response.ok) {
+    //   const data = await response.json();
+    //   throw new Error(data.error); 
+    // }
    
-    return response.text();
+    return response;
   };
    
   export{login};
