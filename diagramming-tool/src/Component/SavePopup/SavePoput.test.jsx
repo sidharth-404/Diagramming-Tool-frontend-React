@@ -16,14 +16,11 @@ describe('SavePopup', () => {
     const formatSelect = getByLabelText('Format *');
     const downloadButton = getByText('Download');
 
-    // Set file name and format
     fireEvent.change(fileNameInput, { target: { value: 'testImage' } });
     fireEvent.change(formatSelect, { target: { value: 'png' } });
 
-    // Click Download button
     fireEvent.click(downloadButton);
 
-    // Check if onSave is called with expected arguments
     expect(onSaveMock).toHaveBeenCalledWith('testImage', 'png', false);
   });
 
@@ -37,7 +34,6 @@ describe('SavePopup', () => {
 
     const downloadButton = getByText('Download');
 
-    // Download button should be disabled initially
     expect(downloadButton).toBeDisabled();
   });
 
@@ -51,10 +47,28 @@ describe('SavePopup', () => {
 
     const cancelButton = getByText('Cancel');
 
-    // Click Cancel button
     fireEvent.click(cancelButton);
 
-    // Check if onCancel is called
     expect(onCancelMock).toHaveBeenCalled();
+  });
+
+  it('should call onSave with true for database save when Save to Database button is clicked', () => {
+    const onSaveMock = jest.fn();
+    const onCancelMock = jest.fn();
+
+    const { getByLabelText, getByText } = render(
+      <SavePopup onSave={onSaveMock} onCancel={onCancelMock} />
+    );
+
+    const fileNameInput = getByLabelText('File Name *');
+    const formatSelect = getByLabelText('Format *');
+    const saveToDatabaseButton = getByText('Save to Database');
+
+    fireEvent.change(fileNameInput, { target: { value: 'testImage' } });
+    fireEvent.change(formatSelect, { target: { value: 'jpeg' } });
+
+    fireEvent.click(saveToDatabaseButton);
+
+    expect(onSaveMock).toHaveBeenCalledWith('testImage', 'jpeg', true);
   });
 });

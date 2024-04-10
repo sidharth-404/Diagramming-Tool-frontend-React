@@ -18,6 +18,8 @@ const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false); 
+  const [canvasBorderColor, setCanvasBorderColor] = useState("black");
+  const [canvasBorderThickness, setCanvasBorderThickness] = useState(1);
   
   const [selectedShapeId, setSelectedShapeId] = useState(null);
   const [selectedShape,setSelectedShape] = useState(null);
@@ -42,26 +44,32 @@ const CanvasComponent = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Set canvas border
+    ctx.strokeStyle = canvasBorderColor;
+    ctx.lineWidth = canvasBorderThickness;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+    // Draw shapes
     shapes.forEach((shape) => {
+      ctx.fillStyle = "white";
+      ctx.strokeStyle = shape.shapeBorderColor;
+      ctx.lineWidth = shape.shapeBorderThickness;
+
       switch (shape.type) {
         case ShapeTypes.RECTANGLE:
-          ctx.fillStyle = "white";
-          ctx.lineWidth = 2;
           ctx.fillRect(shape.x, shape.y, shape.width * 2, shape.height);
           ctx.strokeRect(shape.x, shape.y, shape.width * 2, shape.height);
           break;
         case ShapeTypes.CIRCLE:
           ctx.beginPath();
           ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
-          ctx.fillStyle = "white";
           ctx.fill();
-          ctx.lineWidth = 2;
           ctx.stroke();
           break;
         case ShapeTypes.SQUARE:
-          ctx.fillStyle = "white";
-          ctx.lineWidth = 2;
           ctx.fillRect(shape.x, shape.y, shape.size, shape.size);
           ctx.strokeRect(shape.x, shape.y, shape.size, shape.size);
           break;
@@ -72,14 +80,14 @@ const CanvasComponent = () => {
           ctx.lineTo(shape.x + shape.width / 2, shape.y + shape.height);
           ctx.lineTo(shape.x, shape.y + shape.height / 2);
           ctx.closePath();
-          ctx.fillStyle = "white";
           ctx.fill();
-          ctx.lineWidth = 2;
           ctx.stroke();
           break;
         default:
           break;
       }
+
+      // Draw text inputs if present
       if (textInputs[shape.id]) {
         let centerX, centerY;
         switch (shape.type) {
@@ -107,7 +115,6 @@ const CanvasComponent = () => {
         ctx.font = `${fontSize}px Arial`;
         let text = textInputs[shape.id];
 
-
         let textWidth = ctx.measureText(text).width;
 
         while (textWidth > shape.width) {
@@ -123,41 +130,31 @@ const CanvasComponent = () => {
         ctx.fillText(text, centerX, centerY);
       }
     });
-  
-  
+
+    // Draw lines
     lines.forEach((line) => {
-     
       ctx.beginPath();
       ctx.moveTo(line.startPoint.x, line.startPoint.y);
       ctx.lineTo(line.endPoint.x, line.endPoint.y);
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    });
-    lines.forEach((line) => {
-     
-      ctx.beginPath();
-      ctx.moveTo(line.startPoint.x, line.startPoint.y);
-      ctx.lineTo(line.endPoint.x, line.endPoint.y);
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
       ctx.stroke();
     });
 
+    // Draw selection points for the selected shape
     if (selectedShapeId) {
       const selectedShape = shapes.find((shape) => shape.id === selectedShapeId);
       if (selectedShape) {
         drawSelectionPoints(ctx, selectedShape);
       }
-    }if (dragging) {
+    }
+
+    // Draw dragging line
+    if (dragging) {
       ctx.beginPath();
       ctx.moveTo(startPoint.x, startPoint.y);
       ctx.lineTo(endPoint.x, endPoint.y);
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
       ctx.stroke();
     }
-  }, [shapes, selectedShapeId, dragging, startPoint, endPoint,lines,textInputs]);
+  }, [shapes, selectedShapeId, dragging, startPoint, endPoint, lines, textInputs, canvasBorderColor, canvasBorderThickness]);
   
   useEffect(() => {
     draw();
@@ -333,6 +330,8 @@ const CanvasComponent = () => {
       height: 100,
       radius: 50,
       size: 80,
+      shapeBorderColor: "black", 
+      shapeBorderThickness: 1,    
     };
     setShapes([...shapes, newShape]);
     setSelectedShape(newShape.id);
@@ -477,8 +476,40 @@ const CanvasComponent = () => {
   };
   
   
+  const handleBorderThicknessIncrease = () => {
+    if (selectedShapeId) {
+      const updatedShapes = shapes.map((shape) =>
+        shape.id === selectedShapeId
+          ? { ...shape, shapeBorderThickness: shape.shapeBorderThickness + 1 }
+          : shape
+      );
+      setShapes(updatedShapes);
+    }
+  };
 
+  const handleBorderThicknessDecrease = () => {
+    if (selectedShapeId) {
+      const updatedShapes = shapes.map((shape) =>
+        shape.id === selectedShapeId
+          ? {
+              ...shape,
+              shapeBorderThickness:
+                shape.shapeBorderThickness > 1 ? shape.shapeBorderThickness - 1 : 1,
+            }
+          : shape
+      );
+      setShapes(updatedShapes);
+    }
+  };
 
+  const handleBorderColorChange = (color) => {
+    if (selectedShapeId) {
+      const updatedShapes = shapes.map((shape) =>
+        shape.id === selectedShapeId ? { ...shape, shapeBorderColor: color } : shape
+      );
+      setShapes(updatedShapes);
+    }
+  };
 
   const handleOpen = () => {};
 
@@ -563,6 +594,29 @@ const CanvasComponent = () => {
               <span className="tooltip">Delete</span>
             )}
           </button>
+           
+            <input
+              type="color"
+              id="color-picker"
+              value={canvasBorderColor}
+              onChange={(e) => handleBorderColorChange(e.target.value)}
+              className="color-picker"/>
+          
+            <button
+              onClick={handleBorderThicknessIncrease}
+              className="border-thickness-button"
+            >
+              +
+            </button>
+            <button
+              onClick={handleBorderThicknessDecrease}
+              className="border-thickness-button"
+            >
+              -
+            </button>
+         
+
+
         </div>
         <div>
           <h1>Draw Here!!</h1>
