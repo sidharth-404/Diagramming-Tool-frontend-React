@@ -151,3 +151,8 @@ canvas {
 .profile-menu ul li:hover {
   background-color: #f0f0f0;
 }
+
+.bcolor{
+  padding: auto;
+  margin-right: 10px;
+}
