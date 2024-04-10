@@ -3,15 +3,17 @@ import "./Canvas.css";
 import { Rectangle, Circle, Square, Diamond, Line, ConnectorLine, BidirectionalConnector } from "./NewShapes";
 import { IoArrowUndo, IoArrowRedo, IoReloadOutline } from "react-icons/io5";
 import { MdDeleteForever, MdFileOpen, MdColorLens } from "react-icons/md";
+import { PiTextT } from "react-icons/pi";
 import { TfiSave } from "react-icons/tfi";
 import ShapeTypes from "./ShapeTypes";
-import profileImage from '../../assets/R.png';
+import profileImage from '../../Assets/R.png';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { SketchPicker } from "react-color";
 import SavePopup from "../SavePop/SavePop";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
+import TextBox from "./TextBox";
 
 const CanvasComponent = () => {
 
@@ -40,14 +42,32 @@ const CanvasComponent = () => {
   const [selectedColor, setSelectedColor] = useState("white");
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [history, setHistory] = useState([]);
+  const [textBoxes, setTextBoxes] = useState([]);
 
 
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
+
+  const addTextBox = () => {
+    setTextBoxes([...textBoxes, { x: 100, y: 100, text: "Add text" }]);
+  };
+
+  const handleTextChange = (index, newText) => {
+    setTextBoxes(
+      textBoxes.map((box, i) => (i === index ? { ...box, text: newText } : box))
+    );
+  };
+
+  const handleMove = (index, newX, newY) => {
+    setTextBoxes(
+      textBoxes.map((box, i) => (i === index ? { ...box, x: newX, y: newY } : box))
+    );
+  };
+
   const handlePreventNavigation = (event) => {
     event.preventDefault();
     if (Cookies.get('token')) {
@@ -1049,6 +1069,10 @@ const CanvasComponent = () => {
               onClick={() => addShape(ShapeTypes.BIDIRECTIONAL_CONNECTOR)}>
               <BidirectionalConnector width={10} />
             </button>
+            <button 
+            data-testid="addtextbox"
+            onClick={addTextBox} style={{ color: 'black' }}
+            ><PiTextT /></button>
           </div>
         </div>
         <div className="main">
@@ -1119,6 +1143,17 @@ const CanvasComponent = () => {
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
               ></canvas>
+              {/* Render text boxes */}
+              {textBoxes.map((box, index) => (
+                <TextBox
+                  key={index}
+                  x={box.x}
+                  y={box.y}
+                  onTextChange={(newText) => handleTextChange(index, newText)}
+                  onMove={(newX, newY) => handleMove(index, newX, newY)}
+                  canvasRef={canvasRef}
+                />
+              ))}
               {editingShapeId && (
                 <input
                   data-testid="editingtextinput"
@@ -1161,4 +1196,4 @@ const CanvasComponent = () => {
   );
 };
 
-export default CanvasComponent;
+export default CanvasComponent;//dont remove
