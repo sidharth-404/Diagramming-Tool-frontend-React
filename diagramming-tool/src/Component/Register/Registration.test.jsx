@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable testing-library/prefer-screen-queries */
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
@@ -5,7 +6,7 @@ import { MemoryRouter } from 'react-router-dom';
 import Registration from './Registration';
 import '@testing-library/jest-dom';
 import { registerUser } from '../../ApiService/ApiService';
- 
+import MsgBoxComponent from '../ConfirmMsg/MsgBoxComponent';
  
  
  
@@ -208,8 +209,7 @@ describe('Registration Component', () => {
 });
  
  
- 
- 
+
  
 it('validates first name input with numbers', () => {
   render(
@@ -221,4 +221,17 @@ it('validates first name input with numbers', () => {
   fireEvent.change(firstNameInput, { target: { value: 'John123' } });
   const errorMessage = screen.getByText('Numbers not allowed in the first name');
   expect(errorMessage).toBeInTheDocument();
+});
+
+
+test('closes message box when close button is clicked', () => {
+  // Render the component
+  const { getByTestId } = render(<MsgBoxComponent showMsgBox={true} closeMsgBox={jest.fn()} msg="Test message" />);
+
+  // Simulate click on close button
+  fireEvent.click(getByTestId('close-button'));
+
+  // Check if the message box is closed and the message is empty
+  expect(getByTestId('notification-modal')).not.toBeVisible();
+  // You don't need to test for setshowMsgBox and setMsg since they are internal to the component
 });

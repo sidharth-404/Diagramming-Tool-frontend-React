@@ -1,3 +1,5 @@
+/* eslint-disable default-case */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import "./Canvas.css";
 import { Rectangle, Circle, Square, Diamond, Line, ConnectorLine, BidirectionalConnector } from "./NewShapes";
@@ -12,6 +14,7 @@ import { SketchPicker } from "react-color";
 import SavePopup from "../SavePop/SavePop";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
+import { handleDeletes } from "./keyboardDelete";
 
 const CanvasComponent = () => {
 
@@ -41,6 +44,17 @@ const CanvasComponent = () => {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [history, setHistory] = useState([]);
 
+  useEffect(() => {
+    const onKeyDown = handleDeletes(selectedShapeId, shapes, setShapes, setSelectedShapeId);
+
+    window.addEventListener('keydown', onKeyDown); 
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown); 
+    };
+  }, [selectedShapeId, shapes]);
+
+ 
 
 
   useEffect(() => {
@@ -538,6 +552,10 @@ const CanvasComponent = () => {
 
     });
 
+ 
+  
+  
+
     if (!isResizing) {
       // Handle shape movement logic
       setDragStartPosition({ x: offsetX, y: offsetY });
@@ -545,6 +563,9 @@ const CanvasComponent = () => {
 
   };
 
+
+  
+  
   const handleMouseMove = (event) => {
     if (selectedShapeId && (dragStartPosition || isResizing)) {
       const offsetX = event.nativeEvent.offsetX;
