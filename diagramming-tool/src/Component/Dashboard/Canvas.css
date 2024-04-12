@@ -39,7 +39,7 @@ h2 {
 
 
 button:hover {
-  background-color: #6bea6f;
+  background-color: #a3b4a3;
 }
 
 .tooltip {
@@ -91,13 +91,13 @@ canvas {
   margin-right: 5px;
 }
 
-/* this is original */
+
 .navbar {
   background-color: lightslategrey;
-  /* Background color of the navbar */
+ 
   color: white;
-  /* Text color */
-  padding: 10px 20px;
+ margin-left: 0;
+  padding: 5px 5px;
   /* Padding for the navbar content */
   display: flex;
   align-items: center;
@@ -105,10 +105,7 @@ canvas {
   position: relative;
 }
 
-.navbar h1 {
-  margin: 0;
-  /* Remove default margin */
-}
+
 
 /* Home.css */
 
@@ -127,9 +124,9 @@ canvas {
 .profile-menu {
   position: absolute;
   top: 50px;
-  /* Adjust as needed */
+ 
   right: 10px;
-  /* Adjust as needed */
+ 
   background-color: rgb(18, 14, 14);
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -155,4 +152,69 @@ canvas {
 .bcolor{
   padding: auto;
   margin-right: 10px;
+}
+
+.logo img {
+  height: 50px; 
+  margin-right: 40px;
+  margin-bottom: 14px;
+  
+  margin-top: 0%;
+
+}
+.heading{
+ 
+  color: #000000;
+  font-weight: 700;
+  margin-bottom: 10px;
+ font-size: 32;
+  padding-left: 0%;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  margin-left: 0;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropbtn {
+  background-color: transparent;
+  color: #f1e8e8; 
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  padding-left: 10px;
+  margin-top: 1px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  min-width: 160px;
+  padding: 8px 0;
+  border-radius: 4px;
+  right: 0; /* Align dropdown to the right */
+}
+
+.dropdown-content a {
+  color: #333;
+  padding: 8px 12px;
+  display: block;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #f0f0f0; /* Hover color */
 }
