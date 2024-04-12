@@ -45,7 +45,6 @@ const CanvasComponent = () => {
   const [selectedColor, setSelectedColor] = useState("white");
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [history, setHistory] = useState([]);
-  
 
 
 
@@ -87,6 +86,181 @@ const CanvasComponent = () => {
     }
     setShowProfileMenu(false); 
   };
+
+  const draw = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+  
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+  
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+    // Set canvas border
+    ctx.strokeStyle = canvasBorderColor;
+    ctx.lineWidth = canvasBorderThickness;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+  
+    // Draw shapes
+    shapes.forEach((shape) => {
+      ctx.fillStyle = shape.color;
+      ctx.strokeStyle = shape.shapeBorderColor;
+      ctx.lineWidth = shape.shapeBorderThickness;
+  
+      switch (shape.type) {
+        case ShapeTypes.RECTANGLE:
+          ctx.fillRect(shape.x, shape.y, shape.width * 2, shape.height);
+          ctx.strokeRect(shape.x, shape.y, shape.width * 2, shape.height);
+          break;
+        case ShapeTypes.CIRCLE:
+          ctx.beginPath();
+          ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          break;
+        case ShapeTypes.SQUARE:
+          ctx.fillRect(shape.x, shape.y, shape.size, shape.size);
+          ctx.strokeRect(shape.x, shape.y, shape.size, shape.size);
+          break;
+        case ShapeTypes.DIAMOND:
+          ctx.beginPath();
+          ctx.moveTo(shape.x + shape.width / 2, shape.y);
+          ctx.lineTo(shape.x + shape.width, shape.y + shape.height / 2);
+          ctx.lineTo(shape.x + shape.width / 2, shape.y + shape.height);
+          ctx.lineTo(shape.x, shape.y + shape.height / 2);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          break;
+        case ShapeTypes.LINE:
+        case ShapeTypes.CONNECTOR_LINE:
+        case ShapeTypes.BIDIRECTIONAL_CONNECTOR:
+          ctx.beginPath();
+          ctx.moveTo(shape.startX, shape.startY);
+          ctx.lineTo(shape.endX, shape.endY);
+          ctx.strokeStyle = shape.color; 
+          ctx.lineWidth = shape.shapeBorderThickness; // Set line thickness
+          ctx.stroke();
+  
+          // Draw arrow if it's a connector line
+          if (shape.type === ShapeTypes.CONNECTOR_LINE || shape.type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
+            const arrowSize = 10;
+            const dx = shape.endX - shape.startX;
+            const dy = shape.endY - shape.startY;
+            const angle = Math.atan2(dy, dx);
+  
+            ctx.save();
+            ctx.translate(shape.endX, shape.endY);
+            ctx.rotate(angle + Math.PI);
+            ctx.fillStyle = shape.color; 
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(arrowSize, arrowSize / 2);
+            ctx.lineTo(arrowSize, -arrowSize / 2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+  
+            if (shape.type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
+              ctx.save();
+              ctx.translate(shape.startX, shape.startY);
+              ctx.rotate(angle);
+              ctx.beginPath();
+              ctx.moveTo(0, 0);
+              ctx.lineTo(arrowSize, arrowSize / 2);
+              ctx.lineTo(arrowSize, -arrowSize / 2);
+              ctx.closePath();
+              ctx.fill();
+              ctx.restore();
+            }
+          }
+          break;
+        default:
+          break;
+      }
+  
+      // Draw text inputs if present
+      if (textInputs[shape.id]) {
+        let centerX, centerY;
+        switch (shape.type) {
+          case ShapeTypes.RECTANGLE:
+            centerX = shape.x + (shape.width * 2) / 2;
+            centerY = shape.y + shape.height / 2;
+            break;
+          case ShapeTypes.SQUARE:
+            centerX = shape.x + shape.width / 2;
+            centerY = shape.y + shape.height / 2;
+            break;
+          case ShapeTypes.CIRCLE:
+            centerX = shape.x;
+            centerY = shape.y;
+            break;
+          case ShapeTypes.DIAMOND:
+            centerX = shape.x + shape.width / 2;
+            centerY = shape.y + shape.height / 2;
+            break;
+          default:
+            break;
+        }
+  
+        let fontSize = 14;
+        ctx.font = `${fontSize}px Arial`;
+        let text = textInputs[shape.id];
+  
+        let textWidth = ctx.measureText(text).width;
+  
+        while (textWidth > shape.width) {
+          fontSize -= 1;
+          ctx.font = `${fontSize}px Arial`;
+          textWidth = ctx.measureText(text).width;
+        }
+  
+        ctx.fillStyle = "black";
+        ctx.font = `${fontSize}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, centerX, centerY);
+      }
+    });
+  
+    // Draw dragging line
+    if (dragging) {
+      ctx.beginPath();
+      ctx.moveTo(startPoint.x, startPoint.y);
+      ctx.lineTo(endPoint.x, endPoint.y);
+      ctx.strokeStyle = "black"; 
+      ctx.lineWidth = 2; 
+      ctx.stroke();
+    }
+  
+    
+    if (selectedShapeId) {
+      const selectedShape = shapes.find((shape) => shape.id === selectedShapeId);
+      if (selectedShape) {
+        drawSelectionPoints(ctx, selectedShape);
+      }
+    }
+  }, [shapes, selectedShapeId, dragging, startPoint, endPoint, lines, textInputs, canvasBorderColor, canvasBorderThickness]);
+
+
+
+  
+  useEffect(() => {
+    draw();
+  }, [draw]);
+
+  const handleChangeColor = (color) => {
+    setSelectedColor(color.hex);
+    if (selectedShapeId !== null) {
+      setShapes((prevShapes) =>
+        prevShapes.map((shape) =>
+          shape.id === selectedShapeId ? { ...shape, color: color.hex } : shape
+        )
+      );
+    }
+  };
+
   const drawSelectionPoints = (ctx, shape) => {
     const pointSize = 5;
     const halfPointSize = pointSize / 2;
@@ -155,181 +329,6 @@ const CanvasComponent = () => {
         break;
     }
   };
-
-  const draw = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Set canvas border
-    ctx.strokeStyle = canvasBorderColor;
-    ctx.lineWidth = canvasBorderThickness;
-    ctx.strokeRect(0, 0, canvas.width, canvas.height);
-
-    // Draw shapes
-    shapes.forEach((shape) => {
-      ctx.fillStyle = shape.color;
-      ctx.strokeStyle = shape.shapeBorderColor;
-      ctx.lineWidth = shape.shapeBorderThickness;
-
-      switch (shape.type) {
-        case ShapeTypes.RECTANGLE:
-          ctx.fillRect(shape.x, shape.y, shape.width * 2, shape.height);
-          ctx.strokeRect(shape.x, shape.y, shape.width * 2, shape.height);
-          break;
-        case ShapeTypes.CIRCLE:
-          ctx.beginPath();
-          ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-          break;
-        case ShapeTypes.SQUARE:
-          ctx.fillRect(shape.x, shape.y, shape.size, shape.size);
-          ctx.strokeRect(shape.x, shape.y, shape.size, shape.size);
-          break;
-        case ShapeTypes.DIAMOND:
-          ctx.beginPath();
-          ctx.moveTo(shape.x + shape.width / 2, shape.y);
-          ctx.lineTo(shape.x + shape.width, shape.y + shape.height / 2);
-          ctx.lineTo(shape.x + shape.width / 2, shape.y + shape.height);
-          ctx.lineTo(shape.x, shape.y + shape.height / 2);
-          ctx.closePath();
-          ctx.fill();
-          ctx.stroke();
-          break;
-        case ShapeTypes.LINE:
-        case ShapeTypes.CONNECTOR_LINE:
-        case ShapeTypes.BIDIRECTIONAL_CONNECTOR:
-          ctx.beginPath();
-          ctx.moveTo(shape.startX, shape.startY);
-          ctx.lineTo(shape.endX, shape.endY);
-          ctx.strokeStyle = shape.color;
-          ctx.lineWidth = shape.shapeBorderThickness; 
-          ctx.stroke();
-
-         
-          if (shape.type === ShapeTypes.CONNECTOR_LINE || shape.type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
-            const arrowSize = 10;
-            const dx = shape.endX - shape.startX;
-            const dy = shape.endY - shape.startY;
-            const angle = Math.atan2(dy, dx);
-
-            ctx.save();
-            ctx.translate(shape.endX, shape.endY);
-            ctx.rotate(angle + Math.PI);
-            ctx.fillStyle = shape.color;
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(arrowSize, arrowSize / 2);
-            ctx.lineTo(arrowSize, -arrowSize / 2);
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-
-            if (shape.type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
-              ctx.save();
-              ctx.translate(shape.startX, shape.startY);
-              ctx.rotate(angle);
-              ctx.beginPath();
-              ctx.moveTo(0, 0);
-              ctx.lineTo(arrowSize, arrowSize / 2);
-              ctx.lineTo(arrowSize, -arrowSize / 2);
-              ctx.closePath();
-              ctx.fill();
-              ctx.restore();
-            }
-          }
-          break;
-        default:
-          break;
-      }
-
-      // Draw text inputs if present
-      if (textInputs[shape.id]) {
-        let centerX, centerY;
-        switch (shape.type) {
-          case ShapeTypes.RECTANGLE:
-            centerX = shape.x + (shape.width * 2) / 2;
-            centerY = shape.y + shape.height / 2;
-            break;
-          case ShapeTypes.SQUARE:
-            centerX = shape.x + shape.width / 2;
-            centerY = shape.y + shape.height / 2;
-            break;
-          case ShapeTypes.CIRCLE:
-            centerX = shape.x;
-            centerY = shape.y;
-            break;
-          case ShapeTypes.DIAMOND:
-            centerX = shape.x + shape.width / 2;
-            centerY = shape.y + shape.height / 2;
-            break;
-          default:
-            break;
-        }
-
-        let fontSize = 14;
-        ctx.font = `${fontSize}px Arial`;
-        let text = textInputs[shape.id];
-
-        let textWidth = ctx.measureText(text).width;
-
-        while (textWidth > shape.width) {
-          fontSize -= 1;
-          ctx.font = `${fontSize}px Arial`;
-          textWidth = ctx.measureText(text).width;
-        }
-
-        ctx.fillStyle = "black";
-        ctx.font = `${fontSize}px Arial`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(text, centerX, centerY);
-      }
-    });
-
-    // Draw dragging line
-    if (dragging) {
-      ctx.beginPath();
-      ctx.moveTo(startPoint.x, startPoint.y);
-      ctx.lineTo(endPoint.x, endPoint.y);
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    if (selectedShapeId) {
-      const selectedShape = shapes.find((shape) => shape.id === selectedShapeId);
-      if (selectedShape) {
-        drawSelectionPoints(ctx, selectedShape);
-      }
-    }
-  }, [shapes, selectedShapeId, dragging, startPoint, endPoint, textInputs, canvasBorderColor, canvasBorderThickness, drawSelectionPoints]);
-
-  
-  useEffect(() => {
-    draw();
-  }, [draw]);
-
-   
-
-  const handleChangeColor = (color) => {
-    setSelectedColor(color.hex);
-    if (selectedShapeId !== null) {
-      setShapes((prevShapes) =>
-        prevShapes.map((shape) =>
-          shape.id === selectedShapeId ? { ...shape, color: color.hex } : shape
-        )
-      );
-    }
-  };
-
-  
 
   function rotatePoint(x, y, cx, cy, angle) {
     const cosAngle = Math.cos(angle);
@@ -576,16 +575,14 @@ const CanvasComponent = () => {
 
   const addShape = (type) => {
     let newShape;
-    if (type === ShapeTypes.CONNECTOR_LINE || type === ShapeTypes.BIDIRECTIONAL_CONNECTOR ||type === ShapeTypes.LINE) {
+    if (type === ShapeTypes.CONNECTOR_LINE || type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
       newShape = {
         id: Date.now(),
         type,
         startX: 50,
         startY: 50,
         endX: 200,
-        endY: 200,
-        color: "black",
-        
+        endY: 200,color: "black",
 
       };
     } else {
@@ -1038,7 +1035,7 @@ const CanvasComponent = () => {
           <button className="dropbtn">File</button>
           <div className="dropdown-content">
             <a >New</a>
-            <a >Open Diagram</a>
+            <a >Open</a>
             <a>Save</a>
             <a >Save to DB</a>
           </div>
