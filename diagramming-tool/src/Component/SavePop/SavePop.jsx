@@ -50,14 +50,14 @@ const SavePopup = ({ onSave, onCancel }) => {
             <option value="jpeg">JPEG</option>
           </select>
         </div>
-        <div className="button-group">
-          <button type="button" onClick={handleSaveCopy} disabled={!canDownload}>
+        <div className="buttons-group">
+          <button type="button" className="buttons" onClick={handleSaveCopy} disabled={!canDownload}>
             Download
           </button>
-          <button type="button" onClick={handleSaveToDatabase}>
+          <button type="button" className="buttons" onClick={handleSaveToDatabase}>
             Save to Database
           </button>
-          <button type="button" onClick={onCancel}>
+          <button type="button" className="buttons" onClick={onCancel}>
             Cancel
           </button>
         </div>

@@ -43,16 +43,24 @@
     box-sizing: border-box;
   }
    
-  .button-group {
+  .buttons-group {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
   }
    
-  .button-group button {
+  .button-group buttons {
     padding: 10px 20px;
     border: none;
     border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .buttons{
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: rgb(11, 145, 26);
     cursor: pointer;
     transition: background-color 0.3s;
   }
