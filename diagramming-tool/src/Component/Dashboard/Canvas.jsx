@@ -7,7 +7,8 @@ import { IoArrowUndo, IoArrowRedo, IoReloadOutline } from "react-icons/io5";
 import { MdDeleteForever, MdFileOpen, MdColorLens } from "react-icons/md";
 import { TfiSave } from "react-icons/tfi";
 import ShapeTypes from "./ShapeTypes";
-import profileImage from '../../assets/R.png';
+import profileImage from '../../Assets/R.png';
+
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { SketchPicker } from "react-color";
@@ -21,6 +22,8 @@ const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false);
+  const [canvasBorderColor, setCanvasBorderColor] = useState("black");
+  const [canvasBorderThickness, setCanvasBorderThickness] = useState(1);
 
   const [selectedShapeId, setSelectedShapeId] = useState(null);
   const [selectedShapes, setSelectedShapes] = useState(null);
@@ -93,115 +96,103 @@ const CanvasComponent = () => {
       default:
         break;
     }
-    setShowProfileMenu(false); // Hide the profile menu after clicking an option
+    setShowProfileMenu(false); 
   };
-
-
-
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
+  
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+  
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+    
+    ctx.strokeStyle = canvasBorderColor;
+    ctx.lineWidth = canvasBorderThickness;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+  
+   
     shapes.forEach((shape) => {
       ctx.fillStyle = shape.color;
-      if (shape.type === ShapeTypes.RECTANGLE) {
-
-
-        ctx.fillRect(shape.x, shape.y, shape.width * 2, shape.height);
-        ctx.strokeRect(shape.x, shape.y, shape.width * 2, shape.height);
-        ctx.fillStyle = "white";
-        ctx.lineWidth = 2;
-      } else if (shape.type === ShapeTypes.CIRCLE) {
-        ctx.beginPath();
-        ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = "white";
-      } else if (shape.type === ShapeTypes.SQUARE) {
-        ctx.fillRect(shape.x, shape.y, shape.size, shape.size);
-        ctx.strokeRect(shape.x, shape.y, shape.size, shape.size);
-        ctx.fillStyle = "white";
-      } else if (shape.type === ShapeTypes.DIAMOND) {
-        ctx.beginPath();
-        ctx.moveTo(shape.x + shape.width / 2, shape.y);
-        ctx.lineTo(shape.x + shape.width, shape.y + shape.height / 2);
-        ctx.lineTo(shape.x + shape.width / 2, shape.y + shape.height);
-        ctx.lineTo(shape.x, shape.y + shape.height / 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = "white";
-      } else if (shape.type === ShapeTypes.LINE) {
-        ctx.beginPath();
-        ctx.moveTo(shape.startX, shape.startY);
-        ctx.lineTo(shape.endX, shape.endY);
-        ctx.stroke();
-      } else if (shape.type === ShapeTypes.CONNECTOR_LINE) {
-        ctx.beginPath();
-        ctx.moveTo(shape.startX, shape.startY);
-        ctx.lineTo(shape.endX, shape.endY);
-        ctx.stroke();
-
-        const arrowSize = 10;
-        const dx = shape.endX - shape.startX;
-        const dy = shape.endY - shape.startY;
-        const angle = Math.atan2(dy, dx);
-
-        ctx.save();
-        ctx.translate(shape.endX, shape.endY);
-        ctx.rotate(angle + Math.PI);
-        ctx.fillStyle = "black";
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(arrowSize, arrowSize / 2);
-        ctx.lineTo(arrowSize, -arrowSize / 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-      } else if (shape.type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
-        ctx.beginPath();
-        ctx.moveTo(shape.startX, shape.startY);
-        ctx.lineTo(shape.endX, shape.endY);
-        ctx.stroke();
-        const arrowSize = 10;
-        const dx = shape.endX - shape.startX;
-        const dy = shape.endY - shape.startY;
-        const angle = Math.atan2(dy, dx);
-
-        ctx.beginPath();
-        ctx.moveTo(shape.startX, shape.startY);
-        ctx.lineTo(shape.endX, shape.endY);
-        ctx.stroke();
-
-        ctx.save();
-        ctx.translate(shape.startX, shape.startY);
-        ctx.rotate(angle);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(arrowSize, arrowSize / 2);
-        ctx.lineTo(arrowSize, -arrowSize / 2);
-        ctx.closePath();
-        ctx.fillStyle = "black";
-        ctx.fill();
-        ctx.restore();
-
-        ctx.save();
-        ctx.translate(shape.endX, shape.endY);
-        ctx.rotate(angle + Math.PI);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.fillStyle = "black";
-        ctx.lineTo(arrowSize, arrowSize / 2);
-        ctx.lineTo(arrowSize, -arrowSize / 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
+      ctx.strokeStyle = shape.shapeBorderColor;
+      ctx.lineWidth = shape.shapeBorderThickness;
+  
+      switch (shape.type) {
+        case ShapeTypes.RECTANGLE:
+          ctx.fillRect(shape.x, shape.y, shape.width * 2, shape.height);
+          ctx.strokeRect(shape.x, shape.y, shape.width * 2, shape.height);
+          break;
+        case ShapeTypes.CIRCLE:
+          ctx.beginPath();
+          ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          break;
+        case ShapeTypes.SQUARE:
+          ctx.fillRect(shape.x, shape.y, shape.size, shape.size);
+          ctx.strokeRect(shape.x, shape.y, shape.size, shape.size);
+          break;
+        case ShapeTypes.DIAMOND:
+          ctx.beginPath();
+          ctx.moveTo(shape.x + shape.width / 2, shape.y);
+          ctx.lineTo(shape.x + shape.width, shape.y + shape.height / 2);
+          ctx.lineTo(shape.x + shape.width / 2, shape.y + shape.height);
+          ctx.lineTo(shape.x, shape.y + shape.height / 2);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          break;
+        case ShapeTypes.LINE:
+        case ShapeTypes.CONNECTOR_LINE:
+        case ShapeTypes.BIDIRECTIONAL_CONNECTOR:
+          ctx.beginPath();
+          ctx.moveTo(shape.startX, shape.startY);
+          ctx.lineTo(shape.endX, shape.endY);
+          ctx.strokeStyle = shape.color; 
+          ctx.lineWidth = shape.shapeBorderThickness; 
+          ctx.stroke();
+  
+          
+          if (shape.type === ShapeTypes.CONNECTOR_LINE || shape.type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
+            const arrowSize = 10;
+            const dx = shape.endX - shape.startX;
+            const dy = shape.endY - shape.startY;
+            const angle = Math.atan2(dy, dx);
+  
+            ctx.save();
+            ctx.translate(shape.endX, shape.endY);
+            ctx.rotate(angle + Math.PI);
+            ctx.fillStyle = shape.color; 
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(arrowSize, arrowSize / 2);
+            ctx.lineTo(arrowSize, -arrowSize / 2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+  
+            if (shape.type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
+              ctx.save();
+              ctx.translate(shape.startX, shape.startY);
+              ctx.rotate(angle);
+              ctx.beginPath();
+              ctx.moveTo(0, 0);
+              ctx.lineTo(arrowSize, arrowSize / 2);
+              ctx.lineTo(arrowSize, -arrowSize / 2);
+              ctx.closePath();
+              ctx.fill();
+              ctx.restore();
+            }
+          }
+          break;
+        default:
+          break;
       }
+  
+      // Draw text inputs if present
       if (textInputs[shape.id]) {
         let centerX, centerY;
         switch (shape.type) {
@@ -224,60 +215,49 @@ const CanvasComponent = () => {
           default:
             break;
         }
-
+  
         let fontSize = 14;
         ctx.font = `${fontSize}px Arial`;
         let text = textInputs[shape.id];
-
-
+  
         let textWidth = ctx.measureText(text).width;
-
+  
         while (textWidth > shape.width) {
           fontSize -= 1;
           ctx.font = `${fontSize}px Arial`;
           textWidth = ctx.measureText(text).width;
         }
-
+  
         ctx.fillStyle = "black";
         ctx.font = `${fontSize}px Arial`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(text, centerX, centerY);
       }
-
-
-
     });
-    lines.forEach((line) => {
-
+  
+    // Draw dragging line
+    if (dragging) {
       ctx.beginPath();
-      ctx.moveTo(line.startPoint.x, line.startPoint.y);
-      ctx.lineTo(line.endPoint.x, line.endPoint.y);
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
+      ctx.moveTo(startPoint.x, startPoint.y);
+      ctx.lineTo(endPoint.x, endPoint.y);
+      ctx.strokeStyle = "black"; 
+      ctx.lineWidth = 2; 
       ctx.stroke();
-    });
-
-
+    }
+  
+    
     if (selectedShapeId) {
       const selectedShape = shapes.find((shape) => shape.id === selectedShapeId);
       if (selectedShape) {
         drawSelectionPoints(ctx, selectedShape);
       }
     }
-    if (dragging) {
-      ctx.beginPath();
-      ctx.moveTo(startPoint.x, startPoint.y);
-      ctx.lineTo(endPoint.x, endPoint.y);
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
+  }, [shapes, selectedShapeId, dragging, startPoint, endPoint, lines, textInputs, canvasBorderColor, canvasBorderThickness]);
 
 
 
-  }, [shapes, selectedShapeId, dragging, startPoint, endPoint, lines, textInputs]);
-
+  
   useEffect(() => {
     draw();
   }, [draw]);
@@ -529,13 +509,9 @@ const CanvasComponent = () => {
     const offsetX = event.nativeEvent.offsetX;
     const offsetY = event.nativeEvent.offsetY;
     shapes.forEach((shape) => {
-      // Check for each shape's selection points
-      // If the mouse is over a selection point, set isResizing to true and handle resizing logic
-      // For simplicity, let's assume the first point is for resizing
-
-
+     
       if (shape.id === selectedShapeId) {
-        const halfPointSize = 5 / 2; // Half of the selection point size
+        const halfPointSize = 5 / 2; 
         const points = getSelectionPoints(shape);
         points.forEach((point, index) => {
           if (
@@ -618,7 +594,7 @@ const CanvasComponent = () => {
 
   const addShape = (type) => {
     let newShape;
-    if (type === ShapeTypes.CONNECTOR_LINE || type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
+    if (type === ShapeTypes.CONNECTOR_LINE || type === ShapeTypes.BIDIRECTIONAL_CONNECTOR ||  type === ShapeTypes.LINE ) {
       newShape = {
         id: Date.now(),
         type,
@@ -626,6 +602,8 @@ const CanvasComponent = () => {
         startY: 50,
         endX: 200,
         endY: 200,
+        color: "black",
+        shapeBorderThickness: 1
 
       };
     } else {
@@ -642,7 +620,9 @@ const CanvasComponent = () => {
         startY: 50,
         endX: 200,
         endY: 200,
-        color: "white"
+        color: "white",
+        shapeBorderColor: "black", 
+        shapeBorderThickness: 2,
 
 
       };
@@ -665,20 +645,20 @@ const CanvasComponent = () => {
     switch (shape.type) {
       case ShapeTypes.RECTANGLE:
         return [
-          { x: shape.x, y: shape.y }, // Top-left
-          { x: shape.x + shape.width / 2, y: shape.y }, // Top-middle
-          { x: shape.x + shape.width, y: shape.y }, // Top-right
-          { x: shape.x, y: shape.y + shape.height / 2 }, // Left-middle
-          { x: shape.x + shape.width, y: shape.y + shape.height / 2 }, // Right-middle
-          { x: shape.x, y: shape.y + shape.height }, // Bottom-left
-          { x: shape.x + shape.width / 2, y: shape.y + shape.height }, // Bottom-middle
-          { x: shape.x + shape.width, y: shape.y + shape.height }, // Bottom-right
+          { x: shape.x, y: shape.y },
+          { x: shape.x + shape.width / 2, y: shape.y }, 
+          { x: shape.x + shape.width, y: shape.y },
+          { x: shape.x, y: shape.y + shape.height / 2 }, 
+          { x: shape.x + shape.width, y: shape.y + shape.height / 2 }, 
+          { x: shape.x, y: shape.y + shape.height },
+          { x: shape.x + shape.width / 2, y: shape.y + shape.height }, 
+          { x: shape.x + shape.width, y: shape.y + shape.height }, 
         ];
       case ShapeTypes.CIRCLE:
-        const numPoints = 8; // You can adjust this number based on preference
+        const numPoints = 8; 
         const selectionPoints = [];
         for (let i = 0; i < numPoints; i++) {
-          const angle = (Math.PI / 4) * i; // Divide the circle into 8 equal parts
+          const angle = (Math.PI / 4) * i; 
           const x = shape.x + shape.radius * Math.cos(angle);
           const y = shape.y + shape.radius * Math.sin(angle);
           selectionPoints.push({ x, y });
@@ -686,12 +666,12 @@ const CanvasComponent = () => {
         return selectionPoints;
       case ShapeTypes.SQUARE:
         return [
-          { x: shape.x, y: shape.y }, // Top-left
-          { x: shape.x + shape.size / 2, y: shape.y }, // Top-middle
-          { x: shape.x + shape.size, y: shape.y }, // Top-right
-          { x: shape.x, y: shape.y + shape.size / 2 }, // Left-middle
-          { x: shape.x + shape.size, y: shape.y + shape.size / 2 }, // Right-middle
-          { x: shape.x, y: shape.y + shape.size }, // Bottom-left
+          { x: shape.x, y: shape.y }, 
+          { x: shape.x + shape.size / 2, y: shape.y }, 
+          { x: shape.x + shape.size, y: shape.y }, 
+          { x: shape.x, y: shape.y + shape.size / 2 },
+          { x: shape.x + shape.size, y: shape.y + shape.size / 2 }, 
+          { x: shape.x, y: shape.y + shape.size }, 
           { x: shape.x + shape.size / 2, y: shape.y + shape.size }, // Bottom-middle
           { x: shape.x + shape.size, y: shape.y + shape.size }, // Bottom-right
         ];
@@ -753,11 +733,11 @@ const CanvasComponent = () => {
         }
         break;
       case ShapeTypes.CIRCLE:
-        const newRadius = Math.max(shape.radius + (deltaX + deltaY) / 2, 0); // Ensure radius is non-negative
+        const newRadius = Math.max(shape.radius + (deltaX + deltaY) / 2, 0); 
         newShape.radius = newRadius;
         break;
       case ShapeTypes.SQUARE:
-        // Similar to RECTANGLE but all sides are equal
+      
         switch (resizePointIndex) {
           case 0: // Top-left
             newShape.x += deltaX;
@@ -1026,11 +1006,66 @@ const CanvasComponent = () => {
     }
   };
 
+  const handleBorderThicknessIncrease = () => {
+    if (selectedShapeId) {
+      const updatedShapes = shapes.map((shape) =>
+        shape.id === selectedShapeId
+          ? { ...shape, shapeBorderThickness: shape.shapeBorderThickness + 1 }
+          : shape
+      );
+      setShapes(updatedShapes);
+    }
+  };
+
+  const handleBorderThicknessDecrease = () => {
+    if (selectedShapeId) {
+      const updatedShapes = shapes.map((shape) =>
+        shape.id === selectedShapeId
+          ? {
+              ...shape,
+              shapeBorderThickness:
+                shape.shapeBorderThickness > 1 ? shape.shapeBorderThickness - 1 : 1,
+            }
+          : shape
+      );
+      setShapes(updatedShapes);
+    }
+  };
+
+  const handleBorderColorChange = (color) => {
+    if (selectedShapeId) {
+      const updatedShapes = shapes.map((shape) =>
+        shape.id === selectedShapeId ? { ...shape, shapeBorderColor: color } : shape
+      );
+      setShapes(updatedShapes);
+    }
+  };
+
+
+
 
   return (
     <div>
-      <nav className="navbar">
-        <img src={profileImage} alt="Profile" className="profile-image" onClick={toggleProfileMenu} />
+      <nav className="navbar navbar-expand-lg">
+
+      <h3 className="navbar-brand">Diagraming Tool   |</h3>
+      
+      <div className="dropdown">
+          <button className="dropbtn">File</button>
+          <div className="dropdown-content">
+            <a>New</a>
+            <a>Open</a>
+            <a>Save</a>
+            <a>Save to DB</a>
+          </div>
+        </div>
+
+       <img
+          src={profileImage}
+          alt="Profile"
+          className="profile-image"
+          onClick={toggleProfileMenu}
+        />
         {showProfileMenu && (
           <div className="profile-menu">
             <ul>
@@ -1045,76 +1080,114 @@ const CanvasComponent = () => {
         <div className="sidebar">
           <h2>Shapes</h2>
           <div className="shapebutton-container">
-            <button data-testid="rectangleButton" onClick={() => addShape(ShapeTypes.RECTANGLE)}>
+            <button
+              data-testid="rectangleButton"
+              onClick={() => addShape(ShapeTypes.RECTANGLE)}
+              title="Add Rectangle"
+            >
               <Rectangle width={100} height={60} />
             </button>
-            <button data-testid="circleButton" onClick={() => addShape(ShapeTypes.CIRCLE)}>
+            <button
+              data-testid="circleButton"
+              onClick={() => addShape(ShapeTypes.CIRCLE)}
+              title="Add Circle"
+            >
               <Circle radius={50} />
             </button>
-            <button data-testid="squareButton" onClick={() => addShape(ShapeTypes.SQUARE)}>
+            <button
+              data-testid="squareButton"
+              onClick={() => addShape(ShapeTypes.SQUARE)}
+              title="Add Square"
+            >
               <Square size={80} />
             </button>
-            <button data-testid="diamondButton" onClick={() => addShape(ShapeTypes.DIAMOND)}>
+            <button
+              data-testid="diamondButton"
+              onClick={() => addShape(ShapeTypes.DIAMOND)}
+              title="Add Diamond"
+            >
               <Diamond width={100} height={100} />
             </button>
             <button
               data-testid="lineButton"
-              onClick={() => addShape(ShapeTypes.LINE)}><Line width={5} /></button>
+              onClick={() => addShape(ShapeTypes.LINE)}
+              title="Add Line"
+            >
+              <Line width={5} />
+            </button>
             <button
               data-testid="connectorLineButton"
-              onClick={() => addShape(ShapeTypes.CONNECTOR_LINE)}>
+              onClick={() => addShape(ShapeTypes.CONNECTOR_LINE)}
+              title="Add Connector Line"
+            >
               <ConnectorLine width={100} height={60} />
             </button>
             <button
               data-testid="bidirectionalConnectorButton"
-              onClick={() => addShape(ShapeTypes.BIDIRECTIONAL_CONNECTOR)}>
+              onClick={() => addShape(ShapeTypes.BIDIRECTIONAL_CONNECTOR)}
+              title="Add Bidirectional Connector"
+            >
               <BidirectionalConnector width={10} />
             </button>
           </div>
         </div>
         <div className="main">
           <div className="button-container">
-            <button>
-              <IoReloadOutline data-testid="rotate-icon" onClick={() => handleRotate(Math.PI / 4)} className="rotate-icon" /></button>
-            <button data-testid="openButton"
+            <button
+              onClick={() => handleRotate(Math.PI / 4)}
+              title="Rotate Canvas"
+            >
+              <IoReloadOutline className="rotate-icon" />
+            </button>
+            <button
+              data-testid="openButton"
               onClick={() => handleButtonClick("open")}
               className={selectedButton === "open" ? "selected" : ""}
+              title="Open"
             >
               <MdFileOpen />
               {hoveredButton === "open" && <span className="tooltip">Open</span>}
             </button>
-            <button data-testid="saveButton"
+            <button
+              data-testid="saveButton"
               onClick={() => handleButtonClick("save")}
               className={selectedButton === "save" ? "selected" : ""}
+              title="Save"
             >
               <TfiSave />
               {hoveredButton === "save" && <span className="tooltip">Save</span>}
             </button>
-            <button data-testid="undoButton1"
+            <button
+              data-testid="undoButton"
               onClick={() => handleButtonClick("undo")}
               className={selectedButton === "undo" ? "selected" : ""}
+              title="Undo"
             >
               <IoArrowUndo />
               {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
             </button>
-            <button data-testid="redoButton"
+            <button
+              data-testid="redoButton"
               onClick={() => handleButtonClick("redo")}
               className={selectedButton === "redo" ? "selected" : ""}
+              title="Redo"
             >
               <IoArrowRedo />
               {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
             </button>
-            <button data-testid="deleteButton"
+            <button
+              data-testid="deleteButton"
               onClick={() => handleButtonClick("delete")}
               className={selectedButton === "delete" ? "selected" : ""}
+              title="Delete"
             >
               <MdDeleteForever />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
               )}
             </button>
-            <button onClick={saveCanvasState} data-testid="saveButton">Save</button>
-            <button onClick={() => setShowColorPicker(!showColorPicker)}>
+            <button onClick={saveCanvasState} data-testid="saveButton" title="Save">Save</button>
+            <button onClick={() => setShowColorPicker(!showColorPicker)} title="Fill Color">
               <MdColorLens />
             </button>
             {showColorPicker && (
@@ -1123,7 +1196,22 @@ const CanvasComponent = () => {
                 onChange={handleChangeColor}
               />
             )}
+            {selectedShapeId && (
+              <>
+                <input
+                  type="color"
+                  title="border color"
+                  className="bcolor"
+                  value={shapes.find((shape) => shape.id === selectedShapeId)?.shapeBorderColor || "black"}
+                  onChange={(e) => handleBorderColorChange(e.target.value)}
+                /> 
+                <button onClick={handleBorderThicknessIncrease} title=" Increase border Thickness">+</button>
+                <button onClick={handleBorderThicknessDecrease} title=" Decrease border Thickness">-</button>
+              </>
+            )}
           </div>
+   
+
           <div>
             <div style={{ position: "relative", width: "800px", height: "600px" }}>
               <h1>Draw Here!!</h1>
@@ -1175,10 +1263,9 @@ const CanvasComponent = () => {
           msg={msg}
           handleClick={() => setShowMsgBox(false)}
         />
-      )}
-
-
+      )}     
     </div>
+    
   );
 };
 

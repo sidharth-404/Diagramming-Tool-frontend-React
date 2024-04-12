@@ -40,7 +40,7 @@ export const Diamond = () => (
 );
 export const Line = () => (
   <CommonShape className="line">
-    <line x1="10" y1="5" x2={shapeSize.width - 10} y2={shapeSize.height - 10} stroke="black" strokeWidth="2" />
+    <line x1="10" y1="5" x2={shapeSize.width - 10} y2={shapeSize.height - 10} stroke="black" strokeWidth="2" fill="black" />
   </CommonShape>
 );
 
