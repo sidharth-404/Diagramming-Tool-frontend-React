@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import "./Canvas.css";
@@ -8,7 +7,7 @@ import { MdDeleteForever, MdFileOpen, MdColorLens } from "react-icons/md";
 import { TfiSave } from "react-icons/tfi";
 import ShapeTypes from "./ShapeTypes";
 import profileImage from '../../Assets/R.png';
-import logo from "../../Assets/square.png";
+
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { SketchPicker } from "react-color";
@@ -94,15 +93,15 @@ const CanvasComponent = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
   
-    // Clear canvas
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-    // Set canvas border
+    
     ctx.strokeStyle = canvasBorderColor;
     ctx.lineWidth = canvasBorderThickness;
     ctx.strokeRect(0, 0, canvas.width, canvas.height);
   
-    // Draw shapes
+   
     shapes.forEach((shape) => {
       ctx.fillStyle = shape.color;
       ctx.strokeStyle = shape.shapeBorderColor;
@@ -140,10 +139,10 @@ const CanvasComponent = () => {
           ctx.moveTo(shape.startX, shape.startY);
           ctx.lineTo(shape.endX, shape.endY);
           ctx.strokeStyle = shape.color; 
-          ctx.lineWidth = shape.shapeBorderThickness; // Set line thickness
+          ctx.lineWidth = shape.shapeBorderThickness; 
           ctx.stroke();
   
-          // Draw arrow if it's a connector line
+          
           if (shape.type === ShapeTypes.CONNECTOR_LINE || shape.type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
             const arrowSize = 10;
             const dx = shape.endX - shape.startX;
@@ -575,14 +574,16 @@ const CanvasComponent = () => {
 
   const addShape = (type) => {
     let newShape;
-    if (type === ShapeTypes.CONNECTOR_LINE || type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
+    if (type === ShapeTypes.CONNECTOR_LINE || type === ShapeTypes.BIDIRECTIONAL_CONNECTOR ||  type === ShapeTypes.LINE ) {
       newShape = {
         id: Date.now(),
         type,
         startX: 50,
         startY: 50,
         endX: 200,
-        endY: 200,color: "black",
+        endY: 200,
+        color: "black",
+        shapeBorderThickness: 1
 
       };
     } else {
@@ -624,20 +625,20 @@ const CanvasComponent = () => {
     switch (shape.type) {
       case ShapeTypes.RECTANGLE:
         return [
-          { x: shape.x, y: shape.y }, // Top-left
-          { x: shape.x + shape.width / 2, y: shape.y }, // Top-middle
-          { x: shape.x + shape.width, y: shape.y }, // Top-right
-          { x: shape.x, y: shape.y + shape.height / 2 }, // Left-middle
-          { x: shape.x + shape.width, y: shape.y + shape.height / 2 }, // Right-middle
-          { x: shape.x, y: shape.y + shape.height }, // Bottom-left
-          { x: shape.x + shape.width / 2, y: shape.y + shape.height }, // Bottom-middle
-          { x: shape.x + shape.width, y: shape.y + shape.height }, // Bottom-right
+          { x: shape.x, y: shape.y },
+          { x: shape.x + shape.width / 2, y: shape.y }, 
+          { x: shape.x + shape.width, y: shape.y },
+          { x: shape.x, y: shape.y + shape.height / 2 }, 
+          { x: shape.x + shape.width, y: shape.y + shape.height / 2 }, 
+          { x: shape.x, y: shape.y + shape.height },
+          { x: shape.x + shape.width / 2, y: shape.y + shape.height }, 
+          { x: shape.x + shape.width, y: shape.y + shape.height }, 
         ];
       case ShapeTypes.CIRCLE:
-        const numPoints = 8; // You can adjust this number based on preference
+        const numPoints = 8; 
         const selectionPoints = [];
         for (let i = 0; i < numPoints; i++) {
-          const angle = (Math.PI / 4) * i; // Divide the circle into 8 equal parts
+          const angle = (Math.PI / 4) * i; 
           const x = shape.x + shape.radius * Math.cos(angle);
           const y = shape.y + shape.radius * Math.sin(angle);
           selectionPoints.push({ x, y });
@@ -645,12 +646,12 @@ const CanvasComponent = () => {
         return selectionPoints;
       case ShapeTypes.SQUARE:
         return [
-          { x: shape.x, y: shape.y }, // Top-left
-          { x: shape.x + shape.size / 2, y: shape.y }, // Top-middle
-          { x: shape.x + shape.size, y: shape.y }, // Top-right
-          { x: shape.x, y: shape.y + shape.size / 2 }, // Left-middle
-          { x: shape.x + shape.size, y: shape.y + shape.size / 2 }, // Right-middle
-          { x: shape.x, y: shape.y + shape.size }, // Bottom-left
+          { x: shape.x, y: shape.y }, 
+          { x: shape.x + shape.size / 2, y: shape.y }, 
+          { x: shape.x + shape.size, y: shape.y }, 
+          { x: shape.x, y: shape.y + shape.size / 2 },
+          { x: shape.x + shape.size, y: shape.y + shape.size / 2 }, 
+          { x: shape.x, y: shape.y + shape.size }, 
           { x: shape.x + shape.size / 2, y: shape.y + shape.size }, // Bottom-middle
           { x: shape.x + shape.size, y: shape.y + shape.size }, // Bottom-right
         ];
@@ -1026,18 +1027,16 @@ const CanvasComponent = () => {
   return (
     <div>
       <nav className="navbar navbar-expand-lg">
-      {/* <div className="logo">
-          <img src={logo} alt="Logo" />
-      </div> */}
+
       <h3 className="navbar-brand">Diagraming Tool   |</h3>
       
       <div className="dropdown">
           <button className="dropbtn">File</button>
           <div className="dropdown-content">
-            <a >New</a>
-            <a >Open</a>
+            <a>New</a>
+            <a>Open</a>
             <a>Save</a>
-            <a >Save to DB</a>
+            <a>Save to DB</a>
           </div>
         </div>
 
