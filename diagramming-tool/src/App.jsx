@@ -12,12 +12,11 @@ import ExistingPage from './Component/Login/ExistingPage';
 import UserProfile from './Component/UserProfile/UserProfile.jsx';
 
 
-
 function App() {
   return (
 
     <Router>
-      {/* <div className="App">
+      <div className="App">
         <header className="App-header"> 
         </header>
         <Routes>
@@ -32,10 +31,8 @@ function App() {
           <Route path="/existing" element={<ExistingPage/>}/>
 
         </Routes>
-      </div> */}
-      <div> 
-        <CanvasComponent/>
       </div>
+      
     </Router>
     
    
