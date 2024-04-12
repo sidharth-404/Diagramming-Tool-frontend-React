@@ -3,7 +3,7 @@ import "./Canvas.css";
 import { Rectangle, Circle, Square, Diamond, Line, ConnectorLine, BidirectionalConnector } from "./NewShapes";
 import { IoArrowUndo, IoArrowRedo, IoReloadOutline } from "react-icons/io5";
 import { MdDeleteForever, MdFileOpen, MdColorLens } from "react-icons/md";
-import { PiTextT } from "react-icons/pi";
+import { PiTextT, PiX } from "react-icons/pi";
 import { TfiSave } from "react-icons/tfi";
 import ShapeTypes from "./ShapeTypes";
 import profileImage from '../../Assets/R.png';
@@ -14,6 +14,7 @@ import SavePopup from "../SavePop/SavePop";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
 import TextBox from "./TextBox";
+
 
 const CanvasComponent = () => {
 
@@ -1072,7 +1073,7 @@ const CanvasComponent = () => {
             <button 
             data-testid="addtextbox"
             onClick={addTextBox} style={{ color: 'black' }}
-            ><PiTextT /></button>
+            ><PiTextT fontSize={70} /></button>
           </div>
         </div>
         <div className="main">
@@ -1143,9 +1144,11 @@ const CanvasComponent = () => {
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
               ></canvas>
+
               {/* Render text boxes */}
               {textBoxes.map((box, index) => (
                 <TextBox
+                data-testid="addtextcanvas"
                   key={index}
                   x={box.x}
                   y={box.y}
