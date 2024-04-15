@@ -47,11 +47,11 @@ const CanvasComponent = () => {
 
 
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
   const handlePreventNavigation = (event) => {
     event.preventDefault();
     if (Cookies.get('token')) {
