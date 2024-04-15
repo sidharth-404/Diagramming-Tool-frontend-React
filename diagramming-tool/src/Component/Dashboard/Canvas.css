@@ -59,7 +59,7 @@ button:hover .tooltip {
   opacity: 1;
 }
 
-canvas {
+/* canvas {
   border: 1px solid #e0e0e0;
   border-radius: 5px;
   background-image:
@@ -72,8 +72,8 @@ canvas {
       transparent,
       transparent 20px,
       #f5f5f5 20px,
-      #f5f5f5 21px);
-}
+      #f5f5f5 21px)
+} */
 
 .shape-button {
   border: 1px solid #e0e0e0;

@@ -1,73 +1,53 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./Canvas.css";
-import { Rectangle, Circle, Square, Diamond, Line, ConnectorLine, BidirectionalConnector } from "./NewShapes";
-import { IoArrowUndo, IoArrowRedo, IoReloadOutline } from "react-icons/io5";
-import { MdDeleteForever, MdFileOpen, MdColorLens } from "react-icons/md";
-import { PiTextT, PiX } from "react-icons/pi";
+import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
+import { MdDeleteForever, MdFileOpen } from "react-icons/md";
+import { PiRectangle } from "react-icons/pi";
+import { VscCircleLarge } from "react-icons/vsc";
+import { IoIosSquareOutline } from "react-icons/io";
+import { IoTriangleOutline } from "react-icons/io5";
+import { GoDiamond } from "react-icons/go";
+import { TbOvalVertical } from "react-icons/tb";
+import { BsPentagon } from "react-icons/bs";
+import { LuRectangleHorizontal } from "react-icons/lu";
+import { HiOutlineArrowLongRight } from "react-icons/hi2";
+import { BsArrows } from "react-icons/bs";
+import { BsHexagon } from "react-icons/bs";
 import { TfiSave } from "react-icons/tfi";
-import ShapeTypes from "./ShapeTypes";
-import profileImage from '../../Assets/R.png';
+import { PiTextT } from "react-icons/pi";
+import { IoRemoveOutline } from "react-icons/io5";
+import profileImage from '../../assets/R.png';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { SketchPicker } from "react-color";
 import SavePopup from "../SavePop/SavePop";
-import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
-import TextBox from "./TextBox";
-
+import { fabric } from 'fabric';
+import 'fabric-history';
+import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
 
 const CanvasComponent = () => {
-
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false);
-
-  const [selectedShapeId, setSelectedShapeId] = useState(null);
-  const [selectedShapes, setSelectedShapes] = useState(null);
   const [selectedButton, setSelectedButton] = useState(null);
   const [hoveredButton, setHoveredButton] = useState("");
-  const [dragStartPosition, setDragStartPosition] = useState(null);
-  const [isResizing, setIsResizing] = useState(false);
-  const [resizePointIndex, setResizePointIndex] = useState(-1);
-  const [shapes, setShapes] = useState([]);
-  const [dragging, setDragging] = useState(false);
-  const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
-  const [endPoint, setEndPoint] = useState({ x: 0, y: 0 });
-  const [lines, setLines] = useState([]);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const canvasRef = useRef(null);
-  const [editingShapeId, setEditingShapeId] = useState(null);
-  const [textInputs, setTextInputs] = useState({});
-  const navigation = useNavigate();
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const [selectedColor, setSelectedColor] = useState("white");
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const [history, setHistory] = useState([]);
-  const [textBoxes, setTextBoxes] = useState([]);
+  const navigation = useNavigate();
 
+  const canvasRef = useRef(null);
+  const [canvas, setCanvas] = useState(null);
+  const [currentColor, setCurrentColor] = useState('#ffffff');
+  const [group, setGroup] = useState(null);
+  const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
+  const [currentBorderColor, setCurrentBorderColor] = useState('#000000');
+  const [selectedShape, setSelectedShape] = useState(false);
 
-
-  // useEffect(() => {
-  //   if (!Cookies.get('token')) {
-  //     navigation('/');
-  //   }
-  // })
-
-  const addTextBox = () => {
-    setTextBoxes([...textBoxes, { x: 100, y: 100, text: "Add text" }]);
-  };
-
-  const handleTextChange = (index, newText) => {
-    setTextBoxes(
-      textBoxes.map((box, i) => (i === index ? { ...box, text: newText } : box))
-    );
-  };
-
-  const handleMove = (index, newX, newY) => {
-    setTextBoxes(
-      textBoxes.map((box, i) => (i === index ? { ...box, x: newX, y: newY } : box))
-    );
-  };
+  useEffect(() => {
+    if (!Cookies.get('token')) {
+      navigation('/');
+    }
+  })
 
   const handlePreventNavigation = (event) => {
     event.preventDefault();
@@ -77,10 +57,291 @@ const CanvasComponent = () => {
   };
   window.addEventListener('popstate', handlePreventNavigation);
 
+  useEffect(() => {
+    const initCanvas = new fabric.Canvas(canvasRef.current, {
+      backgroundColor: 'lightgrey',
+      selection: true,
+    });
+
+    fabric.Object.prototype.set({
+      transparentCorners: false,
+      cornerColor: 'blue',
+      borderColor: 'red',
+      cornerSize: 6,
+      padding: 5,
+      cornerStyle: 'circle',
+      borderOpacityWhenMoving: 0.8,
+      hasControls: true
+    });
+
+    initCanvas.on('selection:created', (e) => {
+
+      setGroup(true);
+      setSelectedShape(true)
+    });
+
+    initCanvas.on('selection:cleared', () => {
+      setGroup(null);
+      setSelectedShape(false);
+    });
+
+    setCanvas(initCanvas);
+    return () => initCanvas.dispose();
+  }, []);
+
+  const handleColorChange = (e) => {
+    setCurrentColor(e.target.value);
+    if (canvas && canvas.getActiveObject()) {
+      canvas.getActiveObject().set('fill', e.target.value);
+      canvas.requestRenderAll();
+    }
+  };
+
+  const toggleColorPicker = () => {
+    setShowColorPicker((prev) => !prev);
+  };
+
+  const addRectangle = () => {
+    const rect = new fabric.Rect({
+      left: 50,
+      top: 50,
+      fill: currentColor,
+      stroke: currentBorderColor,
+      strokeWidth: 2,
+      width: 150,
+      height: 100
+    });
+    canvas.add(rect);
+  };
+
+  const addCircle = () => {
+    const circle = new fabric.Circle({
+      radius: 50,
+      fill: currentColor,
+      stroke: currentBorderColor,
+      strokeWidth: 2,
+      top: 50,
+      left: 200
+    });
+    canvas.add(circle);
+  };
+
+  const addSquare = () => {
+    const square = new fabric.Rect({
+      left: 300,
+      top: 50,
+      fill: currentColor,
+      stroke: currentBorderColor,
+      strokeWidth: 2,
+      width: 100,
+      height: 100
+    });
+    canvas.add(square);
+  };
+
+  const addTriangle = () => {
+    const triangle = new fabric.Triangle({
+      width: 100,
+      height: 100,
+      fill: currentColor,
+      stroke: currentBorderColor,
+      strokeWidth: 2,
+      left: 400,
+      top: 50
+    });
+    canvas.add(triangle);
+  };
+
+  const addDiamond = () => {
+    const diamond = new fabric.Polygon([
+      { x: 75, y: 0 },
+      { x: 150, y: 50 },
+      { x: 75, y: 100 },
+      { x: 0, y: 50 }
+    ], {
+      left: 500,
+      top: 50,
+      fill: currentColor,
+      stroke: currentBorderColor,
+      strokeWidth: 2,
+    });
+    canvas.add(diamond);
+  };
+
+  const addRoundedRectangle = () => {
+    const roundedRect = new fabric.Rect({
+      left: 200,
+      top: 200,
+      fill: currentColor,
+      width: 150,
+      height: 100,
+      rx: 20,
+      ry: 20,
+      stroke: currentBorderColor,
+      strokeWidth: 2
+    });
+
+    canvas.add(roundedRect);
+  };
+
+  const addPolygon = () => {
+    const polygon = new fabric.Polygon([
+      { x: 200, y: 0 },
+      { x: 250, y: 50 },
+      { x: 250, y: 100 },
+      { x: 150, y: 100 },
+      { x: 150, y: 50 }
+    ], {
+      left: 400,
+      top: 200,
+      fill: currentColor,
+      stroke: currentBorderColor,
+      strokeWidth: 2,
+    });
+    canvas.add(polygon);
+  };
+
+  const addHexagon = () => {
+    const hexagon = new fabric.Polygon([
+      { x: 50, y: 25 },
+      { x: 100, y: 25 },
+      { x: 125, y: 75 },
+      { x: 100, y: 125 },
+      { x: 50, y: 125 },
+      { x: 25, y: 75 }
+    ], {
+      left: 600,
+      top: 200,
+      stroke: currentBorderColor,
+      strokeWidth: 2,
+      fill: currentColor,
+      selectable: true
+    });
+
+    canvas.add(hexagon);
+  };
+
+  const addEllipse = () => {
+    const ellipse = new fabric.Ellipse({
+      rx: 75,
+      ry: 50,
+      fill: currentColor,
+      stroke: currentBorderColor,
+      strokeWidth: 2,
+      top: 200,
+      left: 50
+    });
+    canvas.add(ellipse);
+  };
+
+  const addText = () => {
+    const text = new fabric.IText('New Text', {
+      left: 690,
+      top: 50,
+      fontSize: 20,
+      fill: 'black',
+      editable: true
+    });
+    canvas.add(text);
+    canvas.setActiveObject(text);
+    text.enterEditing();
+    text.on('editing:entered', () => {
+      text.visible = true;
+      canvas.requestRenderAll();
+    });
+    text.on('editing:exited', () => {
+      if (text.text.trim() === 'New Text' || text.text.trim() === '') {
+        text.visible = false;
+      }
+      canvas.requestRenderAll();
+    });
+  };
+
+  const addLine = () => {
+    const line = new fabric.Line([50, 100, 250, 100], {
+      left: 50,
+      top: 350,
+      strokeWidth: 2,
+      stroke: currentBorderColor,
+    });
+    canvas.add(line);
+  };
+
+  const addArrowLine = () => {
+    const line = new fabric.Line([50, 380, 250, 380], {
+      stroke: currentBorderColor,
+      strokeWidth: 2,
+      selectable: true
+    });
+
+    const arrow = new fabric.Triangle({
+      width: 10,
+      height: 10,
+      strokeWidth: 2,
+      stroke: currentBorderColor,
+      fill: currentBorderColor,
+      left: 250,
+      top: 380,
+      angle: 90,
+      originX: 'center',
+      originY: 'center'
+    });
+
+    const group = new fabric.Group([line, arrow], {});
+    canvas.add(group);
+  };
+
+  const addBidirectionalArrowLine = () => {
+    const line = new fabric.Line([50, 410, 250, 410], {
+      stroke: currentBorderColor,
+      strokeWidth: 2,
+      selectable: true
+    });
+
+    const arrow1 = new fabric.Triangle({
+      width: 10,
+      height: 10,
+      height: 10,
+      strokeWidth: 2,
+
+      fill: currentBorderColor,
+      left: 50,
+      top: 410,
+      angle: -90,
+      originX: 'center',
+      originY: 'center'
+    });
+
+    const arrow2 = new fabric.Triangle({
+      width: 10,
+      height: 10,
+      height: 10,
+      strokeWidth: 2,
+      stroke: currentBorderColor,
+      fill: currentBorderColor,
+      left: 250,
+      top: 410,
+      angle: 90,
+      originX: 'center',
+      originY: 'center'
+    });
+
+    const group = new fabric.Group([line, arrow1, arrow2], {});
+    canvas.add(group);
+  };
+
+  const deleteSelectedObject = () => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+      canvas.remove(activeObject);
+      canvas.requestRenderAll();
+    }
+  };
+
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
+  };
 
-  }
   const handleProfileOptionClick = (option) => {
     switch (option) {
       case 'profile':
@@ -91,827 +352,38 @@ const CanvasComponent = () => {
         break;
       case 'Signout':
         Cookies.remove('token');
-
         localStorage.removeItem('canvasState');
-
-
         navigation('/');
         break;
       default:
         break;
     }
-    setShowProfileMenu(false); // Hide the profile menu after clicking an option
-  };
-
-
-
-
-  const draw = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    shapes.forEach((shape) => {
-      ctx.fillStyle = shape.color;
-      if (shape.type === ShapeTypes.RECTANGLE) {
-
-
-        ctx.fillRect(shape.x, shape.y, shape.width * 2, shape.height);
-        ctx.strokeRect(shape.x, shape.y, shape.width * 2, shape.height);
-        ctx.fillStyle = "white";
-        ctx.lineWidth = 2;
-      } else if (shape.type === ShapeTypes.CIRCLE) {
-        ctx.beginPath();
-        ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = "white";
-      } else if (shape.type === ShapeTypes.SQUARE) {
-        ctx.fillRect(shape.x, shape.y, shape.size, shape.size);
-        ctx.strokeRect(shape.x, shape.y, shape.size, shape.size);
-        ctx.fillStyle = "white";
-      } else if (shape.type === ShapeTypes.DIAMOND) {
-        ctx.beginPath();
-        ctx.moveTo(shape.x + shape.width / 2, shape.y);
-        ctx.lineTo(shape.x + shape.width, shape.y + shape.height / 2);
-        ctx.lineTo(shape.x + shape.width / 2, shape.y + shape.height);
-        ctx.lineTo(shape.x, shape.y + shape.height / 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = "white";
-      } else if (shape.type === ShapeTypes.LINE) {
-        ctx.beginPath();
-        ctx.moveTo(shape.startX, shape.startY);
-        ctx.lineTo(shape.endX, shape.endY);
-        ctx.stroke();
-      } else if (shape.type === ShapeTypes.CONNECTOR_LINE) {
-        ctx.beginPath();
-        ctx.moveTo(shape.startX, shape.startY);
-        ctx.lineTo(shape.endX, shape.endY);
-        ctx.stroke();
-
-        const arrowSize = 10;
-        const dx = shape.endX - shape.startX;
-        const dy = shape.endY - shape.startY;
-        const angle = Math.atan2(dy, dx);
-
-        ctx.save();
-        ctx.translate(shape.endX, shape.endY);
-        ctx.rotate(angle + Math.PI);
-        ctx.fillStyle = "black";
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(arrowSize, arrowSize / 2);
-        ctx.lineTo(arrowSize, -arrowSize / 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-      } else if (shape.type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
-        ctx.beginPath();
-        ctx.moveTo(shape.startX, shape.startY);
-        ctx.lineTo(shape.endX, shape.endY);
-        ctx.stroke();
-        const arrowSize = 10;
-        const dx = shape.endX - shape.startX;
-        const dy = shape.endY - shape.startY;
-        const angle = Math.atan2(dy, dx);
-
-        ctx.beginPath();
-        ctx.moveTo(shape.startX, shape.startY);
-        ctx.lineTo(shape.endX, shape.endY);
-        ctx.stroke();
-
-        ctx.save();
-        ctx.translate(shape.startX, shape.startY);
-        ctx.rotate(angle);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(arrowSize, arrowSize / 2);
-        ctx.lineTo(arrowSize, -arrowSize / 2);
-        ctx.closePath();
-        ctx.fillStyle = "black";
-        ctx.fill();
-        ctx.restore();
-
-        ctx.save();
-        ctx.translate(shape.endX, shape.endY);
-        ctx.rotate(angle + Math.PI);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.fillStyle = "black";
-        ctx.lineTo(arrowSize, arrowSize / 2);
-        ctx.lineTo(arrowSize, -arrowSize / 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-      }
-      if (textInputs[shape.id]) {
-        let centerX, centerY;
-        switch (shape.type) {
-          case ShapeTypes.RECTANGLE:
-            centerX = shape.x + (shape.width * 2) / 2;
-            centerY = shape.y + shape.height / 2;
-            break;
-          case ShapeTypes.SQUARE:
-            centerX = shape.x + shape.width / 2;
-            centerY = shape.y + shape.height / 2;
-            break;
-          case ShapeTypes.CIRCLE:
-            centerX = shape.x;
-            centerY = shape.y;
-            break;
-          case ShapeTypes.DIAMOND:
-            centerX = shape.x + shape.width / 2;
-            centerY = shape.y + shape.height / 2;
-            break;
-          default:
-            break;
-        }
-
-        let fontSize = 14;
-        ctx.font = `${fontSize}px Arial`;
-        let text = textInputs[shape.id];
-
-
-        let textWidth = ctx.measureText(text).width;
-
-        while (textWidth > shape.width) {
-          fontSize -= 1;
-          ctx.font = `${fontSize}px Arial`;
-          textWidth = ctx.measureText(text).width;
-        }
-
-        ctx.fillStyle = "black";
-        ctx.font = `${fontSize}px Arial`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(text, centerX, centerY);
-      }
-
-
-
-    });
-    lines.forEach((line) => {
-
-      ctx.beginPath();
-      ctx.moveTo(line.startPoint.x, line.startPoint.y);
-      ctx.lineTo(line.endPoint.x, line.endPoint.y);
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    });
-
-
-    if (selectedShapeId) {
-      const selectedShape = shapes.find((shape) => shape.id === selectedShapeId);
-      if (selectedShape) {
-        drawSelectionPoints(ctx, selectedShape);
-      }
-    }
-    if (dragging) {
-      ctx.beginPath();
-      ctx.moveTo(startPoint.x, startPoint.y);
-      ctx.lineTo(endPoint.x, endPoint.y);
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-
-
-  }, [shapes, selectedShapeId, dragging, startPoint, endPoint, lines, textInputs]);
-
-  useEffect(() => {
-    draw();
-  }, [draw]);
-
-  const handleChangeColor = (color) => {
-    setSelectedColor(color.hex);
-    if (selectedShapeId !== null) {
-      setShapes((prevShapes) =>
-        prevShapes.map((shape) =>
-          shape.id === selectedShapeId ? { ...shape, color: color.hex } : shape
-        )
-      );
-    }
-  };
-
-  const drawSelectionPoints = (ctx, shape) => {
-    const pointSize = 5;
-    const halfPointSize = pointSize / 2;
-    ctx.fillStyle = "blue";
-
-    switch (shape.type) {
-      case ShapeTypes.RECTANGLE:
-        ctx.fillRect(shape.x - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width * 2 - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.height - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width * 2 - halfPointSize, shape.y + shape.height - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.height / 2 - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width * 2 - halfPointSize, shape.y + shape.height / 2 - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width - halfPointSize, shape.y + shape.height - halfPointSize, pointSize, pointSize);
-        break;
-      case ShapeTypes.CIRCLE:
-        ctx.fillRect(shape.x - halfPointSize, shape.y - shape.radius - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.radius - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - shape.radius - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.radius - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - shape.radius / Math.sqrt(2) - halfPointSize, shape.y - shape.radius / Math.sqrt(2) - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.radius / Math.sqrt(2) - halfPointSize, shape.y - shape.radius / Math.sqrt(2) - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - shape.radius / Math.sqrt(2) - halfPointSize, shape.y + shape.radius / Math.sqrt(2) - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.radius / Math.sqrt(2) - halfPointSize, shape.y + shape.radius / Math.sqrt(2) - halfPointSize, pointSize, pointSize);
-        break;
-      case ShapeTypes.SQUARE:
-        ctx.fillRect(shape.x - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.size - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.size - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.size - halfPointSize, shape.y + shape.size - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.size / 2 - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.size / 2 - halfPointSize, shape.y + shape.size - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.size / 2 - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.size - halfPointSize, shape.y + shape.size / 2 - halfPointSize, pointSize, pointSize);
-        break;
-      case ShapeTypes.DIAMOND:
-        ctx.fillRect(shape.x - halfPointSize, shape.y + shape.height / 2 - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width - halfPointSize, shape.y + shape.height / 2 - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width / 2 - halfPointSize, shape.y - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.x + shape.width / 2 - halfPointSize, shape.y + shape.height - halfPointSize, pointSize, pointSize);
-        break;
-
-      case ShapeTypes.LINE:
-
-        ctx.fillRect(shape.startX - halfPointSize, shape.startY - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.endX - halfPointSize, shape.endY - halfPointSize, pointSize, pointSize);
-        break;
-      case ShapeTypes.CONNECTOR_LINE:
-
-        ctx.fillRect(shape.startX - halfPointSize, shape.startY - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.endX - halfPointSize, shape.endY - halfPointSize, pointSize, pointSize);
-
-        ctx.fillRect((shape.startX + shape.endX) / 2 - halfPointSize, (shape.startY + shape.endY) / 2 - halfPointSize, pointSize, pointSize);
-        break;
-      case ShapeTypes.BIDIRECTIONAL_CONNECTOR:
-
-        ctx.fillRect(shape.startX - halfPointSize, shape.startY - halfPointSize, pointSize, pointSize);
-        ctx.fillRect(shape.endX - halfPointSize, shape.endY - halfPointSize, pointSize, pointSize);
-
-        ctx.fillRect((shape.startX + shape.endX) / 2 - halfPointSize, (shape.startY + shape.endY) / 2 - halfPointSize, pointSize, pointSize);
-        ctx.fillRect((shape.startX + shape.endX) / 2 - halfPointSize, (shape.startY + shape.endY) / 2 - halfPointSize, pointSize, pointSize);
-        break;
-
-      default:
-        break;
-    }
-  };
-
-  function rotatePoint(x, y, cx, cy, angle) {
-    const cosAngle = Math.cos(angle);
-    const sinAngle = Math.sin(angle);
-    const nx = (cosAngle * (x - cx)) + (sinAngle * (y - cy)) + cx;
-    const ny = (cosAngle * (y - cy)) - (sinAngle * (x - cx)) + cy;
-    return { x: nx, y: ny };
-  }
-
-  const rotateSelected = (angle) => {
-    const updatedShapes = shapes.map((shape) => {
-
-      if (selectedShapes) {
-        switch (shape.type) {
-          case ShapeTypes.RECTANGLE:
-          case ShapeTypes.SQUARE:
-          case ShapeTypes.DIAMOND:
-            // Rotate shape around its center
-            const centerX = shape.x + shape.width / 2;
-            const centerY = shape.y + shape.height / 2;
-            const rotatedCenter = rotatePoint(centerX, centerY, centerX, centerY, angle);
-            const dx = rotatedCenter.x - centerX;
-            const dy = rotatedCenter.y - centerY;
-            return { ...shape, x: shape.x + dx, y: shape.y + dy };
-          case ShapeTypes.CIRCLE:
-
-            return { ...shape, rotation: shape.rotation + angle };
-          case ShapeTypes.LINE:
-
-            const midX = (shape.startX + shape.endX) / 2;
-            const midY = (shape.startY + shape.endY) / 2;
-            const rotatedStart = rotatePoint(shape.startX, shape.startY, midX, midY, angle);
-            const rotatedEnd = rotatePoint(shape.endX, shape.endY, midX, midY, angle);
-            return { ...shape, startX: rotatedStart.x, startY: rotatedStart.y, endX: rotatedEnd.x, endY: rotatedEnd.y };
-          case ShapeTypes.CONNECTOR_LINE:
-          case ShapeTypes.BIDIRECTIONAL_CONNECTOR:
-
-            const midConnX = (shape.startX + shape.endX) / 2;
-            const midConnY = (shape.startY + shape.endY) / 2;
-            const rotatedStartConnector = rotatePoint(shape.startX, shape.startY, midConnX, midConnY, angle);
-            const rotatedEndConnector = rotatePoint(shape.endX, shape.endY, midConnX, midConnY, angle);
-            return { ...shape, startX: rotatedStartConnector.x, startY: rotatedStartConnector.y, endX: rotatedEndConnector.x, endY: rotatedEndConnector.y };
-          default:
-            return shape;
-        }
-      }
-      return shape;
-    });
-    setShapes(updatedShapes);
-  };
-
-  const handleRotate = (angle) => {
-    rotateSelected(angle);
-  };
-
-
-  const handleCanvasClick = (event) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    //const pointSize=5;
-
-    const offsetX = event.nativeEvent.offsetX;
-    const offsetY = event.nativeEvent.offsetY;
-
-    let clickedShapeId = null;
-
-    shapes.forEach((shape) => {
-      const pointSize = 10;
-      switch (shape.type) {
-        case ShapeTypes.RECTANGLE:
-          if (
-            offsetX >= shape.x &&
-            offsetX <= shape.x + shape.width * 2 &&
-            offsetY >= shape.y &&
-            offsetY <= shape.y + shape.height
-          ) {
-            clickedShapeId = shape.id;
-          }
-          break;
-        case ShapeTypes.CIRCLE:
-          const distance = Math.sqrt(Math.pow(offsetX - shape.x, 2) + Math.pow(offsetY - shape.y, 2));
-          if (distance <= shape.radius) {
-            clickedShapeId = shape.id;
-          }
-          break;
-        case ShapeTypes.SQUARE:
-          if (
-            offsetX >= shape.x &&
-            offsetX <= shape.x + shape.size &&
-            offsetY >= shape.y &&
-            offsetY <= shape.y + shape.size
-          ) {
-            clickedShapeId = shape.id;
-          }
-          break;
-        case ShapeTypes.DIAMOND:
-          if (isPointInsideDiamond(offsetX, offsetY, shape)) {
-            clickedShapeId = shape.id;
-          }
-          break;
-        case ShapeTypes.LINE:
-
-          const minX = Math.min(shape.startX, shape.endX) - pointSize;
-          const maxX = Math.max(shape.startX, shape.endX) + pointSize;
-          const minY = Math.min(shape.startY, shape.endY) - pointSize;
-          const maxY = Math.max(shape.startY, shape.endY) + pointSize;
-
-          if (offsetX >= minX && offsetX <= maxX && offsetY >= minY && offsetY <= maxY) {
-            clickedShapeId = shape.id;
-          }
-          break;
-
-        case ShapeTypes.CONNECTOR_LINE:
-
-          const minConnX = Math.min(shape.startX, shape.endX) - pointSize;
-          const maxConnX = Math.max(shape.startX, shape.endX) + pointSize;
-          const minConnY = Math.min(shape.startY, shape.endY) - pointSize;
-          const maxConnY = Math.max(shape.startY, shape.endY) + pointSize;
-
-          const midX = (shape.startX + shape.endX) / 2;
-          const midY = (shape.startY + shape.endY) / 2;
-
-          const minMidX = midX - pointSize;
-          const maxMidX = midX + pointSize;
-          const minMidY = midY - pointSize;
-          const maxMidY = midY + pointSize;
-
-          if ((offsetX >= minConnX && offsetX <= maxConnX && offsetY >= minConnY && offsetY <= maxConnY) ||
-            (offsetX >= minMidX && offsetX <= maxMidX && offsetY >= minMidY && offsetY <= maxMidY)) {
-            clickedShapeId = shape.id;
-          }
-          break;
-
-        case ShapeTypes.BIDIRECTIONAL_CONNECTOR:
-          const minBidirectionalConnX = Math.min(shape.startX, shape.endX) - pointSize;
-          const maxBidirectionalConnX = Math.max(shape.startX, shape.endX) + pointSize;
-          const minBidirectionalConnY = Math.min(shape.startY, shape.endY) - pointSize;
-          const maxBidirectionalConnY = Math.max(shape.startY, shape.endY) + pointSize;
-
-          const bidirectionalMidX = (shape.startX + shape.endX) / 2;
-          const bidirectionalMidY = (shape.startY + shape.endY) / 2;
-
-          const minBidirectionalMidX = bidirectionalMidX - pointSize;
-          const maxBidirectionalMidX = bidirectionalMidX + pointSize;
-          const minBidirectionalMidY = bidirectionalMidY - pointSize;
-          const maxBidirectionalMidY = bidirectionalMidY + pointSize;
-
-          if ((offsetX >= minBidirectionalConnX && offsetX <= maxBidirectionalConnX && offsetY >= minBidirectionalConnY && offsetY <= maxBidirectionalConnY) ||
-            (offsetX >= minBidirectionalMidX && offsetX <= maxBidirectionalMidX && offsetY >= minBidirectionalMidY && offsetY <= maxBidirectionalMidY)) {
-            clickedShapeId = shape.id;
-          }
-
-          break;
-
-        default:
-          break;
-      }
-    });
-
-    setSelectedShapeId((prevId) =>
-      prevId === clickedShapeId ? null : clickedShapeId
-    );
-  };
-
-  const handleMouseDown = (event) => {
-    const offsetX = event.nativeEvent.offsetX;
-    const offsetY = event.nativeEvent.offsetY;
-    shapes.forEach((shape) => {
-      // Check for each shape's selection points
-      // If the mouse is over a selection point, set isResizing to true and handle resizing logic
-      // For simplicity, let's assume the first point is for resizing
-
-
-      if (shape.id === selectedShapeId) {
-        const halfPointSize = 5 / 2; // Half of the selection point size
-        const points = getSelectionPoints(shape);
-        points.forEach((point, index) => {
-          if (
-            offsetX >= point.x - halfPointSize &&
-            offsetX <= point.x + halfPointSize &&
-            offsetY >= point.y - halfPointSize &&
-            offsetY <= point.y + halfPointSize
-          ) {
-            setIsResizing(true);
-            setResizePointIndex(index);
-          }
-        });
-      }
-
-    });
-
-    if (!isResizing) {
-      // Handle shape movement logic
-      setDragStartPosition({ x: offsetX, y: offsetY });
-    }
-
-  };
-
-  const handleMouseMove = (event) => {
-    if (selectedShapeId && (dragStartPosition || isResizing)) {
-      const offsetX = event.nativeEvent.offsetX;
-      const offsetY = event.nativeEvent.offsetY;
-
-      if (isResizing) {
-        // Handle resizing logic based on mouse movement
-        const deltaX = offsetX - dragStartPosition.x;
-        const deltaY = offsetY - dragStartPosition.y;
-
-        setShapes((prevShapes) =>
-          prevShapes.map((shape) =>
-            shape.id === selectedShapeId
-              ? resizeShape(shape, deltaX, deltaY)
-              : shape
-          )
-        );
-
-        setDragStartPosition({ x: offsetX, y: offsetY });
-      } else {
-        // Handle shape movement logic as before
-        const dx = offsetX - dragStartPosition.x;
-        const dy = offsetY - dragStartPosition.y;
-
-        setShapes((prevShapes) =>
-          prevShapes.map((shape) =>
-            shape.id === selectedShapeId
-              ? { ...shape, x: shape.x + dx, y: shape.y + dy }
-              : shape
-          )
-        );
-
-        setDragStartPosition({ x: offsetX, y: offsetY });
-      }
-    }
-  };
-
-  const handleMouseUp = () => {
-    setDragStartPosition(null);
-    setIsResizing(false);
-    setResizePointIndex(-1);
-  };
-
-
-  const isPointInsideDiamond = (pointX, pointY, diamond) => {
-    const deltaX = pointX - (diamond.x + diamond.width / 2);
-    const deltaY = pointY - (diamond.y + diamond.height / 2);
-    return Math.abs(deltaX / (diamond.width / 2)) + Math.abs(deltaY / (diamond.height / 2)) <= 1;
-  };
-
-  const addShape = (type) => {
-    let newShape;
-    if (type === ShapeTypes.CONNECTOR_LINE || type === ShapeTypes.BIDIRECTIONAL_CONNECTOR) {
-      newShape = {
-        id: Date.now(),
-        type,
-        startX: 50,
-        startY: 50,
-        endX: 200,
-        endY: 200,
-
-      };
-    } else {
-      newShape = {
-        id: Date.now(),
-        type,
-        x: 100,
-        y: 100,
-        width: 100,
-        height: 100,
-        radius: 50,
-        size: 80,
-        startX: 50,
-        startY: 50,
-        endX: 200,
-        endY: 200,
-        color: "white"
-
-
-      };
-    }
-
-    const newShapes = [...shapes, newShape];
-    setShapes([...shapes, newShape]);
-    setSelectedShapes(newShape.id);
-    const newHistory = historyIndex === history.length - 1
-      ? history.slice(0, historyIndex + 1).concat([newShapes])
-      : [...history, newShapes];
-
-    setShapes(newShapes);
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-  };
-
-
-  const getSelectionPoints = (shape) => {
-    switch (shape.type) {
-      case ShapeTypes.RECTANGLE:
-        return [
-          { x: shape.x, y: shape.y }, // Top-left
-          { x: shape.x + shape.width / 2, y: shape.y }, // Top-middle
-          { x: shape.x + shape.width, y: shape.y }, // Top-right
-          { x: shape.x, y: shape.y + shape.height / 2 }, // Left-middle
-          { x: shape.x + shape.width, y: shape.y + shape.height / 2 }, // Right-middle
-          { x: shape.x, y: shape.y + shape.height }, // Bottom-left
-          { x: shape.x + shape.width / 2, y: shape.y + shape.height }, // Bottom-middle
-          { x: shape.x + shape.width, y: shape.y + shape.height }, // Bottom-right
-        ];
-      case ShapeTypes.CIRCLE:
-        const numPoints = 8; // You can adjust this number based on preference
-        const selectionPoints = [];
-        for (let i = 0; i < numPoints; i++) {
-          const angle = (Math.PI / 4) * i; // Divide the circle into 8 equal parts
-          const x = shape.x + shape.radius * Math.cos(angle);
-          const y = shape.y + shape.radius * Math.sin(angle);
-          selectionPoints.push({ x, y });
-        }
-        return selectionPoints;
-      case ShapeTypes.SQUARE:
-        return [
-          { x: shape.x, y: shape.y }, // Top-left
-          { x: shape.x + shape.size / 2, y: shape.y }, // Top-middle
-          { x: shape.x + shape.size, y: shape.y }, // Top-right
-          { x: shape.x, y: shape.y + shape.size / 2 }, // Left-middle
-          { x: shape.x + shape.size, y: shape.y + shape.size / 2 }, // Right-middle
-          { x: shape.x, y: shape.y + shape.size }, // Bottom-left
-          { x: shape.x + shape.size / 2, y: shape.y + shape.size }, // Bottom-middle
-          { x: shape.x + shape.size, y: shape.y + shape.size }, // Bottom-right
-        ];
-      case ShapeTypes.DIAMOND:
-        return [
-          { x: shape.x, y: shape.y + shape.height / 2 }, // Left-middle
-          { x: shape.x + shape.width, y: shape.y + shape.height / 2 }, // Right-middle
-          { x: shape.x + shape.width / 2, y: shape.y }, // Top-middle
-          { x: shape.x + shape.width / 2, y: shape.y + shape.height }, // Bottom-middle
-        ];
-      default:
-        return [];
-    }
-  };
-
-
-  const resizeShape = (shape, deltaX, deltaY) => {
-    const newShape = { ...shape };
-    // eslint-disable-next-line default-case
-    switch (shape.type) {
-      case ShapeTypes.RECTANGLE:
-        switch (resizePointIndex) {
-          case 0: // Top-left
-            newShape.x += deltaX;
-            newShape.y += deltaY;
-            newShape.width -= deltaX;
-            newShape.height -= deltaY;
-            break;
-          case 1: // Top-middle
-            newShape.y += deltaY;
-            newShape.height -= deltaY;
-            break;
-          case 2: // Top-right
-            newShape.y += deltaY;
-            newShape.width += deltaX;
-            newShape.height -= deltaY;
-            break;
-          case 3: // Left-middle
-            newShape.x += deltaX;
-            newShape.width -= deltaX;
-            break;
-          case 4: // Right-middle
-            newShape.width += deltaX;
-            break;
-          case 5: // Bottom-left
-            newShape.x += deltaX;
-            newShape.width -= deltaX;
-            newShape.height += deltaY;
-            break;
-          case 6: // Bottom-middle
-            newShape.height += deltaY;
-            break;
-          case 7: // Bottom-right
-            newShape.width += deltaX;
-            newShape.height += deltaY;
-            break;
-          default:
-            break;
-        }
-        break;
-      case ShapeTypes.CIRCLE:
-        const newRadius = Math.max(shape.radius + (deltaX + deltaY) / 2, 0); // Ensure radius is non-negative
-        newShape.radius = newRadius;
-        break;
-      case ShapeTypes.SQUARE:
-        // Similar to RECTANGLE but all sides are equal
-        switch (resizePointIndex) {
-          case 0: // Top-left
-            newShape.x += deltaX;
-            newShape.y += deltaY;
-            newShape.size -= Math.max(deltaX, deltaY);
-            break;
-          case 1: // Top-middle
-            newShape.y += deltaY;
-            newShape.size -= 2 * deltaY;
-            break;
-          case 2: // Top-right
-            newShape.y += deltaY;
-            newShape.size += Math.max(deltaX, deltaY);
-            break;
-          case 3: // Left-middle
-            newShape.x += deltaX;
-            newShape.size -= 2 * deltaX;
-            break;
-          case 4: // Right-middle
-            newShape.size += 2 * deltaX;
-            break;
-          case 5: // Bottom-left
-            newShape.x += deltaX;
-            newShape.size -= Math.max(deltaX, deltaY);
-            break;
-          case 6: // Bottom-middle
-            newShape.size -= 2 * deltaY;
-            break;
-          case 7: // Bottom-right
-            newShape.size += Math.max(deltaX, deltaY);
-            break;
-          default:
-            break;
-        }
-        break;
-      case ShapeTypes.DIAMOND:
-        switch (resizePointIndex) {
-          case 0: // Left-middle
-            newShape.x += deltaX;
-            newShape.width -= deltaX;
-            break;
-          case 1: // Right-middle
-            newShape.width += deltaX;
-            break;
-          case 2: // Top-middle
-            newShape.y += deltaY;
-            newShape.height -= deltaY;
-            break;
-          case 3: // Bottom-middle
-            newShape.height += deltaY;
-            break;
-          default:
-            break;
-        }
-        break;
-    }
-    return newShape;
-  };
-
-
-  const getClickedShapeDouble = (x, y) => {
-    return shapes.find((shape) => {
-      if (shape.type === ShapeTypes.RECTANGLE) {
-        return (
-          x >= shape.x &&
-          x <= shape.x + shape.width * 2 &&
-          y >= shape.y &&
-          y <= shape.y + shape.height
-        );
-      } else if (shape.type === ShapeTypes.SQUARE) {
-        return (
-          x >= shape.x &&
-          x <= shape.x + shape.width &&
-          y >= shape.y &&
-          y <= shape.y + shape.height
-        );
-      } else if (shape.type === ShapeTypes.CIRCLE) {
-        return (
-          Math.sqrt((x - shape.x) ** 2 + (y - shape.y) ** 2) <= shape.radius
-        );
-      } else if (shape.type === ShapeTypes.DIAMOND) {
-        const centerX = shape.x + shape.width / 2;
-        const centerY = shape.y + shape.height / 2;
-        const dx = Math.abs(x - centerX);
-        const dy = Math.abs(y - centerY);
-        return dx / (shape.width / 2) + dy / (shape.height / 2) <= 1;
-      }
-      return false;
-    });
-  };
-
-
-  const handleDoubleClick = (event) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-
-    const clickedShape = getClickedShapeDouble(mouseX, mouseY);
-
-    if (clickedShape) {
-      setEditingShapeId(clickedShape.id);
-      setTextInputs({
-        ...textInputs,
-        [clickedShape.id]: textInputs[clickedShape.id] || "Add text",
-      });
-    }
-  };
-
-  const handleInputChange = (event, shapeId) => {
-    setTextInputs({
-      ...textInputs,
-      [shapeId]: event.target.value,
-    });
-  };
-
-
-  const handleDelete = () => {
-    if (selectedShapeId) {
-      setShapes(shapes.filter((shape) => shape.id !== selectedShapeId));
-      setSelectedShapeId(null);
-    }
+    setShowProfileMenu(false);
   };
 
   const handleSave = async (fileName, format, saveToDatabase) => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
       console.error('JWT token not found in localStorage.');
-      return;
     }
 
     try {
-      const userResponse = await getUserByEmail(jwtToken);
-      const userId = userResponse.userId;
-
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
+      const canvasElement = canvasRef.current;
+      if (!canvasElement) return;
       const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
+      tempCanvas.width = canvasElement.width;
+      tempCanvas.height = canvasElement.height;
       const tempCtx = tempCanvas.getContext("2d");
-
 
       if (format === "jpeg") {
         tempCtx.fillStyle = "white";
         tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       }
 
+      // Draw the canvas onto the temporary canvas
+      tempCtx.drawImage(canvasElement, 0, 0);
 
-      tempCtx.drawImage(canvas, 0, 0);
-
+      // Convert the temporary canvas to a blob
       tempCanvas.toBlob((blob) => {
         if (!blob) {
           console.error("Failed to convert canvas to blob.");
@@ -924,7 +396,7 @@ const CanvasComponent = () => {
           if (canvasDataUrl) {
             if (saveToDatabase) {
               const base64String = canvasDataUrl.split(",")[1];
-              saveCanvasImageToDB(base64String, userId)
+              saveCanvasImageToDB(base64String)
                 .then(() => {
                   console.log("Canvas image saved to database.");
                   setShowMsgBox(true);
@@ -954,78 +426,35 @@ const CanvasComponent = () => {
     }
   };
 
-
-  const handleOpen = () => { };
-
-  const handleButtonClick = (button) => {
-    setSelectedButton(button);
-    switch (button) {
-      case "open":
-        handleOpen();
-        break;
-      case "undo":
-        undo();
-        break;
-      case "redo":
-        redo();
-        break;
-      case "delete":
-        handleDelete();
-        break;
-      case "save":
-        setShowSavePopup(true);
-        break;
-      default:
-        break;
+  const increaseBorderWidth = () => {
+    setCurrentBorderWidth(current => current + 1);
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+      activeObject.set('strokeWidth', currentBorderWidth + 1);
+      canvas.requestRenderAll();
     }
   };
 
-  <SketchPicker
-    color={selectedColor}
-    onChange={handleChangeColor}
-  />
-
-  const saveCanvasState = () => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      const dataURL = canvas.toDataURL();
-      localStorage.setItem('canvasState', dataURL);
-    }
-  };
-
-  const loadCanvasState = () => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      const savedDataURL = localStorage.getItem('canvasState');
-      if (savedDataURL) {
-        const img = new Image();
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0);
-        };
-        img.src = savedDataURL;
+  const decreaseBorderWidth = () => {
+    if (currentBorderWidth > 1) {
+      setCurrentBorderWidth(current => current - 1);
+      const activeObject = canvas.getActiveObject();
+      if (activeObject) {
+        activeObject.set('strokeWidth', currentBorderWidth - 1);
+        canvas.requestRenderAll();
       }
     }
   };
-  useEffect(() => {
-    loadCanvasState();
-  }, []);
 
-  const undo = () => {
-    if (historyIndex > 0) {
-      setShapes(history[historyIndex - 1]);
-      setHistoryIndex(historyIndex - 1);
+  const handleBorderColorChange = (e) => {
+    setCurrentBorderColor(e.target.value);
+    if (canvas && canvas.getActiveObject()) {
+      canvas.getActiveObject().set('stroke', e.target.value);
+      canvas.requestRenderAll();
     }
   };
 
-  const redo = () => {
-    if (historyIndex < history.length - 1) {
-      setShapes(history[historyIndex + 1]);
-      setHistoryIndex(historyIndex + 1);
-    }
-  };
-
+  const handleButtonClick = () => { };
 
   return (
     <div>
@@ -1043,137 +472,104 @@ const CanvasComponent = () => {
       </nav>
       <div className="dashboard-container">
         <div className="sidebar">
-          <h2>Shapes</h2>
           <div className="shapebutton-container">
-            <button data-testid="rectangleButton" onClick={() => addShape(ShapeTypes.RECTANGLE)}>
-              <Rectangle width={100} height={60} />
-            </button>
-            <button data-testid="circleButton" onClick={() => addShape(ShapeTypes.CIRCLE)}>
-              <Circle radius={50} />
-            </button>
-            <button data-testid="squareButton" onClick={() => addShape(ShapeTypes.SQUARE)}>
-              <Square size={80} />
-            </button>
-            <button data-testid="diamondButton" onClick={() => addShape(ShapeTypes.DIAMOND)}>
-              <Diamond width={100} height={100} />
-            </button>
-            <button
-              data-testid="lineButton"
-              onClick={() => addShape(ShapeTypes.LINE)}><Line width={5} /></button>
-            <button
-              data-testid="connectorLineButton"
-              onClick={() => addShape(ShapeTypes.CONNECTOR_LINE)}>
-              <ConnectorLine width={100} height={60} />
-            </button>
-            <button
-              data-testid="bidirectionalConnectorButton"
-              onClick={() => addShape(ShapeTypes.BIDIRECTIONAL_CONNECTOR)}>
-              <BidirectionalConnector width={10} />
-            </button>
-            <button 
-            data-testid="addtextbox"
-            onClick={addTextBox} style={{ color: 'black' }}
-            ><PiTextT fontSize={70} /></button>
+            <h2>Shapes</h2>
+            <div>
+              <button data-testid="rectangleButton" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
+              <button data-testid="circleButton" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
+              <button data-testid="squareButton" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
+            </div>
+            <div>
+              <button data-testid="triangleButton" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
+              <button onClick={addDiamond}><GoDiamond fontSize={70} /></button>
+              <button onClick={addPolygon}><BsPentagon fontSize={70} /></button>
+            </div>
+            <div>
+              <button onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
+              <button onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
+              <button onClick={addHexagon}><BsHexagon fontSize={70} /></button>
+            </div>
+            <h2>Lines</h2>
+            <div>
+              <button onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
+              <button onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
+              <button onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
+            </div>
+            <h2>Add Text</h2>
+            <div>
+              <button onClick={addText}><PiTextT fontSize={65} /></button>
+            </div>
           </div>
         </div>
         <div className="main">
           <div className="button-container">
-            <button>
-              <IoReloadOutline data-testid="rotate-icon" onClick={() => handleRotate(Math.PI / 4)} className="rotate-icon" /></button>
-            <button data-testid="openButton"
+            <button
+              data-testid="openButton"
+              type="open"
               onClick={() => handleButtonClick("open")}
               className={selectedButton === "open" ? "selected" : ""}
             >
               <MdFileOpen />
               {hoveredButton === "open" && <span className="tooltip">Open</span>}
             </button>
-            <button data-testid="saveButton"
-              onClick={() => handleButtonClick("save")}
+            <button
+              data-testid="saveButton"
+              onClick={() => setShowSavePopup(true)}
               className={selectedButton === "save" ? "selected" : ""}
+              title="Save To Db"
             >
               <TfiSave />
               {hoveredButton === "save" && <span className="tooltip">Save</span>}
             </button>
-            <button data-testid="undoButton1"
-              onClick={() => handleButtonClick("undo")}
+            <button
+              data-testid="undoButton1"
+              onClick={() => canvas.undo()}
               className={selectedButton === "undo" ? "selected" : ""}
+              title="Undo"
             >
               <IoArrowUndo />
               {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
             </button>
-            <button data-testid="redoButton"
-              onClick={() => handleButtonClick("redo")}
+            <button
+              data-testid="redoButton"
+              onClick={() => canvas.redo()}
               className={selectedButton === "redo" ? "selected" : ""}
+              title="Redo"
             >
               <IoArrowRedo />
               {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
             </button>
-            <button data-testid="deleteButton"
-              onClick={() => handleButtonClick("delete")}
+            <button
+              data-testid="deleteButton"
+              onClick={() => deleteSelectedObject()}
               className={selectedButton === "delete" ? "selected" : ""}
+              title="Delete"
             >
               <MdDeleteForever />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
               )}
             </button>
-            <button onClick={saveCanvasState} data-testid="saveButton">Save</button>
-            <button onClick={() => setShowColorPicker(!showColorPicker)}>
-              <MdColorLens />
-            </button>
-            {showColorPicker && (
-              <SketchPicker
-                color={selectedColor}
-                onChange={handleChangeColor}
-              />
+            <input type="color" value={currentColor} onChange={handleColorChange} title="Fill color" />
+
+            {selectedShape && (
+              <>
+                <input type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
+                <button onClick={increaseBorderWidth} title="Increase Border">+</button>
+                <button onClick={decreaseBorderWidth} title="Decrease Border">-</button>
+              </>
             )}
           </div>
           <div>
-            <div style={{ position: "relative", width: "800px", height: "600px" }}>
-              <h1>Draw Here!!</h1>
-              <canvas
-                data-testid="canvas"
-                ref={canvasRef}
-                aria-label="Canvas"
-                width={800}
-                height={600}
-                style={{ border: "1px solid black" }}
-                onClick={handleCanvasClick}
-                onDoubleClick={handleDoubleClick}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-              ></canvas>
-
-              {/* Render text boxes */}
-              {textBoxes.map((box, index) => (
-                <TextBox
-                data-testid="addtextcanvas"
-                  key={index}
-                  x={box.x}
-                  y={box.y}
-                  onTextChange={(newText) => handleTextChange(index, newText)}
-                  onMove={(newX, newY) => handleMove(index, newX, newY)}
-                  canvasRef={canvasRef}
-                />
-              ))}
-              {editingShapeId && (
-                <input
-                  data-testid="editingtextinput"
-                  type="text"
-                  className="add-text-input"
-                  value={textInputs[editingShapeId]}
-                  onChange={(event) => handleInputChange(event, editingShapeId)}
-                  onBlur={() => setEditingShapeId(null)}
-                  style={{
-                    position: "absolute",
-                    left: shapes.find((shape) => shape.id === editingShapeId).x + shapes.find((shape) => shape.id === editingShapeId).width / 2,
-                    top: shapes.find((shape) => shape.id === editingShapeId).y + shapes.find((shape) => shape.id === editingShapeId).height / 2,
-                    textAlign: "center",
-                  }}
-                />
-              )}
-            </div>
+            <h1>Draw Here!!</h1>
+            <canvas
+              data-testid="canvas"
+              ref={canvasRef}
+              aria-label="Canvas"
+              width={800}
+              height={600}
+              style={{ border: "2px solid black" }}
+            ></canvas>
           </div>
         </div>
       </div>
@@ -1189,14 +585,12 @@ const CanvasComponent = () => {
         <MsgBoxComponent
           showMsgBox={showMsgBox}
           closeMsgBox={() => setShowMsgBox(false)}
-          msg={msg}
+          msg="Sample Message"
           handleClick={() => setShowMsgBox(false)}
         />
       )}
-
-
     </div>
   );
 };
 
-export default CanvasComponent;//dont remove
+export default CanvasComponent;
