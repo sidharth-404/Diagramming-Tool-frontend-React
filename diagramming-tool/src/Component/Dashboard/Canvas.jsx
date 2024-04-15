@@ -16,7 +16,7 @@ import { BsHexagon } from "react-icons/bs";
 import { TfiSave } from "react-icons/tfi";
 import { PiTextT } from "react-icons/pi";
 import { IoRemoveOutline } from "react-icons/io5";
-import profileImage from '../../assets/R.png';
+import profileImage from '../../Assets/R.png';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import SavePopup from "../SavePop/SavePop";
@@ -379,11 +379,7 @@ const CanvasComponent = () => {
         tempCtx.fillStyle = "white";
         tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       }
-
-      // Draw the canvas onto the temporary canvas
       tempCtx.drawImage(canvasElement, 0, 0);
-
-      // Convert the temporary canvas to a blob
       tempCanvas.toBlob((blob) => {
         if (!blob) {
           console.error("Failed to convert canvas to blob.");
