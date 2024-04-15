@@ -12,7 +12,6 @@ import ExistingPage from './Component/Login/ExistingPage';
 import UserProfile from './Component/UserProfile/UserProfile.jsx';
 
 
-
 function App() {
   return (
 
@@ -33,6 +32,7 @@ function App() {
 
         </Routes>
       </div>
+      
     </Router>
     
    
