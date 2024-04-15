@@ -867,7 +867,7 @@ const CanvasComponent = () => {
   const handleSave = async (fileName, format, saveToDatabase) => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
-      console.error('JWT token not found in localStorage.');
+     
       return;
     }
 

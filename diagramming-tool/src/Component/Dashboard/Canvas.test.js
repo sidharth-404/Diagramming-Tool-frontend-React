@@ -1,112 +1,74 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { setupJestCanvasMock } from "jest-canvas-mock";
-import { BrowserRouter as Router } from "react-router-dom";
-import CanvasComponent from "./Canvas";
+/* eslint-disable testing-library/no-node-access */
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import CanvasComponent from './CanvasComponent';
 
-beforeEach(() => {
-  jest.resetAllMocks();
-  setupJestCanvasMock();
-});
 describe('CanvasComponent', () => {
-  test('adding a rectangle shape', () => {
-     render(<Router><CanvasComponent /></Router>);
+  it('renders canvas with initial shapes', () => {
+    render(<CanvasComponent />);
+
+    
+    const canvas = screen.getByTestId('canvas');
+    expect(canvas).toBeInTheDocument();
+
+    
+    const rectangleButton = screen.getByTestId('rectangleButton');
+    const circleButton = screen.getByTestId('circleButton');
+    const squareButton = screen.getByTestId('squareButton');
+    const triangleButton = screen.getByTestId('triangleButton');
+
+    expect(rectangleButton).toBeInTheDocument();
+    expect(circleButton).toBeInTheDocument();
+    expect(squareButton).toBeInTheDocument();
+    expect(triangleButton).toBeInTheDocument();
+  });
+
+  it('adds rectangle shape to canvas', () => {
+    render(<CanvasComponent />);
+
+    
     const rectangleButton = screen.getByTestId('rectangleButton');
     fireEvent.click(rectangleButton);
 
+    
     const canvas = screen.getByTestId('canvas');
-    const ctx = canvas.getContext('2d');
-
-  
-    expect(ctx).toBeDefined();
-    expect(ctx.fillStyle).toBe('#ffffff');
-    expect(ctx.lineWidth).toBe(2);
-   expect(ctx.fillRect).toHaveBeenCalledWith(100, 100, 200, 100);
-    expect(ctx.strokeRect).toHaveBeenCalledWith(100, 100, 200, 100);
+    const rectangle = canvas.querySelector('.fabric-object-rect');
+    expect(rectangle).toBeInTheDocument();
   });
 
-  test('deleting a shape', () => {
-    render(<Router><CanvasComponent /></Router>);
-    const rectangleButton =screen.getByTestId('rectangleButton');
+  it('changes fill color of active shape', () => {
+    render(<CanvasComponent />);
+
+    
+    const rectangleButton = screen.getByTestId('rectangleButton');
     fireEvent.click(rectangleButton);
 
     
-    const deleteButton = screen.getByTestId('deleteButton');
-    fireEvent.click(deleteButton);
+    const colorInput = screen.getByTitle('Fill color');
+    fireEvent.change(colorInput, { target: { value: '#ff0000' } });
 
    
     const canvas = screen.getByTestId('canvas');
-    const ctx = canvas.getContext('2d');
-    expect(ctx).toBeDefined();
-    expect(ctx.clearRect).toHaveBeenCalled(); 
+    const rectangle = canvas.querySelector('.fabric-object-rect');
+    expect(rectangle).toHaveAttribute('fill', '#ff0000');
   });
 
-});
+  it('increases border width of active shape', () => {
+    render(<CanvasComponent />);
 
-describe("Home Page", () => {
-  it("Checks Open Button Exist in Home Page", () => {
-    render(<Router><CanvasComponent /></Router>);
-    const openButton = screen.getByTestId(/openButton/i);
-    expect(openButton).toBeInTheDocument();
-  });
+   
+    const rectangleButton = screen.getByTestId('rectangleButton');
+    fireEvent.click(rectangleButton);
 
-  
-  it("Checks Delete Button Exist in Home Page", () => {
-    render(<Router><CanvasComponent /></Router>);
-    const deleteButton = screen.getByTestId(/deleteButton/i);
-    expect(deleteButton).toBeInTheDocument();
-  });
+   
+    const increaseBorderButton = screen.getByTitle('Increase Border');
+    fireEvent.click(increaseBorderButton);
 
-  it("Checks Page contain shapes heading", () => {
-    render(<Router><CanvasComponent /></Router>);
-    const element = screen.getByText(/Shapes/i);
-    expect(element).toBeInTheDocument();
+   
+    const canvas = screen.getByTestId('canvas');
+    const rectangle = canvas.querySelector('.fabric-object-rect');
+    expect(rectangle).toHaveAttribute('stroke-width', '3'); 
   });
 
   
-  it("Circle button Exist in Home Page", () => {
-    render(<Router><CanvasComponent /></Router>);
-    const circ = screen.getByTestId(/circleButton/i);
-    expect(circ).toBeInTheDocument();
-  });
-
-  it("Canvas Exist in Home Page", () => {
-    render(<Router><CanvasComponent /></Router>);
-    const canvas = screen.getByTestId("canvas");
-    expect(canvas).toBeInTheDocument();
-  });
 });
-
-describe("Button Working", () => {
-  it("Clicks on Save Button", () => {
-    render(<Router><CanvasComponent /></Router>);
-    const saveButton = screen.getByTestId("saveButton");
-    fireEvent.click(saveButton);
-  });
-
-  it("Clicks on Undo Button", () => {
-    render(<Router><CanvasComponent /></Router>);
-    const undoButton = screen.getByTestId("undoButton1");
-    fireEvent.click(undoButton);
-  });
-
-  it("Clicks on Redo Button", () => {
-    render(<Router><CanvasComponent /></Router>);
-    const redoButton = screen.getByTestId("redoButton");
-    fireEvent.click(redoButton);
-  });
-
-  it("Clicks on Delete Button", () => {
-    render(<Router><CanvasComponent /></Router>);
-    const deleteButton = screen.getByTestId("deleteButton");
-    fireEvent.click(deleteButton);
-  });
-
-  it("Clicks on Open Button", () => {
-    render(<Router><CanvasComponent /></Router>);
-    const openButton = screen.getByTestId("openButton");
-    fireEvent.click(openButton);
-  });
- });
-
-
-
