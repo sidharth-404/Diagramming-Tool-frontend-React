@@ -41,7 +41,7 @@ h2 {
 
 
 button:hover {
-  background-color: #6bea6f;
+  background-color: #a3b4a3;
 }
 
 .tooltip {
@@ -61,7 +61,7 @@ button:hover .tooltip {
   opacity: 1;
 }
 
-canvas {
+ canvas {
   border: 1px solid #e0e0e0;
   width:1000 px;
   background: repeating-linear-gradient(transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px), repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px);
@@ -85,13 +85,13 @@ canvas {
   margin-right: 5px;
 }
 
-/* this is original */
+
 .navbar {
   background-color: lightslategrey;
-  /* Background color of the navbar */
+ 
   color: white;
-  /* Text color */
-  padding: 10px 20px;
+ margin-left: 0;
+  padding: 5px 5px;
   /* Padding for the navbar content */
   display: flex;
   align-items: center;
@@ -99,10 +99,7 @@ canvas {
   position: relative;
 }
 
-.navbar h1 {
-  margin: 0;
-  /* Remove default margin */
-}
+
 
 /* Home.css */
 

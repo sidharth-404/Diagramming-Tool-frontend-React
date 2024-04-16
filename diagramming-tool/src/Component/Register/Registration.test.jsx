@@ -1,14 +1,15 @@
 /* eslint-disable testing-library/prefer-screen-queries */
+
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Registration from './Registration';
 import '@testing-library/jest-dom';
 import { registerUser } from '../../ApiService/ApiService';
-
-
-
-
+import MsgBoxComponent from '../ConfirmMsg/MsgBoxComponent';
+ 
+ 
+ 
 jest.mock('../../ApiService/ApiService', () => ({
   registerUser: jest.fn(),
 }));
@@ -206,11 +207,10 @@ describe('Registration Component', () => {
 
 
 });
+ 
+ 
 
-
-
-
-
+ 
 it('validates first name input with numbers', () => {
   render(
     <MemoryRouter>
@@ -221,4 +221,13 @@ it('validates first name input with numbers', () => {
   fireEvent.change(firstNameInput, { target: { value: 'John123' } });
   const errorMessage = screen.getByText('Numbers not allowed in the first name');
   expect(errorMessage).toBeInTheDocument();
+});
+
+
+test('closes message box when close button is clicked', () => {
+  const { getByTestId } = render(<MsgBoxComponent showMsgBox={true} closeMsgBox={jest.fn()} msg="Test message" />);
+
+  fireEvent.click(getByTestId('close-button'));
+  expect(getByTestId('notification-modal')).not.toBeVisible();
+
 });

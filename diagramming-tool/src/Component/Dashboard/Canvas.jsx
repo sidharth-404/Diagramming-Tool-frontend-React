@@ -61,8 +61,8 @@ const CanvasComponent = () => {
   const [currentBorderColor, setCurrentBorderColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState(false);
   const [copiedObjects, setCopiedObjects] = useState([]);
-
-
+  
+  
 
   useEffect(() => {
     if (!Cookies.get('token')) {
@@ -158,6 +158,7 @@ const CanvasComponent = () => {
     canvas.requestRenderAll();
   };
 
+   
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -191,6 +192,10 @@ const CanvasComponent = () => {
     }
   };
 
+  const toggleColorPicker = () => {
+    setShowColorPicker((prev) => !prev);
+  };
+
   const addRectangle = () => {
     const rect = new fabric.Rect({
       left: 50,
@@ -203,6 +208,7 @@ const CanvasComponent = () => {
     });
     canvas.add(rect);
   };
+
   const addCircle = () => {
     const circle = new fabric.Circle({
       radius: 50,
@@ -239,117 +245,6 @@ const CanvasComponent = () => {
       top: 50
     });
     canvas.add(triangle);
-  };
-
-  const addDiamond = () => {
-    const diamond = new fabric.Polygon([
-      { x: 75, y: 0 },
-      { x: 150, y: 50 },
-      { x: 75, y: 100 },
-      { x: 0, y: 50 }
-    ], {
-      left: 500,
-      top: 50,
-      fill: currentColor,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-    });
-    canvas.add(diamond);
-  };
-
-  const addRoundedRectangle = () => {
-    const roundedRect = new fabric.Rect({
-      left: 200,
-      top: 200,
-      fill: currentColor,
-      width: 150,
-      height: 100,
-      rx: 20, // Corner radius along the x-axis
-      ry: 20, // Corner radius along the y-axis
-      stroke: currentBorderColor,
-      strokeWidth: 2
-    });
-
-    canvas.add(roundedRect);
-  };
-
-
-
-
-  const addPolygon = () => {
-    const polygon = new fabric.Polygon([
-      { x: 200, y: 0 },
-      { x: 250, y: 50 },
-      { x: 250, y: 100 },
-      { x: 150, y: 100 },
-      { x: 150, y: 50 }
-    ], {
-      left: 400,
-      top: 200,
-      fill: currentColor,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-    });
-    canvas.add(polygon);
-  };
-  const addHexagon = () => {
-    const hexagon = new fabric.Polygon([
-      { x: 50, y: 25 },
-      { x: 100, y: 25 },
-      { x: 125, y: 75 },
-      { x: 100, y: 125 },
-      { x: 50, y: 125 },
-      { x: 25, y: 75 }
-    ], {
-      left: 600,
-      top: 200,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-      fill: currentColor,
-      selectable: true // Set to true if you want it to be selectable
-    });
-
-    canvas.add(hexagon);
-  };
-
-  const addEllipse = () => {
-    const ellipse = new fabric.Ellipse({
-      rx: 75,
-      ry: 50,
-      fill: currentColor,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-      top: 200,
-      left: 50
-    });
-    canvas.add(ellipse);
-  };
-
-  const addText = (selectedFontFamil) => {
-    const text = new fabric.IText('New Text', {
-      left: 20,
-      top: 50,
-      fontSize: 20,
-      
-      fontFamily: selectedFontFamily,
-      editable: true
-    });
-    canvas.add(text);
-    document.getElementById('currentSize').textContent =  text.fontSize;
-    canvas.setActiveObject(text);
-    text.enterEditing();
-    text.on('editing:entered', () => {
-      text.visible = true;
-      canvas.requestRenderAll();
-    });
-    text.on('editing:exited', () => {
-      if (text.text.trim() === 'New Text' || text.text.trim() === '') {
-        text.visible = false;
-      }
-
-
-      canvas.requestRenderAll();
-    });
   };
   const addLine = () => {
     const line = new fabric.Line([50, 100, 300, 100], {
@@ -546,7 +441,6 @@ const CanvasComponent = () => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
       console.error('JWT token not found in localStorage.');
-      return;
     }
 
     try {
@@ -636,7 +530,6 @@ const CanvasComponent = () => {
 
 
 
-
   return (
     <div>
       <nav className="navbar">
@@ -705,6 +598,7 @@ const CanvasComponent = () => {
             <button title="Undo" data-testid="undoButton1"
               onClick={() => canvas.undo()}
               className={selectedButton === "undo" ? "selected" : ""}
+          
             >
               <IoArrowUndo />
               {hoveredButton === "undo" && <span className="tooltip">Undo</span>}

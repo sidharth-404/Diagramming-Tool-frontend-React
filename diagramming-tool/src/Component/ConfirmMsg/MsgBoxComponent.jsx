@@ -22,7 +22,8 @@ const MsgBoxComponent = ({ showMsgBox, closeMsgBox, msg }) => {
 <h5 className="modal-title" id="notificationModalLabel">
                 Notification
 </h5>
-<button type="button" className="close" onClick={closeMsgBox}>
+<button type="button" className="close" onClick={closeMsgBox}
+>
 <span aria-hidden="true">&times;</span>
 </button>
 </div>
