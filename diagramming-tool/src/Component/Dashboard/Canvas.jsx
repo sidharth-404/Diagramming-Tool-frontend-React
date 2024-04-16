@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./Canvas.css";
-import { IoArrowUndo, IoArrowRedo, IoReloadOutline } from "react-icons/io5";
-import { MdDeleteForever, MdFileOpen, MdColorLens } from "react-icons/md";
+import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
+import { MdDeleteForever } from "react-icons/md";
 import { PiRectangle } from "react-icons/pi";
 import { VscCircleLarge } from "react-icons/vsc";
 import { IoIosSquareOutline } from "react-icons/io";
@@ -13,7 +13,6 @@ import { LuRectangleHorizontal } from "react-icons/lu";
 import { HiOutlineArrowLongRight } from "react-icons/hi2";
 import { BsArrows } from "react-icons/bs";
 import { BsHexagon } from "react-icons/bs";
-import { IoColorPaletteOutline } from "react-icons/io5";
 import { TfiSave } from "react-icons/tfi";
 import { PiTextT } from "react-icons/pi";
 import { IoRemoveOutline } from "react-icons/io5";
@@ -36,20 +35,14 @@ const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false);
-  const [selectedButton, setSelectedButton] = useState(null);
+
   const [hoveredButton, setHoveredButton] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  //  const canvasRef = useRef(null);
-  const [textBoxes, setTextBoxes] = useState([]);
-  const [history, setHistory] = useState([]);
   const navigation = useNavigate();
-
   const canvasRef = useRef(null);
   const [canvas, setCanvas] = useState(null);
   const [currentColor, setCurrentColor] = useState('#ffffff');
-  const [currentText, setCurrentText] = useState('');
   const [group, setGroup] = useState(null);
-  const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
   const [activeFontFamily, setActiveFontFamily] = useState("Open Sans");
   const [showTextColorPicker, setShowTextColorPicker] = useState(false);
   const [selectedFontFamily, setSelectedFontFamily] = useState('');
@@ -61,8 +54,6 @@ const CanvasComponent = () => {
   const [currentBorderColor, setCurrentBorderColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState(false);
   const [copiedObjects, setCopiedObjects] = useState([]);
-
-
 
   useEffect(() => {
     if (!Cookies.get('token')) {
@@ -133,13 +124,11 @@ const CanvasComponent = () => {
         }
         canvas.setActiveObject(cloned);
         canvas.requestRenderAll();
-        // setCopiedObjects(cloned);
       });
-      setCopiedObjects([activeObject]); // <-- Set copiedObjects here
+      setCopiedObjects([activeObject]);
     }
   };
 
-  // Function to paste copied object(s)
   const pasteSelectedObject = () => {
     console.log(copiedObjects.length)
     if (!copiedObjects.length) return;
@@ -158,7 +147,6 @@ const CanvasComponent = () => {
     canvas.requestRenderAll();
   };
 
-
   useEffect(() => {
     const handleKeyDown = (event) => {
 
@@ -173,7 +161,6 @@ const CanvasComponent = () => {
       } else if (event.ctrlKey && event.key === 'v') {
         pasteSelectedObject();
       }
-
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => {
@@ -264,17 +251,14 @@ const CanvasComponent = () => {
       fill: currentColor,
       width: 150,
       height: 100,
-      rx: 20, // Corner radius along the x-axis
-      ry: 20, // Corner radius along the y-axis
+      rx: 20,
+      ry: 20,
       stroke: currentBorderColor,
       strokeWidth: 2
     });
 
     canvas.add(roundedRect);
   };
-
-
-
 
   const addPolygon = () => {
     const polygon = new fabric.Polygon([
@@ -292,6 +276,7 @@ const CanvasComponent = () => {
     });
     canvas.add(polygon);
   };
+
   const addHexagon = () => {
     const hexagon = new fabric.Polygon([
       { x: 50, y: 25 },
@@ -306,9 +291,8 @@ const CanvasComponent = () => {
       stroke: currentBorderColor,
       strokeWidth: 2,
       fill: currentColor,
-      selectable: true // Set to true if you want it to be selectable
+      selectable: true
     });
-
     canvas.add(hexagon);
   };
 
@@ -330,12 +314,11 @@ const CanvasComponent = () => {
       left: 20,
       top: 50,
       fontSize: 20,
-      
       fontFamily: selectedFontFamily,
       editable: true
     });
     canvas.add(text);
-    document.getElementById('currentSize').textContent =  text.fontSize;
+    document.getElementById('currentSize').textContent = text.fontSize;
     canvas.setActiveObject(text);
     text.enterEditing();
     text.on('editing:entered', () => {
@@ -346,9 +329,7 @@ const CanvasComponent = () => {
       if (text.text.trim() === 'New Text' || text.text.trim() === '') {
         text.visible = false;
       }
-
-
-      canvas.requestRenderAll();
+       canvas.requestRenderAll();
     });
   };
   const addLine = () => {
@@ -357,12 +338,10 @@ const CanvasComponent = () => {
       top: 350,
       strokeWidth: 2,
       stroke: currentBorderColor,
-
     });
     canvas.add(line);
   };
 
-  // Function to add an arrow line
   const addArrowLine = () => {
     const line = new fabric.Line([50, 380, 300, 380], {
       stroke: currentBorderColor,
@@ -380,12 +359,10 @@ const CanvasComponent = () => {
       originX: 'center',
       originY: 'center'
     });
-
     const group = new fabric.Group([line, arrow], {});
     canvas.add(group);
   };
 
-  // Function to add a bidirectional arrow line
   const addBidirectionalArrowLine = () => {
     const line = new fabric.Line([50, 410, 300, 410], {
       stroke: currentBorderColor,
@@ -414,7 +391,6 @@ const CanvasComponent = () => {
       originX: 'center',
       originY: 'center'
     });
-
     const group = new fabric.Group([line, arrow1, arrow2], {});
     canvas.add(group);
   };
@@ -422,8 +398,8 @@ const CanvasComponent = () => {
   const deleteSelectedObject = () => {
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
-      canvas.remove(activeObject); // Remove the active object from the canvas
-      canvas.requestRenderAll(); // Re-render the canvas
+      canvas.remove(activeObject);
+      canvas.requestRenderAll();
     }
   };
 
@@ -447,10 +423,7 @@ const CanvasComponent = () => {
       default:
         break;
     }
-    setShowProfileMenu(false); 
-  };
-
-  const handleButtonClick = () => {
+    setShowProfileMenu(false);
   };
 
   const changeTextFont = (fontFamily) => {
@@ -473,13 +446,12 @@ const CanvasComponent = () => {
     changeTextStyle('fontWeight', !isBold ? 'bold' : 'normal');
   };
 
-  // Function to toggle italic style
+
   const toggleItalic = () => {
     setIsItalic(!isItalic);
     changeTextStyle('fontStyle', !isItalic ? 'italic' : 'normal');
   };
 
-  // Function to toggle underline style
   const toggleUnderline = () => {
     setIsUnderline(!isUnderline);
     changeTextStyle('underline', !isUnderline ? 'underline' : 'none');
@@ -493,7 +465,6 @@ const CanvasComponent = () => {
     }
   }
 
-  // Function to save canvas state to local storage
   const saveCanvasState = () => {
     const canvasState = canvas.toJSON();
     localStorage.setItem('canvasState', JSON.stringify(canvasState));
@@ -515,11 +486,10 @@ const CanvasComponent = () => {
     const activeObject = canvas.getActiveObject();
     if (activeObject && activeObject.type === 'i-text') {
       const currentFontSize = activeObject.get('fontSize');
-      const newSize = currentFontSize + 1; // Increase font size by 5 units
+      const newSize = currentFontSize + 1;
       activeObject.set('fontSize', newSize);
       canvas.renderAll();
-      // Update the displayed font size
-      document.getElementById('currentSize').textContent =  newSize;
+      document.getElementById('currentSize').textContent = newSize;
     }
   }
 
@@ -527,11 +497,10 @@ const CanvasComponent = () => {
     const activeObject = canvas.getActiveObject();
     if (activeObject && activeObject.type === 'i-text') {
       const currentFontSize = activeObject.get('fontSize');
-      const newSize = currentFontSize - 1; // Increase font size by 5 units
+      const newSize = currentFontSize - 1;
       activeObject.set('fontSize', newSize);
       canvas.renderAll();
-      // Update the displayed font size
-      document.getElementById('currentSize').textContent =  newSize;
+      document.getElementById('currentSize').textContent = newSize;
     }
   }
 
@@ -546,12 +515,11 @@ const CanvasComponent = () => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
       console.error('JWT token not found in localStorage.');
-      return;
+     
     }
-
     try {
-      const userResponse = await getUserByEmail(jwtToken);
-      const userId = userResponse.userId;
+      // const userResponse = await getUserByEmail(jwtToken);
+      // const userId = userResponse.userId;
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
       const tempCanvas = document.createElement("canvas");
@@ -569,14 +537,13 @@ const CanvasComponent = () => {
           console.error("Failed to convert canvas to blob.");
           return;
         }
-
         const reader = new FileReader();
         reader.onload = () => {
           const canvasDataUrl = reader.result;
           if (canvasDataUrl) {
             if (saveToDatabase) {
               const base64String = canvasDataUrl.split(",")[1];
-              saveCanvasImageToDB(base64String,userId)
+              saveCanvasImageToDB(base64String)
                 .then(() => {
                   console.log("Canvas image saved to database.");
                   setShowMsgBox(true);
@@ -634,9 +601,6 @@ const CanvasComponent = () => {
     }
   };
 
-
-
-
   return (
     <div>
       <nav className="navbar">
@@ -687,46 +651,34 @@ const CanvasComponent = () => {
         </div>
         <div className="main">
           <div className="button-container">
-            {/* UI buttons for actions like save, delete, etc. */}
-            {/* <button data-testid="openButton" type="open"
-              onClick={() => handleButtonClick("open")}
-              className={selectedButton === "open" ? "selected" : ""}
-            >
-              <MdFileOpen />
-              {hoveredButton === "open" && <span className="tooltip">Open</span>}
-            </button> */}
             <button title="Save To Database" data-testid="saveButton"
               onClick={() => setShowSavePopup(true)}
-              className={selectedButton === "save" ? "selected" : ""}
             >
               <TfiSave />
               {hoveredButton === "save" && <span className="tooltip">Save</span>}
             </button>
-            <button title="Undo" data-testid="undoButton1"
+            <button title="Undo" data-testid="undoButton"
               onClick={() => canvas.undo()}
-              className={selectedButton === "undo" ? "selected" : ""}
             >
               <IoArrowUndo />
               {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
             </button>
             <button title="Redo" data-testid="redoButton"
               onClick={() => canvas.redo()}
-              className={selectedButton === "redo" ? "selected" : ""}
             >
               <IoArrowRedo />
               {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
             </button>
             <button title="Delete" data-testid="deleteButton"
               onClick={() => deleteSelectedObject()}
-              className={selectedButton === "delete" ? "selected" : ""}
             >
               <MdDeleteForever />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
               )}
             </button>
-            <input type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
-            <button style={{marginLeft:'10px'}} onClick={saveCanvasState} data-testid="saveButton">save the current state</button>
+            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
+            <button style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
           </div>
           <div>
             <h1>Draw Here!!</h1>
@@ -736,25 +688,20 @@ const CanvasComponent = () => {
               aria-label="Canvas"
               style={{ border: "1px solid black", position: "relative", width: "900px" }}
             ></canvas>
-            {/* Render text boxes */}
           </div>
         </div>
-
-
         <div class="sidbar-right">
           {selectedShape && (
 
             <> <h1>Shape Border</h1>
-            <hr></hr>
-              <input type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color"  />
-              <button style={{backgroundColor:"gray",  marginLeft:"5px"}} onClick={increaseBorderWidth} title="Increase Border">+</button>
-              <button style={{backgroundColor:"gray", marginLeft:"5px"}} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
+              <hr></hr>
+              <input type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
+              <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
+              <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
             </>
           )}
-
           <h1>Text</h1>
           <hr></hr>
-
           <div class="dropdown-container">
             <FontPicker
               apiKey="AIzaSyBl5TouoL_peS4tDP78t8uDbepyWghkodI"
@@ -763,10 +710,7 @@ const CanvasComponent = () => {
                 setActiveFontFamily(nextFont.family);
                 setSelectedFontFamily(nextFont.family);
                 changeTextFont(nextFont.family);
-              }}
-
-            />
-
+              }}/>
           </div>
           <div class="button-container-textalign">
             <button class="left" onClick={alignText}><CiTextAlignLeft /></button>
@@ -781,22 +725,21 @@ const CanvasComponent = () => {
           <div class="button-container-color">
             <div class="text-color">Text color</div>
             <button class="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
-            </div>
-            <div>
-            <button style={{backgroundColor:"gray"}} class="textsize-increase" onClick={increaseTextSize}>+</button>
-            <button style={{backgroundColor:"gray", marginLeft:"5px"}} onClick={decreaseTextSize}> - </button>
-            <span style={{marginLeft:"25px"}} id="currentSize"></span>
+          </div>
+          <div>
+            <button style={{ backgroundColor: "gray" }} class="textsize-increase" onClick={increaseTextSize}>+</button>
+            <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
+            <span style={{ marginLeft: "25px" }} id="currentSize"></span>
           </div>
           {showTextColorPicker && (
             <SketchPicker
               color={selectedTextColor}
               onChange={(color) => {
                 setSelectedTextColor(color.hex);
-                changeTextColor(color.hex); // Call function to change text color
+                changeTextColor(color.hex);
               }}
             />
           )}
-
         </div>
       </div>
 

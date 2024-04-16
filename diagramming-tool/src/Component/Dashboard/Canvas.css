@@ -1,11 +1,11 @@
 .dashboard-container {
   display: flex;
 }
-
+ 
 .sidebar button {
   background-color: transparent;
 }
-
+ 
 .sidebar {
   width:20%;
   padding: 10px;
@@ -15,18 +15,18 @@
  
  
 }
-
+ 
 .main {
   flex: 2;
   padding: 20px;
 }
-
+ 
 h2 {
   margin-top: 0;
   font-size: 1.5rem;
 }
-
-
+ 
+ 
 .main button {
   margin-right: 10px;
   padding: 10px;
@@ -35,15 +35,14 @@ h2 {
   background-color: rgb(240, 233, 233);
   font-size: 1rem;
   transition: background-color 0.3s ease;
-
+ 
 }
-
-
-
+ 
+ 
 button:hover {
   background-color: #a3b4a3;
 }
-
+ 
 .tooltip {
   position: absolute;
   background-color: #413c3c;
@@ -56,14 +55,12 @@ button:hover {
   opacity: 0;
   transition: opacity 0.3s ease;
 }
-
+ 
 button:hover .tooltip {
   opacity: 1;
 }
-
  canvas {
   border: 1px solid #e0e0e0;
-  width:1000 px;
   background: repeating-linear-gradient(transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px), repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px);
 }
 
@@ -78,14 +75,14 @@ button:hover .tooltip {
   background-color: #fafafa;
   cursor: pointer;
 }
-
+ 
 .shape-icon {
   width: 20px;
   height: 20px;
   margin-right: 5px;
 }
-
-
+ 
+ 
 .navbar {
   background-color: lightslategrey;
  
@@ -98,11 +95,11 @@ button:hover .tooltip {
   height: 50px;
   position: relative;
 }
-
-
-
+ 
+ 
+ 
 /* Home.css */
-
+ 
 .profile-image {
   width: 40px;
   
@@ -111,8 +108,8 @@ button:hover .tooltip {
   position: absolute;
   right: 10px;
 }
-
-
+ 
+ 
 .profile-menu {
   position: absolute;
   top: 50px;
@@ -123,34 +120,31 @@ button:hover .tooltip {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 10px;
 }
-
+ 
 .profile-menu ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
+ 
 .profile-menu ul li {
   cursor: pointer;
   padding: 8px 16px;
 }
-
+ 
 .profile-menu ul li:hover {
   background-color: #f0f0f0;
 }
-
 .sidbar-right{
  width:15%;
  padding: 10px;
  border-left: 3px solid #e0e0e0;
  
-
 }
 .dropdown-container {
   width: 200px;
   margin: 9px;
 }
-
 .button-container-textalign{
   padding-left:18px;
   display: flex;
@@ -186,7 +180,6 @@ button:hover .tooltip {
   background-color: rgba(232, 228, 228, 0.872);
   border: 1px solid rgb(45, 34, 34);
   }
-
   .button-container-color{
     display: flex;
     border: 1px solid black;

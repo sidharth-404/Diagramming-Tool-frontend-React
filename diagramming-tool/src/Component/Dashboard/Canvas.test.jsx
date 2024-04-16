@@ -253,7 +253,6 @@ describe("Canvas Component", () => {
     fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 });
     fireEvent.mouseMove(canvas, { clientX: 150, clientY: 150 });
     fireEvent.mouseUp(canvas, { clientX: 150, clientY: 150 });
-    // Add expectations here based on the expected behavior of drag-and-drop interactions
   });
 });
  
