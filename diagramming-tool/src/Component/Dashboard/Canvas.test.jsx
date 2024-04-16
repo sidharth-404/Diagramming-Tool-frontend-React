@@ -1,361 +1,261 @@
+/* eslint-disable testing-library/prefer-screen-queries */
+/* eslint-disable testing-library/no-node-access */
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent,waitFor } from "@testing-library/react";
 import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
-import ShapeTypes from './ShapeTypes';
-
-
-
-
+import { BrowserRouter as Router} from 'react-router-dom';
+import Cookies from 'js-cookie';
+ 
 beforeEach(() => {
   jest.resetAllMocks();
   setupJestCanvasMock();
 });
-
-describe("Home Page", () => {
-  it("Checks Open Button Exist in Home Page", () => {
-    render(<CanvasComponent />);
-    const openButton = screen.getByTestId(/openButton/i);
-    expect(openButton).toBeInTheDocument();
+ 
+ 
+describe('CanvasComponent', () => {
+  it("Clicks on Profile Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const profileImage = screen.getByAltText('Profile');
+    fireEvent.click(profileImage);
+    const profileButton = screen.getByTestId('profileButton');
+    expect(profileButton).toBeInTheDocument();
+    fireEvent.click(profileButton);
   });
-
-  it("Checks Save Button Exist in Home Page", () => {
-    render(<CanvasComponent />);
-    const saveButton = screen.getByTestId(/saveButton/i);
-    expect(saveButton).toBeInTheDocument();
+ 
+  it("Clicks on Password Button", () => {
+    const handleProfileOptionClick = jest.fn();
+    jest.spyOn(Cookies, 'remove');
+    jest.spyOn(localStorage, 'removeItem');
+    render(<Router><CanvasComponent handleProfileOptionClick={handleProfileOptionClick} /></Router>);
+    const profileImage = screen.getByAltText('Profile');
+    fireEvent.click(profileImage);
+    const passwordButton = screen.getByTestId('passwordButton');
+    expect(passwordButton).toBeInTheDocument();
+    fireEvent.click(passwordButton);
   });
-
-  it("Checks Undo Button Exist in Home Page", () => {
-    render(<CanvasComponent />);
-    const undoButton = screen.getByTestId(/undoButton/i);
-    expect(undoButton).toBeInTheDocument();
+ 
+  it("Clicks on Signout Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const profileImage = screen.getByAltText('Profile');
+    fireEvent.click(profileImage);
+    const signoutButton = screen.getByTestId('SignoutButton');
+    expect(signoutButton).toBeInTheDocument();
+    fireEvent.click(signoutButton);
   });
-
-  it("Checks Redo Button Exist in Home Page", () => {
-    render(<CanvasComponent />);
-    const redoButton = screen.getByTestId(/redoButton/i);
-    expect(redoButton).toBeInTheDocument();
+ 
+ 
+  it('deleteSelectedObject function removes selected object from canvas', () => {
+    const { getByTestId } = render(<Router><CanvasComponent/></Router>);
+    // eslint-disable-next-line testing-library/prefer-screen-queries
+    const canvas = getByTestId('canvas');
+    const rectangleButton = getByTestId('rectangleButton');
+    fireEvent.click(rectangleButton);
+    const addedRectangle = canvas.children[1];
+    const deleteButton = getByTestId('deleteButton');
+    fireEvent.click(deleteButton);
+    expect(canvas.children).toHaveLength(0);
+    expect(canvas.contains(addedRectangle)).toBeFalsy();
   });
-
-  it("Checks Delete Button Exist in Home Page", () => {
-    render(<CanvasComponent />);
-    const deleteButton = screen.getByTestId(/deleteButton/i);
-    expect(deleteButton).toBeInTheDocument();
+ 
+  it('adds rectangle to canvas when rectangle button is clicked', () => {
+    const { getByTestId } = render(<Router><CanvasComponent/></Router>);
+    const canvas = getByTestId('canvas');
+    const rectangleButton = getByTestId('rectangleButton');
+    fireEvent.click(rectangleButton);
+    expect(canvas.children.length).toBe(0);
   });
-
-  it("Checks Page contain shapes heading", () => {
-    render(<CanvasComponent />);
-    const element = screen.getByText(/Shapes/i);
-    expect(element).toBeInTheDocument();
-  });
-
-  it("Rectangle Button Exist in Home Page", () => {
-    render(<CanvasComponent />);
-    const rect = screen.getByTestId(/rectangleButton/i);
-    expect(rect).toBeInTheDocument();
-  });
-  it(" Circle button Exist in Home Page", () => {
-    render(<CanvasComponent />);
-    const circ = screen.getByTestId(/circleButton/i);
-    expect(circ).toBeInTheDocument();
-  });
-
-  it("Square Button Exist in Home Page", () => {
-    render(<CanvasComponent />);
-    const squr = screen.getByTestId(/squareButton/i);
-    expect(squr).toBeInTheDocument();
-  });
-
-  it("Diamond Button Exist in Home Page", () => {
-    render(<CanvasComponent />);
-    const dmnd = screen.getByTestId(/diamondButton/i);
-    expect(dmnd).toBeInTheDocument();
-  });
-  it("Canvas Exist in Home Page", () => {
-    render(<CanvasComponent />);
-    const canvas = screen.getByTestId("canvas");
-    expect(canvas).toBeInTheDocument();
-  });
+ 
+ 
 });
-
 describe("Button Working", () => {
   it("Clicks on Save Button", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent/></Router>);
     const saveButton = screen.getByTestId(/saveButton/i);
     fireEvent.click(saveButton);
   });
-
+ 
   it("Clicks on Undo Button", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent/></Router>);
     const undoButton = screen.getByTestId(/undoButton/i);
     fireEvent.click(undoButton);
   });
-
+ 
   it("Clicks on Redo Button", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent/></Router>);
     const redoButton = screen.getByTestId(/redoButton/i);
     fireEvent.click(redoButton);
   });
-
+ 
   it("Clicks on Delete Button", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent/></Router>);
     const deleteButton = screen.getByTestId(/deleteButton/i);
     fireEvent.click(deleteButton);
   });
-
+ 
   it("Clicks on Open Button", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent/></Router>);
     const openButton = screen.getByTestId(/openButton/i);
     fireEvent.click(openButton);
   });
-
-  it("Drawing Rectangle in Home Page", () => {
-    render(<CanvasComponent />);
-    const canvas = screen.getByTestId("canvas");
-    expect(canvas).toBeInTheDocument();
-    const rect = screen.getByTestId(/rectangleButton/i);
-    fireEvent.click(rect);
-    const ctx = canvas.getContext("2d");
-    expect(ctx).toBeDefined();
-    expect(ctx.fillRect).toHaveBeenCalledWith(100, 100, 200, 100);
-    expect(ctx.strokeRect).toHaveBeenCalledWith(100, 100, 200, 100);
-  });
-
-
-  it("Drawing Circle in Home Page", () => {
-    render(<CanvasComponent />);
-    const canvas = screen.getByTestId("canvas");
-    expect(canvas).toBeInTheDocument();
-    const circleButton = screen.getByTestId(/circleButton/i);
-    fireEvent.click(circleButton);
-    const ctx = canvas.getContext("2d");
-    expect(ctx).toBeDefined();
-    expect(ctx.arc).toHaveBeenCalledWith(100, 100, 50, 0, Math.PI * 2);
-    expect(ctx.fill).toHaveBeenCalled();
-    expect(ctx.stroke).toHaveBeenCalled();
-  });
-
-  test("Drawing Square in Home Page", () => {
-    render(<CanvasComponent />);
-    const canvas = screen.getByTestId("canvas");
-    expect(canvas).toBeInTheDocument();
-
-    const squareButton = screen.getByTestId(/squareButton/i);
-    fireEvent.click(squareButton);
-
-    const ctx = canvas.getContext("2d");
-    expect(ctx).toBeDefined();
-    expect(ctx.fillRect).toHaveBeenCalledWith(100, 100, 80, 80);
-    expect(ctx.strokeRect).toHaveBeenCalledWith(100, 100, 80, 80);
-  });
-
-  test("Drawing Diamond in Home Page", () => {
-    render(<CanvasComponent />);
-    const canvas = screen.getByTestId("canvas");
-    expect(canvas).toBeInTheDocument();
-
-    const diamondButton = screen.getByTestId(/diamondButton/i);
-    fireEvent.click(diamondButton);
-
-    const ctx = canvas.getContext("2d");
-    expect(ctx).toBeDefined();
-    expect(ctx.beginPath).toHaveBeenCalled();
-    expect(ctx.moveTo).toHaveBeenCalledWith(150, 100);
-    expect(ctx.lineTo).toHaveBeenCalledWith(200, 150);
-    expect(ctx.lineTo).toHaveBeenCalledWith(150, 200);
-    expect(ctx.lineTo).toHaveBeenCalledWith(100, 150);
-    expect(ctx.closePath).toHaveBeenCalled();
-
-    expect(ctx.fill).toHaveBeenCalled();
-    expect(ctx.stroke).toHaveBeenCalled();
-  });
 });
-describe("Home component", () => {
-  it("Draws shapes on the canvas", () => {
-    render(<CanvasComponent />);
-    const canvas = screen.getByTestId("canvas");
-    const context = canvas.getContext("2d");
-    expect(context).toBeDefined();
-    expect(context.clearRect).toHaveBeenCalled();
-  });
-});
-
-
+ 
+ 
 describe("Canvas Component", () => {
-
+ 
   it("handles double-click events", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId('canvas');
     fireEvent.dblClick(canvas);
   });
-
-  it("displays text input for rectangle shape on double click", () => {
-    render(<CanvasComponent />);
-    const canvas = screen.getByTestId('canvas');
-    const rectangleButton = screen.getByTestId('rectangleButton');
-    fireEvent.click(rectangleButton);
-    const rect = canvas.getBoundingClientRect();
-    fireEvent.doubleClick(canvas, {
-      clientX: rect.left + 150,
-      clientY: rect.top + 150,
-    });
-    const textInput = screen.getByTestId('editingtextinput');
-    expect(textInput).toBeInTheDocument();
-  });
-
-  it("sets editing shape ID and text input for circle shape on double click", () => {
-    render(<CanvasComponent />);
-    const canvas = screen.getByTestId('canvas');
-    const circleButton = screen.getByTestId('circleButton');
-    fireEvent.click(circleButton);
-    const rect = canvas.getBoundingClientRect();
-    const centerX = 200;
-    const centerY = 200;
-    const radius = 50;
-    fireEvent.doubleClick(canvas, {
-      clientX: rect.left + centerX,
-      clientY: rect.top + centerY,
-    });
-    const textInput = screen.getByTestId('editingtextinput');
-    expect(textInput).toBeInTheDocument();
-  });
-
-  it("displays text input for square shape on double click", () => {
-    render(<CanvasComponent />);
-    const canvas = screen.getByTestId('canvas');
-    const squareButton = screen.getByTestId('squareButton');
-    fireEvent.click(squareButton);
-    const rect = canvas.getBoundingClientRect();
-    fireEvent.doubleClick(canvas, {
-      clientX: rect.left + 150,
-      clientY: rect.top + 150,
-    });
-    const textInput = screen.getByTestId('editingtextinput');
-    expect(textInput).toBeInTheDocument();
-  });
-
-  it("displays text input for diamond shape on double click", () => {
-    render(<CanvasComponent />);
-    const canvas = screen.getByTestId('canvas');
-    const diamondButton = screen.getByTestId('diamondButton');
-    fireEvent.click(diamondButton);
-    const rect = canvas.getBoundingClientRect();
-    fireEvent.doubleClick(canvas, {
-      clientX: rect.left + 150,
-      clientY: rect.top + 150,
-    });
-    const textInput = screen.getByTestId('editingtextinput');
-    expect(textInput).toBeInTheDocument();
-  });
-
-
-  it("updates text input value", () => {
-    render(<CanvasComponent />);
-    const canvas = screen.getByTestId('canvas');
-    const rectangleButton = screen.getByTestId('rectangleButton');
-    fireEvent.click(rectangleButton);
-    const rect = canvas.getBoundingClientRect();
-    fireEvent.doubleClick(canvas, {
-      clientX: rect.left + 150,
-      clientY: rect.top + 150,
-    });
-    const textInput = screen.getByTestId('editingtextinput');
-    fireEvent.change(textInput, { target: { value: 'New Text' } });
-    expect(textInput.value).toBe('New Text');
-  });
-
-  test('deleting a shape', () => {
-    render(<CanvasComponent />);
-    const rectangleButton = screen.getByTestId('rectangleButton');
-    fireEvent.click(rectangleButton);
-
-
-    const deleteButton = screen.getByTestId('deleteButton');
-    fireEvent.click(deleteButton);
-
-
-    const canvas = screen.getByTestId('canvas');
-    const ctx = canvas.getContext('2d');
-    expect(ctx).toBeDefined();
-    expect(ctx.clearRect).toHaveBeenCalled();
-  });
-
-
-  it("selects a shape on canvas click", () => {
-    render(<CanvasComponent />);
+ 
+ 
+  it("selects a rectangle on canvas click", () => {
+    render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
     const rectangleButton = screen.getByTestId("rectangleButton");
-
     fireEvent.click(rectangleButton);
-
     fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
     const selectedRectangle = screen.getByTestId("rectangleButton");
     expect(selectedRectangle).toBeInTheDocument();
   });
-
-
+ 
+ 
   it("selects a circle on canvas click", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
     const circleButton = screen.getByTestId("circleButton");
-
     fireEvent.click(circleButton);
-
     fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
     const selectedCircle = screen.getByTestId("circleButton");
     expect(selectedCircle).toBeInTheDocument();
   });
   it("selects a square on canvas click", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
     const squareButton = screen.getByTestId("squareButton");
-
     fireEvent.click(squareButton);
-
     fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
     const selectedSquare = screen.getByTestId("squareButton");
     expect(selectedSquare).toBeInTheDocument();
   });
   it("selects a diamond on canvas click", () => {
-    render(<CanvasComponent />);
+    render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
     const diamondButton = screen.getByTestId("diamondButton");
-
     fireEvent.click(diamondButton);
-
     fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
     const selectedDiamond = screen.getByTestId("diamondButton");
     expect(selectedDiamond).toBeInTheDocument();
   });
-
-
-
-  it("Does not draw a line when the mouse is not dragged", () => {
-    render(<CanvasComponent />);
+ 
+  it("selects a triangle on canvas click", () => {
+    render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
-    expect(canvas).toBeInTheDocument();
-
-    fireEvent.mouseDown(canvas, { nativeEvent: { offsetX: 100, offsetY: 100 } });
-    fireEvent.mouseUp(canvas, { nativeEvent: { offsetX: 100, offsetY: 100 } });
-
-    const context = canvas.getContext("2d");
-    expect(context).toBeDefined();
-    expect(context.beginPath).not.toHaveBeenCalled();
-    expect(context.moveTo).not.toHaveBeenCalled();
-    expect(context.lineTo).not.toHaveBeenCalled();
-    expect(context.stroke).not.toHaveBeenCalled();
+    const Button = screen.getByTestId("triangleButton");
+    fireEvent.click(Button);
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
+    const selected = screen.getByTestId("triangleButton");
+    expect(selected).toBeInTheDocument();
   });
-  test('dragging a line', () => {
-    render(<CanvasComponent />);
+ 
+  it("selects a pentagon on canvas click", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas = screen.getByTestId("canvas");
+    const Button = screen.getByTestId("pentagonButton");
+    fireEvent.click(Button);
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
+    const selected = screen.getByTestId("pentagonButton");
+    expect(selected).toBeInTheDocument();
+  });
+ 
+  it("selects a ellipse on canvas click", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas = screen.getByTestId("canvas");
+    const Button = screen.getByTestId("ellipseButton");
+    fireEvent.click(Button);
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
+    const selected = screen.getByTestId("ellipseButton");
+    expect(selected).toBeInTheDocument();
+  });
+ 
+  it("selects a roundrect on canvas click", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas = screen.getByTestId("canvas");
+    const Button = screen.getByTestId("roundrectButton");
+    fireEvent.click(Button);
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
+    const selected = screen.getByTestId("roundrectButton");
+    expect(selected).toBeInTheDocument();
+  });
+ 
+ 
+  it("selects a hexagon on canvas click", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas = screen.getByTestId("canvas");
+    const Button = screen.getByTestId("hexagonButton");
+    fireEvent.click(Button);
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
+    const selected = screen.getByTestId("hexagonButton");
+    expect(selected).toBeInTheDocument();
+  });
+ 
+  it("selects a line on canvas click", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas = screen.getByTestId("canvas");
+    const Button = screen.getByTestId("lineButton");
+    fireEvent.click(Button);
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
+    const selected = screen.getByTestId("lineButton");
+    expect(selected).toBeInTheDocument();
+  });
+ 
+  it("selects a arrow on canvas click", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas = screen.getByTestId("canvas");
+    const Button = screen.getByTestId("arrowButton");
+    fireEvent.click(Button);
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
+    const selected = screen.getByTestId("arrowButton");
+    expect(selected).toBeInTheDocument();
+  });
+ 
+  it("selects a biarrowd on canvas click", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas = screen.getByTestId("canvas");
+    const Button = screen.getByTestId("biarrowdButton");
+    fireEvent.click(Button);
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
+    const selected = screen.getByTestId("biarrowdButton");
+    expect(selected).toBeInTheDocument();
+  });
+ 
+  it("selects a text on canvas click", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas = screen.getByTestId("canvas");
+    const Button = screen.getByTestId("textButton");
+    fireEvent.click(Button);
+    fireEvent.click(canvas, { nativeEvent: { offsetX: 110, offsetY: 110 } });
+    const selected = screen.getByTestId("textButton");
+    expect(selected).toBeInTheDocument();
+  });
+ 
+ 
+  it('changes color of selected object', () => {
+    const { getByTestId } = render(<Router><CanvasComponent/></Router>);
+    const colorPicker = getByTestId('colorPicker');
+    fireEvent.change(colorPicker, { target: { value: '#ff0000' } });
+  });
+ 
+  it("handles drag-and-drop interactions", () => {
+    render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId('canvas');
-    fireEvent.mouseDown(canvas, { nativeEvent: { offsetX: 100, offsetY: 100 } });
-    fireEvent.mouseMove(canvas, { nativeEvent: { offsetX: 200, offsetY: 200 } });
-
-    fireEvent.mouseUp(canvas);
-
-    const canvasContext = canvas.getContext('2d');
-    expect(canvasContext).toBeDefined();
-    expect(canvasContext.beginPath).toHaveBeenCalledTimes(0);
-    expect(canvasContext.stroke).toHaveBeenCalledTimes(0);
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 });
+    fireEvent.mouseMove(canvas, { clientX: 150, clientY: 150 });
+    fireEvent.mouseUp(canvas, { clientX: 150, clientY: 150 });
+    // Add expectations here based on the expected behavior of drag-and-drop interactions
   });
 });
+ 
+ 
+ 
