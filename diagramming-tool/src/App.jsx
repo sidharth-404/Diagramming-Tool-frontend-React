@@ -7,7 +7,7 @@ import './Component/Login/LoginPage.css';
 import ResetPasswordPage from './Component/Login/ResetPasswordPage';
 import ChangePassword from './Component/ChangePassword/ChangePassword.jsx';
 import CanvasComponent from './Component/Dashboard/Canvas';
-import Canvas from './Component/Dashboard/CanvasComponent';
+
 import HomePage from './Component/HomePage/HomePage';
 import ExistingPage from './Component/Login/ExistingPage';
 import UserProfile from './Component/UserProfile/UserProfile.jsx';
@@ -24,7 +24,7 @@ function App() {
           <Route exact path="/" element={<HomePage/>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Registration />} />
-          <Route path='/canvas' element={<Canvas/>}/>
+         
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<CanvasComponent/>}/>
           <Route path='/userprofile' element={<UserProfile/>}/>
