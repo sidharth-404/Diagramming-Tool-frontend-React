@@ -751,7 +751,7 @@ const CanvasComponent = () => {
             ></canvas>
           </div>
         </div>
-        <div class="sidbar-right">
+        <div className="sidbar-right">
           {selectedShape && (
 
             <> <h1>Shape Border</h1>
@@ -763,7 +763,7 @@ const CanvasComponent = () => {
           )}
           <h1>Text</h1>
           <hr></hr>
-          <div class="dropdown-container">
+          <div className="dropdown-container">
             <FontPicker
               apiKey="AIzaSyBl5TouoL_peS4tDP78t8uDbepyWghkodI"
               activeFontFamily={activeFontFamily}
@@ -773,22 +773,22 @@ const CanvasComponent = () => {
                 changeTextFont(nextFont.family);
               }}/>
           </div>
-          <div class="button-container-textalign">
-            <button class="left" onClick={alignText}><CiTextAlignLeft /></button>
-            <button class="center"><CiTextAlignCenter /></button>
-            <button class="right"><CiTextAlignRight /></button>
+          <div className="button-container-textalign">
+            <button className="left" onClick={alignText}><CiTextAlignLeft /></button>
+            <button className="center"><CiTextAlignCenter /></button>
+            <button className="right"><CiTextAlignRight /></button>
           </div>
-          <div class="button-container-textstyle">
-            <button class="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
-            <button class="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
-            <button class="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
+          <div className="button-container-textstyle">
+            <button className="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
+            <button className="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
+            <button className="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
           </div>
-          <div class="button-container-color">
-            <div class="text-color">Text color</div>
-            <button class="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
+          <div className="button-container-color">
+            <div className="text-color">Text color</div>
+            <button className="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
           </div>
           <div>
-            <button style={{ backgroundColor: "gray" }} class="textsize-increase" onClick={increaseTextSize}>+</button>
+            <button style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={increaseTextSize}>+</button>
             <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
             <span style={{ marginLeft: "25px" }} id="currentSize"></span>
           </div>
