@@ -1,9 +1,13 @@
+/* eslint-disable testing-library/no-node-access */
+/* eslint-disable testing-library/prefer-screen-queries */
 import React from "react";
 import { render, screen, fireEvent,waitFor } from "@testing-library/react";
 import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 import { BrowserRouter as Router} from 'react-router-dom';
 import Cookies from 'js-cookie';
+import fabric from 'fabric';
+const { initCanvas } = require('./Canvas');
 
 beforeEach(() => {
   jest.resetAllMocks();

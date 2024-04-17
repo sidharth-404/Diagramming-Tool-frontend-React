@@ -16,7 +16,7 @@ function App() {
   return (
 
     <Router>
-      <div className="App">
+      {/* <div className="App">
         <header className="App-header"> 
         </header>
         <Routes>
@@ -32,7 +32,10 @@ function App() {
 
         </Routes>
       </div>
-      
+       */}
+       <div>
+         <CanvasComponent/>
+       </div>
     </Router>
     
    

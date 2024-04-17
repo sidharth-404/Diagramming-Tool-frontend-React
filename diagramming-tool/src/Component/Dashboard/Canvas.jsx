@@ -55,6 +55,9 @@ const CanvasComponent = () => {
   const [currentBorderColor, setCurrentBorderColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState(false);
   const [copiedObjects, setCopiedObjects] = useState([]);
+  const [line, setLine] = useState(null);
+  const [arrowhead, setArrowhead] = useState(null);
+ 
 
   useEffect(() => {
     if (!Cookies.get('token')) {
@@ -83,7 +86,7 @@ const CanvasComponent = () => {
       cornerColor: 'blue',
       borderColor: 'red',
       cornerSize: 6,
-      padding: 5,
+      padding: -1,
       cornerStyle: 'circle',
       borderOpacityWhenMoving: 0.8,
       hasControls: true
@@ -93,6 +96,63 @@ const CanvasComponent = () => {
 
       setGroup(true);
       setSelectedShape(true)
+    });
+
+    initCanvas.on('mouse:dblclick', (e) => {
+      if (e.target && e.target.__corner) {
+        const objectCorner = e.target.getPointByOrigin(e.target.__corner);
+        const pointer = initCanvas.getPointer(e.e,true);
+        const newStartPoint = { x: pointer.x, y: pointer.y }; // Set start point to the exact clicked point
+   
+        const lineInstance = new fabric.Line([objectCorner.x, objectCorner.y, pointer.x, pointer.y], {
+          stroke: 'black',
+          strokeWidth: 2,
+          selectable: true,
+        });
+   
+        setLine(lineInstance);
+        initCanvas.add(lineInstance);
+   
+        const angle = Math.atan2(pointer.y - objectCorner.y, pointer.x - objectCorner.x) * (180 / Math.PI);
+        const arrowheadInstance = new fabric.Triangle({
+          width: 10,
+          height: 10,
+          fill: 'black',
+          left: pointer.x,
+          top: pointer.y,
+          angle: angle+90,
+          originX: 'center',
+          originY: 'center',
+          selectable: true,
+        });
+       
+        setArrowhead(arrowheadInstance);
+        initCanvas.add(arrowheadInstance);
+   
+        const onMouseMove = (event) => {
+          const pointer = initCanvas.getPointer(event.e,true);
+          lineInstance.set({ x1: newStartPoint.x, y1: newStartPoint.y, x2: pointer.x, y2: pointer.y }); // Use newStartPoint
+          arrowheadInstance.set({ left: pointer.x, top: pointer.y });
+          initCanvas.requestRenderAll();
+        };
+   
+        const onMouseUp = () => {
+          initCanvas.off('mouse:move', onMouseMove);
+          initCanvas.off('mouse:up', onMouseUp);
+          console.log("Mouse up")
+          const lineWithArrowhead = new fabric.Group([lineInstance, arrowheadInstance], {
+            selectable: true,
+          });
+          initCanvas.remove(lineInstance);
+          initCanvas.remove(arrowheadInstance)
+          setLine(lineWithArrowhead);
+          initCanvas.add(lineWithArrowhead);
+         
+        };
+   
+        initCanvas.on('mouse:move', onMouseMove);
+        initCanvas.on('mouse:up', onMouseUp);
+      }
     });
 
     initCanvas.on('selection:cleared', () => {
