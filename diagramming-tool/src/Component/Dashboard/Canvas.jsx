@@ -36,10 +36,13 @@ import { SketchPicker } from "react-color";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
 import jsPDF from "jspdf";
 
+
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false);
+  const [showMsgBox1, setShowMsgBox1] = useState(false);
+  
 
   const [hoveredButton, setHoveredButton] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -543,10 +546,16 @@ const CanvasComponent = () => {
   const deleteSelectedObject = () => {
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
+     
+      setShowMsgBox(true);
+      setMsg("do you want to delete!");
+     // handleConfirm();
       canvas.remove(activeObject);
       canvas.requestRenderAll();
+      
     }
   };
+
 
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -748,34 +757,76 @@ const CanvasComponent = () => {
 
 
   const increaseBorderWidth = () => {
-    const increasedWidth = currentBorderWidth + 1;
-    setCurrentBorderWidth(increasedWidth);
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
-      activeObject.set('strokeWidth', increasedWidth);
+    setCurrentBorderWidth(current => current + 1);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+        obj.set('strokeWidth', currentBorderWidth + 1);
+      });
       canvas.requestRenderAll();
     }
   };
-
   const decreaseBorderWidth = () => {
     if (currentBorderWidth > 1) {
-      const decreasedWidth = currentBorderWidth - 1;
-      setCurrentBorderWidth(decreasedWidth);
-      const activeObject = canvas.getActiveObject();
-      if (activeObject) {
-        activeObject.set('strokeWidth', decreasedWidth);
+      setCurrentBorderWidth(current => current - 1);
+      const activeObjects = canvas.getActiveObjects();
+      if (activeObjects && activeObjects.length > 0) {
+        activeObjects.forEach((obj) => {
+          obj.set('strokeWidth', currentBorderWidth - 1);
+        });
         canvas.requestRenderAll();
       }
     }
   };
 
   const handleBorderColorChange = (e) => {
-    setCurrentBorderColor(e.target.value);
-    if (canvas && canvas.getActiveObject()) {
-      canvas.getActiveObject().set('stroke', e.target.value);
+    const newBorderColor = e.target.value;
+    setCurrentBorderColor(newBorderColor);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+        obj.set('stroke', newBorderColor);
+      });
       canvas.requestRenderAll();
     }
   };
+ 
+
+  const setDottedBorder = () => {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+        activeObjects.forEach((obj) => {
+            obj.set('strokeDashArray', [2, 2]); 
+        });
+        canvas.requestRenderAll();
+    }
+};
+
+
+
+
+const setSolidBorder = () => {
+  const activeObjects = canvas.getActiveObjects();
+  if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+          obj.set('strokeDashArray', null); 
+      });
+      canvas.requestRenderAll();
+  }
+};
+const setDashedBorder = () => {
+  const activeObjects = canvas.getActiveObjects();
+  if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+          obj.set('strokeDashArray', [8, 5]); 
+      });
+      canvas.requestRenderAll();
+  }
+};
+
+
+
+  
 
   return (
     <div>
@@ -797,26 +848,26 @@ const CanvasComponent = () => {
             <h2>Shapes</h2>
             <hr></hr>
             <div>
-              <button data-testid="rectangleButton" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
-              <button data-testid="circleButton" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
-              <button data-testid="squareButton" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
+              <button data-testid="rectangleButton" title="Rectangle" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
+              <button data-testid="circleButton" title="Circle" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
+              <button data-testid="squareButton" title="Square" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
             </div>
             <div>
-              <button data-testid="triangleButton" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
-              <button data-testid="diamondButton" onClick={addDiamond}><GoDiamond fontSize={70} /></button>
-              <button data-testid="pentagonButton" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
+              <button data-testid="triangleButton" title="Triangle" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
+              <button data-testid="diamondButton" title="Diamond" onClick={addDiamond}><GoDiamond fontSize={70} /></button>
+              <button data-testid="pentagonButton" title="Pentagon" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
             </div>
             <div>
-              <button data-testid="ellipseButton" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
-              <button data-testid="roundrectButton" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
-              <button data-testid="hexagonButton" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
+              <button data-testid="ellipseButton"title="Ellipse" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
+              <button data-testid="roundrectButton" title="Rounded Rectangle" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
+              <button data-testid="hexagonButton" title="Hexagon" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
             </div>
             <h2>Lines</h2>
             <hr></hr>
             <div>
-              <button data-testid="lineButton" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
-              <button data-testid="arrowButton" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
-              <button data-testid="biarrowdButton" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
+              <button data-testid="lineButton" title="Line" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
+              <button data-testid="arrowButton"title="Directional Connector" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
+              <button data-testid="biarrowdButton" title="Bidirectional Connector" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
             </div>
             <h2>Add Text</h2>
             <hr></hr>
@@ -847,12 +898,15 @@ const CanvasComponent = () => {
             </button>
             <button title="Delete" data-testid="deleteButton"
               onClick={() => deleteSelectedObject()}
+              onMouseEnter={() => setHoveredButton("delete")}
+              onMouseLeave={() => setHoveredButton(null)}
             >
               <MdDeleteForever />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
               )}
             </button>
+           
             <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
             <button data-testid="saveStateButton" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
             <button data-testid="groupButton" onClick={groupObjects}>Group</button>
@@ -880,16 +934,28 @@ const CanvasComponent = () => {
 
           </div>
         </div>
-        <div className="sidbar-right">
+        <div class="sidbar-right">
+          {/* {selectedShape && ( */}
 
+            <> <h1>Shape Border</h1>
+              <hr></hr>
+             
+              
+              <input data-testid="colorShapePicker" type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
+              <button data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }}  onClick={increaseBorderWidth} title="Increase Border">+</button>
+              <button  data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
+             
+             <div class="border-pattern" >
+               
+                <button class="dropdown-option"  Title='Solid Line'  onClick={setSolidBorder}>____</button>
+                <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line" onClick={setDottedBorder}>......</button>
+                <button class="dropdown-option" title="Dashed Line" onClick={setDashedBorder}>_ _ _</button>
+                
+                </div>
+            
 
-          <> <h1>Shape Border</h1>
-            <hr></hr>
-            <input type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
-            <button data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
-            <button data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-          </>
-
+            </> 
+          {/* )} */}
           <h1>Text</h1>
           <hr></hr>
           <div className="dropdown-container">
@@ -952,5 +1018,6 @@ const CanvasComponent = () => {
     </div>
   );
 };
+
 
 export default CanvasComponent;
