@@ -1,4 +1,4 @@
-const axios=import('axios');
+import axios from 'axios';
  
 const API_URL = 'http://localhost:8080/api/diagrammingtool';
  
@@ -41,7 +41,7 @@ export const saveCanvasImageToDB = async (imageData, userId) => {
     const response = await axios.post(`${API_URL}/images`, {
       imageData: imageData,
       user: {
-        userId:userId
+        userId:28
       }
     });
     return response.data;
