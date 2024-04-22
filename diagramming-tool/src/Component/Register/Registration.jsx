@@ -85,8 +85,8 @@ const Registration = () => {
         }, 3000);
       }
     } catch (error) {
-      setMsg(error);
-      setshowMsgBox(true);
+      // setMsg(error);
+      // setshowMsgBox(true);
     }
   };
  

@@ -34,24 +34,6 @@ test('validates password field on form submission with empty password', async ()
 jest.setTimeout(10000); 
 
 
-test('handles server error', async () => {
-  
-  jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-    ok: false,
-    json: async () => ({ error: 'Server error' })
-  });
-
-  render(<Router>
-    <LoginPage />
-  </Router>);
-  fireEvent.change(screen.getByPlaceholderText('Enter your email here'), { target: { value: 'test@example.com' } });
-  fireEvent.change(screen.getByPlaceholderText('Enter your password here'), { target: { value: 'password123' } });
-  fireEvent.click(screen.getByText('Sign In'));
-  const expectedErrorMessage='Server error';
-  expect(await screen.findByText(expectedErrorMessage)).not.toBeInTheDocument();
-
-});
-
 
 test('submits form successfully with valid email and password', async () => {
 

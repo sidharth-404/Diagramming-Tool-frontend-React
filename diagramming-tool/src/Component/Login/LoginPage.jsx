@@ -13,7 +13,7 @@ function LoginApp() {
   const navigation=useNavigate();
   const [showDiagramPopup, setShowDiagramPopup] = useState(false); 
   const toggleDiagramPopup = () => {
-    setShowDiagramPopup(!showDiagramPopup);
+   // setShowDiagramPopup(!showDiagramPopup);
   };
   
   const handleSubmit = async (e) => {

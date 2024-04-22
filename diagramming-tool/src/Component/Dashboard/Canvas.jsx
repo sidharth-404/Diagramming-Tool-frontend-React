@@ -1,7 +1,11 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import "./Canvas.css";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
-import { MdDeleteForever, MdFileOpen } from "react-icons/md";
+import { MdDeleteForever } from "react-icons/md";
 import { PiRectangle } from "react-icons/pi";
 import { VscCircleLarge } from "react-icons/vsc";
 import { IoIosSquareOutline } from "react-icons/io";
@@ -23,32 +27,69 @@ import SavePopup from "../SavePop/SavePop";
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
 import { fabric } from 'fabric';
 import 'fabric-history';
+import { CiTextAlignCenter, CiTextAlignLeft, CiTextAlignRight } from "react-icons/ci";
+import { PiTextBBold, PiTextItalic } from "react-icons/pi";
+import { LuUnderline } from "react-icons/lu";
+import { IoMdColorFilter } from "react-icons/io";
+import FontPicker from "font-picker-react";
+import { SketchPicker } from "react-color";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
-
+import jsPDF from "jspdf";
 
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false);
-  const [selectedButton, setSelectedButton] = useState(null);
+
   const [hoveredButton, setHoveredButton] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
   const navigation = useNavigate();
-
   const canvasRef = useRef(null);
   const [canvas, setCanvas] = useState(null);
   const [currentColor, setCurrentColor] = useState('#ffffff');
   const [group, setGroup] = useState(null);
+  const [activeFontFamily, setActiveFontFamily] = useState("Open Sans");
+  const [showTextColorPicker, setShowTextColorPicker] = useState(false);
+  const [selectedFontFamily, setSelectedFontFamily] = useState('');
+  const [selectedTextColor, setSelectedTextColor] = useState('#000000');
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
-  const [currentBorderColor, setCurrentBorderColor] = useState('#000000');
+  const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
+  const [copiedObjects, setCopiedObjects] = useState([]);
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
   // useEffect(() => {
   //   if (!Cookies.get('token')) {
   //     navigation('/');
   //   }
   // })
+
+  useEffect(() => {
+    const handleOutsideClick = () => {
+      setShowContextMenu(false);
+    };
+
+    const canvasElement = canvasRef.current;
+    if (canvasElement) {
+      canvasElement.addEventListener('click', handleOutsideClick);
+    }
+
+    return () => {
+      if (canvasElement) {
+        canvasElement.removeEventListener('click', handleOutsideClick);
+      }
+    };
+  }, [canvasRef]);
+
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    setShowContextMenu(true);
+    setContextMenuPosition({ x: event.clientX, y: event.clientY });
+  };
 
   const handlePreventNavigation = (event) => {
     event.preventDefault();
@@ -60,9 +101,12 @@ const CanvasComponent = () => {
 
   useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
-      backgroundColor: 'lightgrey',
+      backgroundColor: 'white',
+      width: 800,
+      height: 600,
       selection: true,
     });
+
 
     fabric.Object.prototype.set({
       transparentCorners: false,
@@ -88,7 +132,74 @@ const CanvasComponent = () => {
 
     setCanvas(initCanvas);
     return () => initCanvas.dispose();
+
   }, []);
+  const copySelectedObject = () => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+      activeObject.clone(function (cloned) {
+        canvas.discardActiveObject();
+        cloned.set({
+          left: cloned.left + 10,
+          top: cloned.top + 10,
+          evented: true,
+        });
+        if (cloned.type === 'activeSelection') {
+          cloned.canvas = canvas;
+          cloned.forEachObject(function (obj) {
+            canvas.add(obj);
+          });
+          cloned.setCoords();
+        } else {
+          canvas.add(cloned);
+        }
+        canvas.setActiveObject(cloned);
+        canvas.requestRenderAll();
+      });
+      setCopiedObjects([activeObject]);
+    }
+  };
+
+  const pasteSelectedObject = () => {
+    console.log(copiedObjects.length)
+    if (!copiedObjects.length) return;
+    canvas.discardActiveObject();
+    copiedObjects.forEach((obj) => {
+      obj.clone((cloned) => {
+        canvas.add(cloned);
+        cloned.set({
+          left: cloned.left + 10,
+          top: cloned.top + 10,
+          evented: true,
+        });
+        canvas.setActiveObject(cloned);
+      });
+    });
+    canvas.requestRenderAll();
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+
+      if (event.ctrlKey && event.key === 'z') {
+        canvas.undo();
+      } else if (event.ctrlKey && event.key === 'y') {
+        canvas.redo();
+      } else if (event.key === 'Delete') {
+        deleteSelectedObject();
+      } else if (event.ctrlKey && event.key === 'c') {
+        copySelectedObject();
+      } else if (event.ctrlKey && event.key === 'v') {
+        pasteSelectedObject();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canvas]);
+
+
 
   const handleColorChange = (e) => {
     setCurrentColor(e.target.value);
@@ -96,10 +207,6 @@ const CanvasComponent = () => {
       canvas.getActiveObject().set('fill', e.target.value);
       canvas.requestRenderAll();
     }
-  };
-
-  const toggleColorPicker = () => {
-    setShowColorPicker((prev) => !prev);
   };
 
   const addRectangle = () => {
@@ -114,7 +221,6 @@ const CanvasComponent = () => {
     });
     canvas.add(rect);
   };
-
   const addCircle = () => {
     const circle = new fabric.Circle({
       radius: 50,
@@ -218,7 +324,6 @@ const CanvasComponent = () => {
       fill: currentColor,
       selectable: true
     });
-
     canvas.add(hexagon);
   };
 
@@ -235,15 +340,16 @@ const CanvasComponent = () => {
     canvas.add(ellipse);
   };
 
-  const addText = () => {
+  const addText = (selectedFontFamil) => {
     const text = new fabric.IText('New Text', {
-      left: 690,
+      left: 20,
       top: 50,
       fontSize: 20,
-      fill: 'black',
+      fontFamily: selectedFontFamily,
       editable: true
     });
     canvas.add(text);
+    document.getElementById('currentSize').textContent = text.fontSize;
     canvas.setActiveObject(text);
     text.enterEditing();
     text.on('editing:entered', () => {
@@ -254,12 +360,11 @@ const CanvasComponent = () => {
       if (text.text.trim() === 'New Text' || text.text.trim() === '') {
         text.visible = false;
       }
-      canvas.requestRenderAll();
+       canvas.requestRenderAll();
     });
   };
-
   const addLine = () => {
-    const line = new fabric.Line([50, 100, 250, 100], {
+    const line = new fabric.Line([50, 100, 300, 100], {
       left: 50,
       top: 350,
       strokeWidth: 2,
@@ -269,39 +374,29 @@ const CanvasComponent = () => {
   };
 
   const addArrowLine = () => {
-    const line = new fabric.Line([50, 380, 250, 380], {
+    const line = new fabric.Line([50, 380, 300, 380], {
       stroke: currentBorderColor,
-      strokeWidth: currentBorderWidth,
-      fill: currentBorderColor,
+      strokeWidth: 2,
       selectable: true
     });
   
     const arrow = new fabric.Triangle({
       width: 10,
       height: 10,
-      strokeWidth: currentBorderWidth,
-      stroke: currentBorderColor,
       fill: currentBorderColor,
-      left: 250,
+      left: 300,
       top: 380,
       angle: 90,
       originX: 'center',
       originY: 'center'
     });
-  
     const group = new fabric.Group([line, arrow], {});
-  
-    // Set stroke properties for both line and arrow
-    group.set({
-      stroke: currentBorderColor,
-      strokeWidth: currentBorderWidth,
-    });
   
     canvas.add(group);
   };
   
   const addBidirectionalArrowLine = () => {
-    const line = new fabric.Line([50, 410, 250, 410], {
+    const line = new fabric.Line([50, 410, 300, 410], {
       stroke: currentBorderColor,
       strokeWidth: 2,
       selectable: true
@@ -310,7 +405,6 @@ const CanvasComponent = () => {
     const arrow1 = new fabric.Triangle({
       width: 10,
       height: 10,
-      strokeWidth: 2,
       fill: currentBorderColor,
       left: 50,
       top: 410,
@@ -322,16 +416,13 @@ const CanvasComponent = () => {
     const arrow2 = new fabric.Triangle({
       width: 10,
       height: 10,
-      strokeWidth: 2,
-      stroke: currentBorderColor,
       fill: currentBorderColor,
-      left: 250,
+      left: 300,
       top: 410,
       angle: 90,
       originX: 'center',
       originY: 'center'
     });
-  
     const group = new fabric.Group([line, arrow1, arrow2], {});
   
    
@@ -353,7 +444,7 @@ const CanvasComponent = () => {
 
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
-  };
+  }
 
   const handleProfileOptionClick = (option) => {
     switch (option) {
@@ -374,84 +465,198 @@ const CanvasComponent = () => {
     setShowProfileMenu(false);
   };
 
+  const changeTextFont = (fontFamily) => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+      activeObject.set('fontFamily', fontFamily);
+      canvas.requestRenderAll();
+    }
+  };
+  const changeTextColor = (color) => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+      activeObject.set('fill', color);
+      canvas.requestRenderAll();
+    }
+  };
+
+  const toggleBold = () => {
+    setIsBold(!isBold);
+    changeTextStyle('fontWeight', !isBold ? 'bold' : 'normal');
+  };
+
+
+  const toggleItalic = () => {
+    setIsItalic(!isItalic);
+    changeTextStyle('fontStyle', !isItalic ? 'italic' : 'normal');
+  };
+
+  const toggleUnderline = () => {
+    setIsUnderline(!isUnderline);
+    changeTextStyle('underline', !isUnderline ? 'underline' : 'none');
+  };
+
+  const changeTextStyle = (property, value) => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+      activeObject.set(property, value);
+      canvas.requestRenderAll();
+    }
+  }
+
+  const saveCanvasState = () => {
+    const canvasState = canvas.toJSON();
+    localStorage.setItem('canvasState', JSON.stringify(canvasState));
+  };
+
+
+  useEffect(() => {
+    const loadCanvasState = () => {
+      const savedCanvasState = localStorage.getItem('canvasState');
+      if (savedCanvasState && canvas) {
+        canvas.loadFromJSON(savedCanvasState, canvas.renderAll.bind(canvas));
+      }
+    };
+
+    loadCanvasState();
+  }, [canvas]);
+
+  function increaseTextSize() {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+      const currentFontSize = activeObject.get('fontSize');
+      const newSize = currentFontSize + 1;
+      activeObject.set('fontSize', newSize);
+      canvas.renderAll();
+      document.getElementById('currentSize').textContent = newSize;
+    }
+  }
+
+  function decreaseTextSize() {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+      const currentFontSize = activeObject.get('fontSize');
+      const newSize = currentFontSize - 1;
+      activeObject.set('fontSize', newSize);
+      canvas.renderAll();
+      document.getElementById('currentSize').textContent = newSize;
+    }
+  }
+
+  function alignText() {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+      activeObject.set('right', 0);
+      canvas.renderAll();
+    }
+  };
+
+  
   const handleSave = async (fileName, format, saveToDatabase) => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
-     //return;
+      console.error('JWT token not found in localStorage.');
+      //return;
     }
-
+  
     try {
-        // const userResponse = await getUserByEmail(jwtToken);
-        //     const userId = userResponse.userId;
+      // const userResponse = await getUserByEmail(jwtToken);
+      // const userId = userResponse.userId;
+
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
+  
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = canvasElement.width;
       tempCanvas.height = canvasElement.height;
       const tempCtx = tempCanvas.getContext("2d");
-
+  
       if (format === "jpeg") {
         tempCtx.fillStyle = "white";
         tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       }
-      tempCtx.drawImage(canvasElement, 0, 0);
-      tempCanvas.toBlob((blob) => {
-        if (!blob) {
-          console.error("Failed to convert canvas to blob.");
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = () => {
-          const canvasDataUrl = reader.result;
-          if (canvasDataUrl) {
-            if (saveToDatabase) {
-              const base64String = canvasDataUrl.split(",")[1];
-              saveCanvasImageToDB(base64String)
-                .then(() => {
-                  console.log("Canvas image saved to database.");
-                  setShowMsgBox(true);
-                  setMsg("Image saved successfully!");
-                  setShowSavePopup(false);
-                })
-                .catch((error) => {
-                  console.error("Error saving canvas image to database:", error);
-                  setShowSavePopup(false);
-                  setShowMsgBox(true);
-                  setMsg("Error in saving");
-                });
-            } else {
-              const link = document.createElement("a");
-              link.download = fileName + "." + format;
-              link.href = canvasDataUrl;
-              link.click();
-              URL.revokeObjectURL(link.href);
-              setShowSavePopup(false);
-            }
+  
+      tempCtx.drawImage(canvasElement, 0, 0)
+  
+      if (format === "svg") {
+        const svgData = new XMLSerializer().serializeToString(canvasElement);
+        const blob = new Blob([svgData], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = fileName + ".svg";
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+        toast.success("Exported successfully!");
+        setShowSavePopup(false);
+      } else if (format === "pdf") {
+        const pdf = new jsPDF();
+        pdf.addImage(tempCanvas.toDataURL(), 'PNG', 0, 0);
+        pdf.save(fileName + ".pdf");
+        toast.success("Exported successfully!");
+        setShowSavePopup(false);
+      }else {
+        tempCanvas.toBlob((blob) => {
+          if (!blob) {
+            console.error("Failed to convert canvas to blob.");
+            return;
           }
-        };
-        reader.readAsDataURL(blob);
-      }, "image/" + format);
+          const reader = new FileReader();
+          reader.onload = () => {
+            const canvasDataUrl = reader.result;
+            if (canvasDataUrl) {
+              if (saveToDatabase) {
+                const base64String = canvasDataUrl.split(",")[1];
+                saveCanvasImageToDB(base64String)
+                  .then(() => {
+                    console.log("Canvas image saved to database.");
+                    setShowMsgBox(true);
+                    setMsg("Image saved successfully!");
+                    setShowSavePopup(false);
+                  })
+                  .catch((error) => {
+                    console.error("Error saving canvas image to database:", error);
+                    setShowSavePopup(false);
+                    setShowMsgBox(true);
+                    setMsg("Error in saving");
+                  });
+              } else {
+                const link = document.createElement("a");
+                link.download = fileName + "." + format;
+                link.href = canvasDataUrl;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                toast.success("Exported successfully!");
+                setShowSavePopup(false);
+              }
+            }
+          };
+          reader.readAsDataURL(blob);
+        }, "image/" + format);
+      }
     } catch (error) {
       console.error('Error in fetching user data:', error);
     }
-  };
+};
+
 
   const increaseBorderWidth = () => {
-    setCurrentBorderWidth(current => current + 1);
+    const increasedWidth = currentBorderWidth + 1;
+    setCurrentBorderWidth(increasedWidth);
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
-      activeObject.set('strokeWidth', currentBorderWidth + 1);
+      activeObject.set('strokeWidth', increasedWidth);
       canvas.requestRenderAll();
     }
   };
 
   const decreaseBorderWidth = () => {
     if (currentBorderWidth > 1) {
-      setCurrentBorderWidth(current => current - 1);
+      const decreasedWidth = currentBorderWidth - 1;
+      setCurrentBorderWidth(decreasedWidth);
       const activeObject = canvas.getActiveObject();
       if (activeObject) {
-        activeObject.set('strokeWidth', currentBorderWidth - 1);
+        activeObject.set('strokeWidth', decreasedWidth);
         canvas.requestRenderAll();
       }
     }
@@ -465,8 +670,6 @@ const CanvasComponent = () => {
     }
   };
 
-  const handleButtonClick = () => { };
-
   return (
     <div>
       <nav className="navbar">
@@ -474,9 +677,9 @@ const CanvasComponent = () => {
         {showProfileMenu && (
           <div className="profile-menu">
             <ul>
-              <li onClick={() => handleProfileOptionClick('profile')}>Your Profile</li>
-              <li onClick={() => handleProfileOptionClick('password')}>Change Password</li>
-              <li onClick={() => handleProfileOptionClick('Signout')}>Sign Out</li>
+              <li data-testid="profileButton" onClick={() => handleProfileOptionClick('profile')}>Your Profile</li>
+              <li data-testid="passwordButton" onClick={() => handleProfileOptionClick('password')}>Change Password</li>
+              <li data-testid="SignoutButton" onClick={() => handleProfileOptionClick('Signout')}>Sign Out</li>
             </ul>
           </div>
         )}
@@ -485,6 +688,7 @@ const CanvasComponent = () => {
         <div className="sidebar">
           <div className="shapebutton-container">
             <h2>Shapes</h2>
+            <hr></hr>
             <div>
               <button data-testid="rectangleButton" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
               <button data-testid="circleButton" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
@@ -492,96 +696,129 @@ const CanvasComponent = () => {
             </div>
             <div>
               <button data-testid="triangleButton" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
-              <button onClick={addDiamond}><GoDiamond fontSize={70} /></button>
-              <button onClick={addPolygon}><BsPentagon fontSize={70} /></button>
+              <button data-testid="diamondButton" onClick={addDiamond}><GoDiamond fontSize={70} /></button>
+              <button data-testid="pentagonButton" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
             </div>
             <div>
-              <button onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
-              <button onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
-              <button onClick={addHexagon}><BsHexagon fontSize={70} /></button>
+              <button data-testid="ellipseButton" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
+              <button data-testid="roundrectButton" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
+              <button data-testid="hexagonButton" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
             </div>
             <h2>Lines</h2>
+            <hr></hr>
             <div>
-              <button onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
-              <button onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
-              <button onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
+              <button data-testid="lineButton" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
+              <button data-testid="arrowButton" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
+              <button data-testid="biarrowdButton" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
             </div>
             <h2>Add Text</h2>
+            <hr></hr>
             <div>
-              <button onClick={addText}><PiTextT fontSize={65} /></button>
+              <button data-testid="textButton" onClick={addText}><PiTextT fontSize={65} /></button>
             </div>
           </div>
         </div>
         <div className="main">
           <div className="button-container">
-            <button
-              data-testid="openButton"
-              type="open"
-              onClick={() => handleButtonClick("open")}
-              className={selectedButton === "open" ? "selected" : ""}
-            >
-              <MdFileOpen />
-              {hoveredButton === "open" && <span className="tooltip">Open</span>}
-            </button>
-            <button
-              data-testid="saveButton"
+            <button title="Save To Database" data-testid="saveButton"
               onClick={() => setShowSavePopup(true)}
-              className={selectedButton === "save" ? "selected" : ""}
-              title="Save To Db"
             >
               <TfiSave />
               {hoveredButton === "save" && <span className="tooltip">Save</span>}
             </button>
-            <button
-              data-testid="undoButton1"
+            <button title="Undo" data-testid="undoButton"
               onClick={() => canvas.undo()}
-              className={selectedButton === "undo" ? "selected" : ""}
-              title="Undo"
             >
               <IoArrowUndo />
               {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
             </button>
-            <button
-              data-testid="redoButton"
+            <button title="Redo" data-testid="redoButton"
               onClick={() => canvas.redo()}
-              className={selectedButton === "redo" ? "selected" : ""}
-              title="Redo"
             >
               <IoArrowRedo />
               {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
             </button>
-            <button
-              data-testid="deleteButton"
+            <button title="Delete" data-testid="deleteButton"
               onClick={() => deleteSelectedObject()}
-              className={selectedButton === "delete" ? "selected" : ""}
-              title="Delete"
             >
               <MdDeleteForever />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
               )}
             </button>
-            <input type="color" value={currentColor} onChange={handleColorChange} title="Fill color" />
-
-            {selectedShape && (
-              <>
-                <input type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
-                <button onClick={increaseBorderWidth} title="Increase Border">+</button>
-                <button onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-              </>
-            )}
+            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
+            <button style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
           </div>
           <div>
             <h1>Draw Here!!</h1>
-            <canvas
+            <ContextMenuTrigger id="canvas-context-menu" holdToDisplay={-1}>
+            <canvas id="grid-canvas"
               data-testid="canvas"
               ref={canvasRef}
               aria-label="Canvas"
-              width={800}
-              height={600}
-              style={{ border: "2px solid black" }}
+              style={{ border: "1px solid black", position: "relative", width: "800px" }}
+              onContextMenu={handleContextMenu}
             ></canvas>
+              </ContextMenuTrigger>
+              <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
+          <MenuItem  className=".rc-menu-item" onClick={copySelectedObject}>Copy</MenuItem>
+          <MenuItem  className=".rc-menu-item" onClick={pasteSelectedObject}>Paste</MenuItem>
+          <MenuItem  className=".rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
+          <MenuItem  className=".rc-menu-item" onClick={{}}>Undo</MenuItem>
+          <MenuItem  className=".rc-menu-item" onClick={{}}>Redo</MenuItem>
+        </ContextMenu>
           </div>
+        </div>
+        <div className="sidbar-right">
+          
+
+            <> <h1>Shape Border</h1>
+              <hr></hr>
+              <input type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
+              <button  data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
+              <button  data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
+            </>
+          
+          <h1>Text</h1>
+          <hr></hr>
+          <div className="dropdown-container">
+            <FontPicker
+              apiKey="AIzaSyBl5TouoL_peS4tDP78t8uDbepyWghkodI"
+              activeFontFamily={activeFontFamily}
+              onChange={(nextFont) => {
+                setActiveFontFamily(nextFont.family);
+                setSelectedFontFamily(nextFont.family);
+                changeTextFont(nextFont.family);
+              }}/>
+          </div>
+          <div className="button-container-textalign">
+            <button data-testid="leftButton" className="left" onClick={alignText}><CiTextAlignLeft /></button>
+            <button data-testid="centerButton" className="center"><CiTextAlignCenter /></button>
+            <button data-testid="rightButton" className="right"><CiTextAlignRight /></button>
+          </div>
+          <div className="button-container-textstyle">
+            <button data-testid="boldButton" className="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
+            <button data-testid="italicButton" className="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
+            <button data-testid="underButton" className="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
+          </div>
+          <div className="button-container-color">
+            <div className="text-color">Text color</div>
+            <button data-testid="textcolorButton" className="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
+          </div>
+          <div>
+            <button data-testid="plusButton" style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={increaseTextSize}>+</button>
+            <button data-testid="minusButton" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
+            <span style={{ marginLeft: "25px" }} id="currentSize"></span>
+          </div>
+          {showTextColorPicker && (
+            <SketchPicker
+              color={selectedTextColor}
+              onChange={(color) => {
+                setSelectedTextColor(color.hex);
+                changeTextColor(color.hex);
+              }}
+            />
+          )}
         </div>
       </div>
 
@@ -596,7 +833,7 @@ const CanvasComponent = () => {
         <MsgBoxComponent
           showMsgBox={showMsgBox}
           closeMsgBox={() => setShowMsgBox(false)}
-          msg="Sample Message"
+          msg={msg}
           handleClick={() => setShowMsgBox(false)}
         />
       )}

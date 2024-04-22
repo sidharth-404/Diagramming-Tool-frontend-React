@@ -2,6 +2,7 @@ import React from 'react';
 
 import Registration from './Component/Register/Registration';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 import LoginPage from './Component/Login/LoginPage';
 import './Component/Login/LoginPage.css';
 import ResetPasswordPage from './Component/Login/ResetPasswordPage';
@@ -32,6 +33,7 @@ function App() {
           <Route path="/existing" element={<ExistingPage/>}/>
 
         </Routes>
+        <ToastContainer />
       </div>
       
     </Router>

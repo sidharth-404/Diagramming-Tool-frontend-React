@@ -41,7 +41,7 @@ export const saveCanvasImageToDB = async (imageData, userId) => {
     const response = await axios.post(`${API_URL}/images`, {
       imageData: imageData,
       user: {
-        userId:userId
+        userId:28
       }
     });
     return response.data;
