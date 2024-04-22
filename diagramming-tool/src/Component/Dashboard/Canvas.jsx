@@ -1,6 +1,9 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import "./Canvas.css";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
 import { MdDeleteForever } from "react-icons/md";
 import { PiRectangle } from "react-icons/pi";
@@ -22,7 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import SavePopup from "../SavePop/SavePop";
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
-import { fabric } from 'fabric';
+import { fabric } from "fabric";
 import 'fabric-history';
 import { CiTextAlignCenter, CiTextAlignLeft, CiTextAlignRight } from "react-icons/ci";
 import { PiTextBBold, PiTextItalic } from "react-icons/pi";
@@ -31,6 +34,7 @@ import { IoMdColorFilter } from "react-icons/io";
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
+import jsPDF from "jspdf";
 
 
 const CanvasComponent = () => {
@@ -55,16 +59,43 @@ const CanvasComponent = () => {
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
-  const [currentBorderColor, setCurrentBorderColor] = useState('#000000');
+  const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
   const [copiedObjects, setCopiedObjects] = useState([]);
-  
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  const [line, setLine] = useState(null);
+  const [arrowhead, setArrowhead] = useState(null);
 
   useEffect(() => {
     if (!Cookies.get('token')) {
       navigation('/');
     }
   })
+
+
+  useEffect(() => {
+    const handleOutsideClick = () => {
+      setShowContextMenu(false);
+    };
+
+    const canvasElement = canvasRef.current;
+    if (canvasElement) {
+      canvasElement.addEventListener('click', handleOutsideClick);
+    }
+
+    return () => {
+      if (canvasElement) {
+        canvasElement.removeEventListener('click', handleOutsideClick);
+      }
+    };
+  }, [canvasRef]);
+
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    setShowContextMenu(true);
+    setContextMenuPosition({ x: event.clientX, y: event.clientY });
+  };
 
   const handlePreventNavigation = (event) => {
     event.preventDefault();
@@ -77,17 +108,18 @@ const CanvasComponent = () => {
   useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
-      width: 950,
+      width: 800,
       height: 600,
       selection: true,
     });
+
 
     fabric.Object.prototype.set({
       transparentCorners: false,
       cornerColor: 'blue',
       borderColor: 'red',
       cornerSize: 6,
-      padding: 5,
+      padding: 2,
       cornerStyle: 'circle',
       borderOpacityWhenMoving: 0.8,
       hasControls: true
@@ -104,10 +136,113 @@ const CanvasComponent = () => {
       setSelectedShape(false);
     });
 
+    initCanvas.on('mouse:dblclick', (e) => {
+      if (e.target && e.target.__corner) {
+        const objectCorner = e.target.getPointByOrigin(e.target.__corner);
+        const pointer = initCanvas.getPointer(e.e, true);
+        const newStartPoint = { x: pointer.x, y: pointer.y };
+
+        const lineInstance = new fabric.Line([objectCorner.x, objectCorner.y, pointer.x, pointer.y], {
+          stroke: currentBorderColor,
+          strokeWidth: 2,
+          selectable: true,
+        });
+
+        setLine(lineInstance);
+        initCanvas.add(lineInstance);
+
+        const angle = Math.atan2(pointer.y - objectCorner.y, pointer.x - objectCorner.x) * (180 / Math.PI);
+        const arrowheadInstance = new fabric.Triangle({
+          width: 10,
+          height: 10,
+          stroke: currentBorderColor,
+          left: pointer.x,
+          top: pointer.y,
+          angle: angle + 90,
+          originX: 'center',
+          originY: 'center',
+          selectable: true,
+        });
+
+        setArrowhead(arrowheadInstance);
+        initCanvas.add(arrowheadInstance);
+
+        const onMouseMove = (event) => {
+          const pointer = initCanvas.getPointer(event.e, true);
+          lineInstance.set({ x1: newStartPoint.x, y1: newStartPoint.y, x2: pointer.x, y2: pointer.y });
+          arrowheadInstance.set({ left: pointer.x, top: pointer.y });
+          initCanvas.requestRenderAll();
+        };
+
+        const onMouseUp = () => {
+          initCanvas.off('mouse:move', onMouseMove);
+          initCanvas.off('mouse:up', onMouseUp);
+          console.log("Mouse up")
+          const lineWithArrowhead = new fabric.Group([lineInstance, arrowheadInstance], {
+            selectable: true,
+          });
+          initCanvas.remove(lineInstance);
+          initCanvas.remove(arrowheadInstance)
+          setLine(lineWithArrowhead);
+          initCanvas.add(lineWithArrowhead);
+
+        };
+
+        initCanvas.on('mouse:move', onMouseMove);
+        initCanvas.on('mouse:up', onMouseUp);
+      }
+    });
+
     setCanvas(initCanvas);
     return () => initCanvas.dispose();
 
   }, []);
+
+  const groupObjects = () => {
+    const selectedObjects = canvas.getActiveObjects();
+    if (selectedObjects.length > 1) {
+      const group = new fabric.Group(selectedObjects, {
+        originX: 'left',
+        originY: 'bottom',
+        selectable: true,
+        cornerColor: 'yellow',
+        borderColor: 'black',
+        cornerSize: 6,
+        padding: 5,
+        cornerStyle: 'square',
+      });
+      group.set({
+        left: 0,
+        top: canvas.getHeight() - group.height * group.scaleY
+      });
+      selectedObjects.forEach(obj => {
+        canvas.remove(obj);
+      });
+      canvas.add(group);
+      canvas.renderAll();
+    }
+  };
+
+  const ungroupObjects = () => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'group') {
+
+      const items = activeObject._objects;
+      activeObject._restoreObjectsState();
+      canvas.remove(activeObject);
+      items.forEach((obj) => {
+        canvas.add(obj);
+      });
+
+      canvas.discardActiveObject();
+      canvas.renderAll();
+    } else {
+      console.warn('No group is selected.');
+    }
+  };
+
+
+
   const copySelectedObject = () => {
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
@@ -334,7 +469,7 @@ const CanvasComponent = () => {
       if (text.text.trim() === 'New Text' || text.text.trim() === '') {
         text.visible = false;
       }
-       canvas.requestRenderAll();
+      canvas.requestRenderAll();
     });
   };
   const addLine = () => {
@@ -365,6 +500,7 @@ const CanvasComponent = () => {
       originY: 'center'
     });
     const group = new fabric.Group([line, arrow], {});
+
     canvas.add(group);
   };
 
@@ -378,7 +514,7 @@ const CanvasComponent = () => {
     const arrow1 = new fabric.Triangle({
       width: 10,
       height: 10,
-      fill: currentBorderColor,
+      stroke: currentBorderColor,
       left: 50,
       top: 410,
       angle: -90,
@@ -389,7 +525,7 @@ const CanvasComponent = () => {
     const arrow2 = new fabric.Triangle({
       width: 10,
       height: 10,
-      fill: currentBorderColor,
+      stroke: currentBorderColor,
       left: 300,
       top: 410,
       angle: 90,
@@ -397,6 +533,13 @@ const CanvasComponent = () => {
       originY: 'center'
     });
     const group = new fabric.Group([line, arrow1, arrow2], {});
+
+
+    group.set({
+      stroke: currentBorderColor,
+      strokeWidth: currentBorderWidth,
+    });
+
     canvas.add(group);
   };
 
@@ -522,17 +665,23 @@ const CanvasComponent = () => {
       canvas.renderAll();
     }
   };
+
+
   const handleSave = async (fileName, format, saveToDatabase) => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
       console.error('JWT token not found in localStorage.');
-     
+      return;
+
     }
+
     try {
-      // const userResponse = await getUserByEmail(jwtToken);
-      // const userId = userResponse.userId;
+      const userResponse = await getUserByEmail(jwtToken);
+      const userId = userResponse.userId;
+
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
+
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = canvasElement.width;
       tempCanvas.height = canvasElement.height;
@@ -542,43 +691,65 @@ const CanvasComponent = () => {
         tempCtx.fillStyle = "white";
         tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       }
-      tempCtx.drawImage(canvasElement, 0, 0);
-      tempCanvas.toBlob((blob) => {
-        if (!blob) {
-          console.error("Failed to convert canvas to blob.");
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = () => {
-          const canvasDataUrl = reader.result;
-          if (canvasDataUrl) {
-            if (saveToDatabase) {
-              const base64String = canvasDataUrl.split(",")[1];
-              saveCanvasImageToDB(base64String)
-                .then(() => {
-                  console.log("Canvas image saved to database.");
-                  setShowMsgBox(true);
-                  setMsg("Image saved successfully!");
-                  setShowSavePopup(false);
-                })
-                .catch((error) => {
-                  console.error("Error saving canvas image to database:", error);
-                  setShowSavePopup(false);
-                  setShowMsgBox(true);
-                  setMsg("Error in saving");
-                });
-            } else {
-              const link = document.createElement("a");
-              link.download = fileName + "." + format;
-              link.href = canvasDataUrl;
-              link.click();
-              URL.revokeObjectURL(link.href);
-              setShowSavePopup(false);
-            }
+
+      tempCtx.drawImage(canvasElement, 0, 0)
+
+      if (format === "svg") {
+        const svgData = new XMLSerializer().serializeToString(canvasElement);
+        const blob = new Blob([svgData], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = fileName + ".svg";
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+        toast.success("Exported successfully!");
+        setShowSavePopup(false);
+      } else if (format === "pdf") {
+        const pdf = new jsPDF();
+        pdf.addImage(tempCanvas.toDataURL(), 'PNG', 0, 0);
+        pdf.save(fileName + ".pdf");
+        toast.success("Exported successfully!");
+        setShowSavePopup(false);
+      } else {
+        tempCanvas.toBlob((blob) => {
+          if (!blob) {
+            console.error("Failed to convert canvas to blob.");
+            return;
           }
-        };
-        reader.readAsDataURL(blob);
-      }, "image/" + format);
+          const reader = new FileReader();
+          reader.onload = () => {
+            const canvasDataUrl = reader.result;
+            if (canvasDataUrl) {
+              if (saveToDatabase) {
+                const base64String = canvasDataUrl.split(",")[1];
+                saveCanvasImageToDB(base64String)
+                  .then(() => {
+                    console.log("Canvas image saved to database.");
+                    setShowMsgBox(true);
+                    setMsg("Image saved successfully!");
+                    setShowSavePopup(false);
+                  })
+                  .catch((error) => {
+                    console.error("Error saving canvas image to database:", error);
+                    setShowSavePopup(false);
+                    setShowMsgBox(true);
+                    setMsg("Error in saving");
+                  });
+              } else {
+                const link = document.createElement("a");
+                link.download = fileName + "." + format;
+                link.href = canvasDataUrl;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                toast.success("Exported successfully!");
+                setShowSavePopup(false);
+              }
+            }
+          };
+          reader.readAsDataURL(blob);
+        }, "image/" + format);
+      }
     } catch (error) {
       console.error('Error in fetching user data:', error);
     }
@@ -737,16 +908,30 @@ const setDashedBorder = () => {
             </button>
            
             <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
-            <button style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
+            <button data-testid="saveStateButton" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
+            <button data-testid="groupButton" onClick={groupObjects}>Group</button>
+            <button data-testid="ungroupedButton" onClick={ungroupObjects}>Ungroup</button>
           </div>
           <div>
             <h1>Draw Here!!</h1>
-            <canvas id="grid-canvas"
-              data-testid="canvas"
-              ref={canvasRef}
-              aria-label="Canvas"
-              style={{ border: "1px solid black", position: "relative", width: "900px" }}
-            ></canvas>
+            <ContextMenuTrigger id="canvas-context-menu" holdToDisplay={-1}>
+              <canvas
+                id="grid-canvas"
+                data-testid="canvas"
+                ref={canvasRef}
+                aria-label="Canvas"
+                style={{ border: "1px solid black", position: "relative", width: "800px" }}
+                onContextMenu={handleContextMenu}
+              ></canvas>
+            </ContextMenuTrigger>
+            <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
+              <MenuItem className="rc-menu-item" onClick={copySelectedObject}>Copy</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={pasteSelectedObject}>Paste</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={{}}>Undo</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={{}}>Redo</MenuItem>
+            </ContextMenu>
+
           </div>
         </div>
         <div class="sidbar-right">
@@ -773,7 +958,7 @@ const setDashedBorder = () => {
           {/* )} */}
           <h1>Text</h1>
           <hr></hr>
-          <div class="dropdown-container">
+          <div className="dropdown-container">
             <FontPicker
               apiKey="AIzaSyBl5TouoL_peS4tDP78t8uDbepyWghkodI"
               activeFontFamily={activeFontFamily}
@@ -781,29 +966,30 @@ const setDashedBorder = () => {
                 setActiveFontFamily(nextFont.family);
                 setSelectedFontFamily(nextFont.family);
                 changeTextFont(nextFont.family);
-              }}/>
+              }} />
           </div>
-          <div class="button-container-textalign">
-            <button class="left" onClick={alignText}><CiTextAlignLeft /></button>
-            <button class="center"><CiTextAlignCenter /></button>
-            <button class="right"><CiTextAlignRight /></button>
+          <div className="button-container-textalign">
+            <button data-testid="leftButton" className="left" onClick={alignText}><CiTextAlignLeft /></button>
+            <button data-testid="centerButton" className="center"><CiTextAlignCenter /></button>
+            <button data-testid="rightButton" className="right"><CiTextAlignRight /></button>
           </div>
-          <div class="button-container-textstyle">
-            <button class="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
-            <button class="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
-            <button class="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
+          <div className="button-container-textstyle">
+            <button data-testid="boldButton" className="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
+            <button data-testid="italicButton" className="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
+            <button data-testid="underButton" className="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
           </div>
-          <div class="button-container-color">
-            <div class="text-color">Text color</div>
-            <button class="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
+          <div className="button-container-color">
+            <div className="text-color">Text color</div>
+            <button data-testid="textcolorButton" className="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
           </div>
           <div>
-            <button style={{ backgroundColor: "gray" }} class="textsize-increase" onClick={increaseTextSize}>+</button>
-            <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
+            <button data-testid="plusButton" style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={increaseTextSize}>+</button>
+            <button data-testid="minusButton" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
             <span style={{ marginLeft: "25px" }} id="currentSize"></span>
           </div>
           {showTextColorPicker && (
             <SketchPicker
+              data-testid="sketch-picker"
               color={selectedTextColor}
               onChange={(color) => {
                 setSelectedTextColor(color.hex);
@@ -826,9 +1012,7 @@ const setDashedBorder = () => {
           showMsgBox={showMsgBox}
           closeMsgBox={() => setShowMsgBox(false)}
           msg={msg}
-          // handleConfirm={handleConfirm}
-
-           handleClick={() => setShowMsgBox(false)}
+          handleClick={() => setShowMsgBox(false)}
         />
       )}
     </div>
