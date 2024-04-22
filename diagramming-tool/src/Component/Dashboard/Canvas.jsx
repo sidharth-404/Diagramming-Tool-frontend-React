@@ -752,21 +752,23 @@ const CanvasComponent = () => {
           <div>
             <h1>Draw Here!!</h1>
             <ContextMenuTrigger id="canvas-context-menu" holdToDisplay={-1}>
-            <canvas id="grid-canvas"
-              data-testid="canvas"
-              ref={canvasRef}
-              aria-label="Canvas"
-              style={{ border: "1px solid black", position: "relative", width: "800px" }}
-              onContextMenu={handleContextMenu}
-            ></canvas>
-              </ContextMenuTrigger>
-              <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
-          <MenuItem  className=".rc-menu-item" onClick={copySelectedObject}>Copy</MenuItem>
-          <MenuItem  className=".rc-menu-item" onClick={pasteSelectedObject}>Paste</MenuItem>
-          <MenuItem  className=".rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
-          <MenuItem  className=".rc-menu-item" onClick={{}}>Undo</MenuItem>
-          <MenuItem  className=".rc-menu-item" onClick={{}}>Redo</MenuItem>
-        </ContextMenu>
+  <canvas
+    id="grid-canvas"
+    data-testid="canvas"
+    ref={canvasRef}
+    aria-label="Canvas"
+    style={{ border: "1px solid black", position: "relative", width: "800px" }}
+    onContextMenu={handleContextMenu}
+  ></canvas>
+</ContextMenuTrigger>
+<ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
+  <MenuItem className="rc-menu-item" onClick={copySelectedObject}>Copy</MenuItem>
+  <MenuItem className="rc-menu-item" onClick={pasteSelectedObject}>Paste</MenuItem>
+  <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
+<MenuItem className="rc-menu-item" onClick={{}}>Undo</MenuItem>
+  <MenuItem className="rc-menu-item" onClick={{}}>Redo</MenuItem>
+</ContextMenu>
+
           </div>
         </div>
         <div className="sidbar-right">
