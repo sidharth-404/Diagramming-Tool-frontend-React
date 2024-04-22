@@ -1,5 +1,7 @@
+/* eslint-disable testing-library/no-node-access */
+/* eslint-disable testing-library/prefer-screen-queries */
 import React from "react";
-import { render, screen, fireEvent,waitFor } from "@testing-library/react";
+import { render, screen, fireEvent,waitFor, getByTitle,getByTestId } from "@testing-library/react";
 import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 import { BrowserRouter as Router} from 'react-router-dom';
@@ -9,9 +11,10 @@ beforeEach(() => {
   jest.resetAllMocks();
   setupJestCanvasMock();
 });
-
-
+        
 describe('CanvasComponent', () => {
+
+
   it("Clicks on Profile Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const profileImage = screen.getByAltText('Profile');
@@ -99,6 +102,7 @@ describe("Canvas Component", () => {
     const canvas = screen.getByTestId('canvas');
     fireEvent.dblClick(canvas);
   });
+  
 
 
   it("selects a rectangle on canvas click", () => {
@@ -245,6 +249,36 @@ describe("Canvas Component", () => {
     fireEvent.mouseMove(canvas, { clientX: 150, clientY: 150 });
     fireEvent.mouseUp(canvas, { clientX: 150, clientY: 150 });
   });
+  it('should set solid border when solid line button is clicked', () => {
+    render(<Router><CanvasComponent/></Router>);
+    const solidLineButton = screen.getByTitle('Solid Line');
+    fireEvent.click(solidLineButton);
+   
+  });
+
+  it('should set dotted border when dotted line button is clicked', () => {
+    render(<Router><CanvasComponent/></Router>);
+    const dottedLineButton = screen.getByTitle('Dotted Line');
+    fireEvent.click(dottedLineButton);
+    
+  });
+
+  it('should set dashed border when dashed line button is clicked', () => {
+    render(<Router><CanvasComponent/></Router>);
+    const dashedLineButton = screen.getByTitle('Dashed Line');
+    fireEvent.click(dashedLineButton);
+   
+  });
+
+
+  
 });
+
+
+
+
+
+
+
 
 
