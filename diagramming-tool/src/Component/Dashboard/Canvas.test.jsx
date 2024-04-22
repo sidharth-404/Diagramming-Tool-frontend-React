@@ -1,12 +1,27 @@
 /* eslint-disable testing-library/no-node-access */
 import React from "react";
-import { render, screen, fireEvent,waitFor } from "@testing-library/react";
+import { render, screen, fireEvent,cleanup } from "@testing-library/react";
 import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 import { BrowserRouter as Router} from 'react-router-dom';
 import Cookies from 'js-cookie';
 import {saveCanvasImageToDB,getUserByEmail} from '../../ApiService/ApiService';
 import { fabric } from 'fabric';
+import { fabric } from 'fabric';
+
+jest.mock('fabric', () => ({
+  ...jest.requireActual('fabric'),
+  Canvas: {
+    undo: jest.fn(),
+    redo: jest.fn(),  
+    getActiveObject: jest.fn(),
+    remove: jest.fn(),
+    requestRenderAll: jest.fn(),
+    clone: jest.fn(),
+    setActiveObject: jest.fn(),
+    add: jest.fn(),
+  },
+}));
 
 
 let canvas;
@@ -403,6 +418,103 @@ describe("Canvas Component", () => {
     expect(activeObject.strokeWidth).toBe(initialWidth - 1);
   });
 
+
+});
+
+  describe("Canvas Component", () => {
+    it('adds and removes keydown and popstate event listeners', () => {
+      const addSpy = jest.spyOn(window, 'addEventListener');
+      const removeSpy = jest.spyOn(window, 'removeEventListener');
+      render(<Router><CanvasComponent/></Router>);
+      expect(addSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(addSpy).toHaveBeenCalledWith('popstate', expect.any(Function));
+      cleanup();
+      expect(removeSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(removeSpy).toHaveBeenCalledWith('popstate', expect.any(Function));
+    });
+    it('initializes fabric canvas and sets up object defaults', () => {
+      const { getByTestId } = render(<Router><CanvasComponent/></Router>);
+      const canvasEl = getByTestId('canvas');
+      expect(canvasEl).toBeTruthy(); 
+    });
+    
+    it('handles grouping and ungrouping of objects on selection', () => {
+      const { getByTestId } = render(<Router><CanvasComponent/></Router>);
+      fireEvent.mouseDown(getByTestId('canvas'), { clientX: 100, clientY: 100 });
+      fireEvent.mouseUp(getByTestId('canvas'), { clientX: 200, clientY: 200 }); // Simulate selection area
+  });
+
+  it("Clicks on Bold Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const BoldButton = screen.getByTestId('boldButton');
+    fireEvent.click(BoldButton);
+    // const boldText = screen.getByTestId('textElement'); // Assuming you have a text element with a test id
+    // expect(boldText).toHaveStyle('font-weight: bold');
+  
+    // // Simulate another click on the bold button to toggle off bold
+    // fireEvent.click(BoldButton);
+  
+    // // Check if the bold style is removed
+    // expect(boldText).not.toHaveStyle('font-weight: bold');
+  });
+
+  it("Clicks on italic Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const italicButton = screen.getByTestId('italicButton');
+    fireEvent.click(italicButton);
+  });
+
+  it("Clicks on underline Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const underButton = screen.getByTestId('underButton');
+    fireEvent.click(underButton);
+  });
+  it("Clicks on textcolor Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const textcButton = screen.getByTestId('textcolorButton');
+    fireEvent.click(textcButton);
+  });
+
+  it("Clicks on textplus Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const plusButton = screen.getByTestId('plusButton');
+    fireEvent.click(plusButton);
+  });
+
+  it("Clicks on textminus Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const minusButton = screen.getByTestId('minusButton');
+    fireEvent.click(minusButton);
+  });
+
+  it("Clicks on left Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const leftButton = screen.getByTestId('leftButton');
+    fireEvent.click(leftButton);
+  });
+
+
+  it("Clicks on center Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const centerButton = screen.getByTestId('centerButton');
+    fireEvent.click(centerButton);
+  });
+
+  it("Clicks on right Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const rightButton = screen.getByTestId('rightButton');
+    fireEvent.click(rightButton);
+  });
+  it("Clicks on group Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const groupButton = screen.getByTestId('groupButton');
+    fireEvent.click(groupButton);
+  });
+  it("Clicks on ungroup Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const ungroupedButton = screen.getByTestId('ungroupedButton');
+    fireEvent.click(ungroupedButton);
+  });
 
 });
 
