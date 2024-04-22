@@ -1,3 +1,5 @@
+/* eslint-disable jest/no-identical-title */
+/* eslint-disable no-undef */
 /* eslint-disable testing-library/no-node-access */
 import React from "react";
 import { render, screen, fireEvent,cleanup } from "@testing-library/react";
@@ -7,7 +9,7 @@ import { BrowserRouter as Router} from 'react-router-dom';
 import Cookies from 'js-cookie';
 import {saveCanvasImageToDB,getUserByEmail} from '../../ApiService/ApiService';
 import { fabric } from 'fabric';
-import { fabric } from 'fabric';
+
 
 jest.mock('fabric', () => ({
   ...jest.requireActual('fabric'),
@@ -434,14 +436,14 @@ describe("Canvas Component", () => {
     });
     it('initializes fabric canvas and sets up object defaults', () => {
       const { getByTestId } = render(<Router><CanvasComponent/></Router>);
-      const canvasEl = getByTestId('canvas');
+      const canvasEl = screen.getByTestId('canvas');
       expect(canvasEl).toBeTruthy(); 
     });
     
     it('handles grouping and ungrouping of objects on selection', () => {
       const { getByTestId } = render(<Router><CanvasComponent/></Router>);
-      fireEvent.mouseDown(getByTestId('canvas'), { clientX: 100, clientY: 100 });
-      fireEvent.mouseUp(getByTestId('canvas'), { clientX: 200, clientY: 200 }); // Simulate selection area
+      fireEvent.mouseDown(screen.getByTestId('canvas'), { clientX: 100, clientY: 100 });
+      fireEvent.mouseUp(screen.getByTestId('canvas'), { clientX: 200, clientY: 200 }); // Simulate selection area
   });
 
   it("Clicks on Bold Button", () => {
