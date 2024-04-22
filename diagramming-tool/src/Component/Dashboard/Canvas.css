@@ -71,7 +71,6 @@ button:hover .tooltip {
  
 .shape-button {
   border: 1px solid #e0e0e0;
-  /* Added border */
   border-radius: 5px;
   padding: 10px;
   margin: 5px;
@@ -92,7 +91,6 @@ button:hover .tooltip {
   color: white;
  margin-left: 0;
   padding: 5px 5px;
-  /* Padding for the navbar content */
   display: flex;
   align-items: center;
   height: 50px;
@@ -101,7 +99,7 @@ button:hover .tooltip {
  
  
  
-/* Home.css */
+
  
 .profile-image {
   width: 40px;
@@ -169,11 +167,11 @@ button:hover .tooltip {
 }
  
 .left {
-  margin-right: auto; /* Align button to left */
+  margin-right: auto;
 }
  
 .right {
-  margin-left: auto; /* Align button to right */
+  margin-left: auto; 
 }
  
 .button-container-textstyle{

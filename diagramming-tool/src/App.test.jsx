@@ -5,9 +5,10 @@ import App from './App';
 describe('App component', () => {
   test('renders homepage by default', () => {
     render(
-      <Router>
+   
+    
         <App />
-      </Router>
+   
     );
     const homePageElement = screen.getByText(/Welcome to Our Diagramming Tool/i);
     expect(homePageElement).toBeInTheDocument();
