@@ -136,41 +136,41 @@ const CanvasComponent = () => {
     initCanvas.on('mouse:dblclick', (e) => {
       if (e.target && e.target.__corner) {
         const objectCorner = e.target.getPointByOrigin(e.target.__corner);
-        const pointer = initCanvas.getPointer(e.e,true);
-        const newStartPoint = { x: pointer.x, y: pointer.y }; 
-   
+        const pointer = initCanvas.getPointer(e.e, true);
+        const newStartPoint = { x: pointer.x, y: pointer.y };
+
         const lineInstance = new fabric.Line([objectCorner.x, objectCorner.y, pointer.x, pointer.y], {
           stroke: currentBorderColor,
           strokeWidth: 2,
           selectable: true,
         });
-   
+
         setLine(lineInstance);
         initCanvas.add(lineInstance);
-   
+
         const angle = Math.atan2(pointer.y - objectCorner.y, pointer.x - objectCorner.x) * (180 / Math.PI);
         const arrowheadInstance = new fabric.Triangle({
           width: 10,
           height: 10,
-          stroke:currentBorderColor,
+          stroke: currentBorderColor,
           left: pointer.x,
           top: pointer.y,
-          angle: angle+90,
+          angle: angle + 90,
           originX: 'center',
           originY: 'center',
           selectable: true,
         });
-       
+
         setArrowhead(arrowheadInstance);
         initCanvas.add(arrowheadInstance);
-   
+
         const onMouseMove = (event) => {
-          const pointer = initCanvas.getPointer(event.e,true);
-          lineInstance.set({ x1: newStartPoint.x, y1: newStartPoint.y, x2: pointer.x, y2: pointer.y }); 
+          const pointer = initCanvas.getPointer(event.e, true);
+          lineInstance.set({ x1: newStartPoint.x, y1: newStartPoint.y, x2: pointer.x, y2: pointer.y });
           arrowheadInstance.set({ left: pointer.x, top: pointer.y });
           initCanvas.requestRenderAll();
         };
-   
+
         const onMouseUp = () => {
           initCanvas.off('mouse:move', onMouseMove);
           initCanvas.off('mouse:up', onMouseUp);
@@ -182,9 +182,9 @@ const CanvasComponent = () => {
           initCanvas.remove(arrowheadInstance)
           setLine(lineWithArrowhead);
           initCanvas.add(lineWithArrowhead);
-         
+
         };
-   
+
         initCanvas.on('mouse:move', onMouseMove);
         initCanvas.on('mouse:up', onMouseUp);
       }
@@ -224,19 +224,19 @@ const CanvasComponent = () => {
     const activeObject = canvas.getActiveObject();
     if (activeObject && activeObject.type === 'group') {
 
-        const items = activeObject._objects;
-        activeObject._restoreObjectsState();
-        canvas.remove(activeObject);
-        items.forEach((obj) => {
-            canvas.add(obj);
-        });
+      const items = activeObject._objects;
+      activeObject._restoreObjectsState();
+      canvas.remove(activeObject);
+      items.forEach((obj) => {
+        canvas.add(obj);
+      });
 
-        canvas.discardActiveObject();  
-        canvas.renderAll();  
+      canvas.discardActiveObject();
+      canvas.renderAll();
     } else {
-        console.warn('No group is selected.');
+      console.warn('No group is selected.');
     }
-};
+  };
 
 
 
@@ -485,7 +485,7 @@ const CanvasComponent = () => {
       strokeWidth: 2,
       selectable: true
     });
-  
+
     const arrow = new fabric.Triangle({
       width: 10,
       height: 10,
@@ -497,17 +497,17 @@ const CanvasComponent = () => {
       originY: 'center'
     });
     const group = new fabric.Group([line, arrow], {});
-  
+
     canvas.add(group);
   };
-  
+
   const addBidirectionalArrowLine = () => {
     const line = new fabric.Line([50, 410, 300, 410], {
       stroke: currentBorderColor,
       strokeWidth: 2,
       selectable: true
     });
-  
+
     const arrow1 = new fabric.Triangle({
       width: 10,
       height: 10,
@@ -518,7 +518,7 @@ const CanvasComponent = () => {
       originX: 'center',
       originY: 'center'
     });
-  
+
     const arrow2 = new fabric.Triangle({
       width: 10,
       height: 10,
@@ -530,13 +530,13 @@ const CanvasComponent = () => {
       originY: 'center'
     });
     const group = new fabric.Group([line, arrow1, arrow2], {});
-  
-   
+
+
     group.set({
       stroke: currentBorderColor,
       strokeWidth: currentBorderWidth,
     });
-  
+
     canvas.add(group);
   };
 
@@ -657,7 +657,7 @@ const CanvasComponent = () => {
     }
   };
 
-  
+
   const handleSave = async (fileName, format, saveToDatabase) => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
@@ -665,26 +665,26 @@ const CanvasComponent = () => {
       return;
 
     }
-  
+
     try {
       const userResponse = await getUserByEmail(jwtToken);
       const userId = userResponse.userId;
 
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
-  
+
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = canvasElement.width;
       tempCanvas.height = canvasElement.height;
       const tempCtx = tempCanvas.getContext("2d");
-  
+
       if (format === "jpeg") {
         tempCtx.fillStyle = "white";
         tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       }
-  
+
       tempCtx.drawImage(canvasElement, 0, 0)
-  
+
       if (format === "svg") {
         const svgData = new XMLSerializer().serializeToString(canvasElement);
         const blob = new Blob([svgData], { type: "image/svg+xml" });
@@ -702,7 +702,7 @@ const CanvasComponent = () => {
         pdf.save(fileName + ".pdf");
         toast.success("Exported successfully!");
         setShowSavePopup(false);
-      }else {
+      } else {
         tempCanvas.toBlob((blob) => {
           if (!blob) {
             console.error("Failed to convert canvas to blob.");
@@ -744,7 +744,7 @@ const CanvasComponent = () => {
     } catch (error) {
       console.error('Error in fetching user data:', error);
     }
-};
+  };
 
 
   const increaseBorderWidth = () => {
@@ -861,35 +861,35 @@ const CanvasComponent = () => {
           <div>
             <h1>Draw Here!!</h1>
             <ContextMenuTrigger id="canvas-context-menu" holdToDisplay={-1}>
-  <canvas
-    id="grid-canvas"
-    data-testid="canvas"
-    ref={canvasRef}
-    aria-label="Canvas"
-    style={{ border: "1px solid black", position: "relative", width: "800px" }}
-    onContextMenu={handleContextMenu}
-  ></canvas>
-</ContextMenuTrigger>
-<ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
-  <MenuItem className="rc-menu-item" onClick={copySelectedObject}>Copy</MenuItem>
-  <MenuItem className="rc-menu-item" onClick={pasteSelectedObject}>Paste</MenuItem>
-  <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
-<MenuItem className="rc-menu-item" onClick={{}}>Undo</MenuItem>
-  <MenuItem className="rc-menu-item" onClick={{}}>Redo</MenuItem>
-</ContextMenu>
+              <canvas
+                id="grid-canvas"
+                data-testid="canvas"
+                ref={canvasRef}
+                aria-label="Canvas"
+                style={{ border: "1px solid black", position: "relative", width: "800px" }}
+                onContextMenu={handleContextMenu}
+              ></canvas>
+            </ContextMenuTrigger>
+            <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
+              <MenuItem className="rc-menu-item" onClick={copySelectedObject}>Copy</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={pasteSelectedObject}>Paste</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={{}}>Undo</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={{}}>Redo</MenuItem>
+            </ContextMenu>
 
           </div>
         </div>
         <div className="sidbar-right">
-          
 
-            <> <h1>Shape Border</h1>
-              <hr></hr>
-              <input type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
-              <button  data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
-              <button  data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-            </>
-          
+
+          <> <h1>Shape Border</h1>
+            <hr></hr>
+            <input type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
+            <button data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
+            <button data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
+          </>
+
           <h1>Text</h1>
           <hr></hr>
           <div className="dropdown-container">

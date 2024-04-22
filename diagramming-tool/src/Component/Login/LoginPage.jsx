@@ -1,21 +1,20 @@
 
 import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
-import {login} from '../../ApiService/auth';
-import {Link,useNavigate} from 'react-router-dom'
-import DiagramPage from './DiagramPage'; 
+import { login } from '../../ApiService/auth';
+import { Link } from 'react-router-dom'
+import DiagramPage from './DiagramPage';
 
 function LoginApp() {
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigation=useNavigate();
-  const [showDiagramPopup, setShowDiagramPopup] = useState(false); 
+  const [showDiagramPopup, setShowDiagramPopup] = useState(false);
   const toggleDiagramPopup = () => {
-   // setShowDiagramPopup(!showDiagramPopup);
+    setShowDiagramPopup(!showDiagramPopup);
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -31,24 +30,21 @@ function LoginApp() {
 
     setError('');
     try {
-    
-    
-      const data=await login(email,password);
-      const result=await data.text();
-    if(!data.ok)
-    {
-      
-      throw new Error(result);
-    }
+
+
+      const data = await login(email, password);
+      const result = await data.text();
+      if (!data.ok) {
+
+        throw new Error(result);
+      }
       document.cookie = `token=${result}; path=/`;
       toggleDiagramPopup();
-      
-      //navigation('/dashboard');
-      console.log(data);
-      
+
+
     } catch (error) {
-      setError(error.message );
-      
+      setError(error.message);
+
     }
   };
 
@@ -75,9 +71,9 @@ function LoginApp() {
           {showDiagramPopup && <DiagramPage onClose={toggleDiagramPopup} />}
         </MDBContainer>
       </div>
-    
-     
-      </div>
+
+
+    </div>
   );
 }
 
