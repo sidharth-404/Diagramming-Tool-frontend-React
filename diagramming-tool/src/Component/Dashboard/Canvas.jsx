@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import SavePopup from "../SavePop/SavePop";
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
-import { fabric } from 'fabric';
+import { fabric } from "fabric";
 import 'fabric-history';
 import { CiTextAlignCenter, CiTextAlignLeft, CiTextAlignRight } from "react-icons/ci";
 import { PiTextBBold, PiTextItalic } from "react-icons/pi";
@@ -55,6 +55,8 @@ const CanvasComponent = () => {
   const [currentBorderColor, setCurrentBorderColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState(false);
   const [copiedObjects, setCopiedObjects] = useState([]);
+  const [line, setLine] = useState(null);
+  const [arrowhead, setArrowhead] = useState(null);
 
   useEffect(() => {
     if (!Cookies.get('token')) {
@@ -83,7 +85,7 @@ const CanvasComponent = () => {
       cornerColor: 'blue',
       borderColor: 'red',
       cornerSize: 6,
-      padding: 5,
+      padding: 2,
       cornerStyle: 'circle',
       borderOpacityWhenMoving: 0.8,
       hasControls: true
@@ -100,10 +102,113 @@ const CanvasComponent = () => {
       setSelectedShape(false);
     });
 
+    initCanvas.on('mouse:dblclick', (e) => {
+      if (e.target && e.target.__corner) {
+        const objectCorner = e.target.getPointByOrigin(e.target.__corner);
+        const pointer = initCanvas.getPointer(e.e,true);
+        const newStartPoint = { x: pointer.x, y: pointer.y }; 
+   
+        const lineInstance = new fabric.Line([objectCorner.x, objectCorner.y, pointer.x, pointer.y], {
+          stroke: currentBorderColor,
+          strokeWidth: 2,
+          selectable: true,
+        });
+   
+        setLine(lineInstance);
+        initCanvas.add(lineInstance);
+   
+        const angle = Math.atan2(pointer.y - objectCorner.y, pointer.x - objectCorner.x) * (180 / Math.PI);
+        const arrowheadInstance = new fabric.Triangle({
+          width: 10,
+          height: 10,
+          stroke:currentBorderColor,
+          left: pointer.x,
+          top: pointer.y,
+          angle: angle+90,
+          originX: 'center',
+          originY: 'center',
+          selectable: true,
+        });
+       
+        setArrowhead(arrowheadInstance);
+        initCanvas.add(arrowheadInstance);
+   
+        const onMouseMove = (event) => {
+          const pointer = initCanvas.getPointer(event.e,true);
+          lineInstance.set({ x1: newStartPoint.x, y1: newStartPoint.y, x2: pointer.x, y2: pointer.y }); 
+          arrowheadInstance.set({ left: pointer.x, top: pointer.y });
+          initCanvas.requestRenderAll();
+        };
+   
+        const onMouseUp = () => {
+          initCanvas.off('mouse:move', onMouseMove);
+          initCanvas.off('mouse:up', onMouseUp);
+          console.log("Mouse up")
+          const lineWithArrowhead = new fabric.Group([lineInstance, arrowheadInstance], {
+            selectable: true,
+          });
+          initCanvas.remove(lineInstance);
+          initCanvas.remove(arrowheadInstance)
+          setLine(lineWithArrowhead);
+          initCanvas.add(lineWithArrowhead);
+         
+        };
+   
+        initCanvas.on('mouse:move', onMouseMove);
+        initCanvas.on('mouse:up', onMouseUp);
+      }
+    });
+
     setCanvas(initCanvas);
     return () => initCanvas.dispose();
 
   }, []);
+
+  const groupObjects = () => {
+    const selectedObjects = canvas.getActiveObjects();
+    if (selectedObjects.length > 1) {
+      const group = new fabric.Group(selectedObjects, {
+        originX: 'left',
+        originY: 'bottom',
+        selectable: true,
+        cornerColor: 'yellow',
+        borderColor: 'black',
+        cornerSize: 6,
+        padding: 5,
+        cornerStyle: 'square',
+      });
+      group.set({
+        left: 0,
+        top: canvas.getHeight() - group.height * group.scaleY
+      });
+      selectedObjects.forEach(obj => {
+        canvas.remove(obj);
+      });
+      canvas.add(group);
+      canvas.renderAll();
+    }
+  };
+
+  const ungroupObjects = () => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'group') {
+
+        const items = activeObject._objects;
+        activeObject._restoreObjectsState();
+        canvas.remove(activeObject);
+        items.forEach((obj) => {
+            canvas.add(obj);
+        });
+
+        canvas.discardActiveObject();  
+        canvas.renderAll();  
+    } else {
+        console.warn('No group is selected.');
+    }
+};
+
+
+
   const copySelectedObject = () => {
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
@@ -330,7 +435,7 @@ const CanvasComponent = () => {
       if (text.text.trim() === 'New Text' || text.text.trim() === '') {
         text.visible = false;
       }
-       canvas.requestRenderAll();
+      canvas.requestRenderAll();
     });
   };
   const addLine = () => {
@@ -374,7 +479,7 @@ const CanvasComponent = () => {
     const arrow1 = new fabric.Triangle({
       width: 10,
       height: 10,
-      fill: currentBorderColor,
+      stroke: currentBorderColor,
       left: 50,
       top: 410,
       angle: -90,
@@ -385,7 +490,7 @@ const CanvasComponent = () => {
     const arrow2 = new fabric.Triangle({
       width: 10,
       height: 10,
-      fill: currentBorderColor,
+      stroke: currentBorderColor,
       left: 300,
       top: 410,
       angle: 90,
@@ -516,7 +621,7 @@ const CanvasComponent = () => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
       console.error('JWT token not found in localStorage.');
-     
+
     }
     try {
       // const userResponse = await getUserByEmail(jwtToken);
@@ -679,7 +784,9 @@ const CanvasComponent = () => {
               )}
             </button>
             <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
-            <button style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
+            <button data-testid="saveStateButton" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
+            <button data-testid="groupButton" onClick={groupObjects}>Group</button>
+            <button data-testid="ungroupedButton" onClick={ungroupObjects}>Ungroup</button>
           </div>
           <div>
             <h1>Draw Here!!</h1>
@@ -691,7 +798,7 @@ const CanvasComponent = () => {
             ></canvas>
           </div>
         </div>
-        <div class="sidbar-right">
+        <div className="sidbar-right">
           {selectedShape && (
 
             <> <h1>Shape Border</h1>
@@ -703,7 +810,7 @@ const CanvasComponent = () => {
           )}
           <h1>Text</h1>
           <hr></hr>
-          <div class="dropdown-container">
+          <div className="dropdown-container">
             <FontPicker
               apiKey="AIzaSyBl5TouoL_peS4tDP78t8uDbepyWghkodI"
               activeFontFamily={activeFontFamily}
@@ -711,29 +818,30 @@ const CanvasComponent = () => {
                 setActiveFontFamily(nextFont.family);
                 setSelectedFontFamily(nextFont.family);
                 changeTextFont(nextFont.family);
-              }}/>
+              }} />
           </div>
-          <div class="button-container-textalign">
-            <button class="left" onClick={alignText}><CiTextAlignLeft /></button>
-            <button class="center"><CiTextAlignCenter /></button>
-            <button class="right"><CiTextAlignRight /></button>
+          <div className="button-container-textalign">
+            <button data-testid="leftButton" className="left" onClick={alignText}><CiTextAlignLeft /></button>
+            <button data-testid="centerButton" className="center"><CiTextAlignCenter /></button>
+            <button data-testid="rightButton" className="right"><CiTextAlignRight /></button>
           </div>
-          <div class="button-container-textstyle">
-            <button class="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
-            <button class="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
-            <button class="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
+          <div className="button-container-textstyle">
+            <button data-testid="boldButton" className="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
+            <button data-testid="italicButton" className="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
+            <button data-testid="underButton" className="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
           </div>
-          <div class="button-container-color">
-            <div class="text-color">Text color</div>
-            <button class="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
+          <div className="button-container-color">
+            <div className="text-color">Text color</div>
+            <button data-testid="textcolorButton" className="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
           </div>
           <div>
-            <button style={{ backgroundColor: "gray" }} class="textsize-increase" onClick={increaseTextSize}>+</button>
-            <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
+            <button data-testid="plusButton" style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={increaseTextSize}>+</button>
+            <button data-testid="minusButton" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
             <span style={{ marginLeft: "25px" }} id="currentSize"></span>
           </div>
           {showTextColorPicker && (
             <SketchPicker
+              data-testid="sketch-picker"
               color={selectedTextColor}
               onChange={(color) => {
                 setSelectedTextColor(color.hex);
