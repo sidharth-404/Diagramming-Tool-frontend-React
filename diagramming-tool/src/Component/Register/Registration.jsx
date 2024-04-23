@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Registration.css';
-import MsgComponent from '../ConfirmMsg/MsgBoxComponent';
 import { registerUser } from '../../ApiService/ApiService'
- 
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const Registration = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -12,20 +13,19 @@ const Registration = () => {
     password: '',
     confirmPassword: ''
   });
- 
-  const [showMsgBox, setshowMsgBox] = useState(false);
-  const [msg, setMsg] = useState('');
+
+
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
- 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
     });
- 
-   
+
+
     if (name === 'firstName') {
       if (!/^[a-zA-Z]*$/.test(value)) {
         setErrors({
@@ -38,14 +38,14 @@ const Registration = () => {
           firstName: value.trim() === '' ? 'First Name is required' : (value.length < 2 || value.length > 20 ? 'First Name must be between 2 and 20 characters' : '')
         });
       }
-     
+
     } else if (name === 'lastName') {
       setErrors({
         ...errors,
         lastName: value.length < 2 || value.length > 20 ? 'Last Name must be between 2 and 20 characters' : ''
       });
-    
- 
+
+
     } else if (name === 'userEmail') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       setErrors({
@@ -66,51 +66,43 @@ const Registration = () => {
       });
     }
   };
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (Object.values(errors).some(error => error !== '')) {
-      setMsg('Please fix the form errors.');
-      setshowMsgBox(true);
+      toast.error("Please fix the form errors!");
       return;
     }
- 
+
     try {
       const response = await registerUser(formData);
-      setMsg(response);
-      setshowMsgBox(true);
-      if (response === 'User added successfully! Please login.') {
+      
+      if (response.status ===201) {
+        toast.success("Registered successfully! Redirecting to login page.")
         setTimeout(() => {
           navigateToLogin();
-        }, 3000);
+        }, 4000);
       }
     } catch (error) {
-      setMsg(error);
-      setshowMsgBox(true);
+      toast.error(error)
     }
   };
- 
+
   const navigateToLogin = () => {
     navigate('/login');
   };
- 
-  const handleOkClick = () => {
-    setshowMsgBox(false);
-    setMsg('');
-  };
- 
-  const closelMsgBox = () => {
-    setshowMsgBox(false);
-    setMsg('');
-  };
- 
+
+
+
+
+
   return (
     <div className="registration-container">
       <form onSubmit={handleSubmit}>
         <div className="form-left">
           <h2 className="registration-heading">Registration</h2>
           <div className="form-group">
-            <label htmlFor="firstName"className="red-asterisk">First Name:</label>
+            <label htmlFor="firstName" className="red-asterisk">First Name:</label>
             <input
               type="text"
               id="firstName"
@@ -122,7 +114,7 @@ const Registration = () => {
             {errors.firstName && <span className="error">{errors.firstName}</span>}
           </div>
           <div className="form-group">
-            <label htmlFor="lastName"className="red-asterisk">Last Name:</label>
+            <label htmlFor="lastName" className="red-asterisk">Last Name:</label>
             <input
               type="text"
               id="lastName"
@@ -146,7 +138,7 @@ const Registration = () => {
             {errors.userEmail && <span className="error">{errors.userEmail}</span>}
           </div>
           <div className="form-group">
-            <label htmlFor="password"className="red-asterisk">Password:</label>
+            <label htmlFor="password" className="red-asterisk">Password:</label>
             <input
               type="password"
               id="password"
@@ -158,7 +150,7 @@ const Registration = () => {
             {errors.password && <span className="error">{errors.password}</span>}
           </div>
           <div className="form-group">
-            <label htmlFor="confirmPassword"className="red-asterisk">Confirm Password:</label>
+            <label htmlFor="confirmPassword" className="red-asterisk">Confirm Password:</label>
             <input
               type="password"
               id="confirmPassword"
@@ -173,10 +165,8 @@ const Registration = () => {
         </div>
       </form>
       <div className="background-right"></div>
- 
-      <MsgComponent showMsgBox={showMsgBox} closeMsgBox={closelMsgBox} msg={msg} handleOkClick={handleOkClick} />
     </div>
   );
 };
- 
+
 export default Registration;

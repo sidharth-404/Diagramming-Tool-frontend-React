@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 
 import React, { useState, useRef, useEffect } from "react";
 import "./Canvas.css";
@@ -37,6 +38,7 @@ import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService
 import jsPDF from "jspdf";
 
 const CanvasComponent = () => {
+  const [popup, setPopup] = useState(false);
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false);
@@ -64,11 +66,11 @@ const CanvasComponent = () => {
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
 
 
   useEffect(() => {
@@ -105,7 +107,7 @@ const CanvasComponent = () => {
   useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
-      width: 800,
+      width: 900,
       height: 600,
       selection: true,
     });
@@ -746,6 +748,23 @@ const CanvasComponent = () => {
     }
   };
 
+  const handleCreateNewDiagram = () => {
+    setPopup(true);
+  };
+
+  const clearCanvas = () => {
+    if (canvas) {
+      canvas.clear();
+      toast.success("Canvas cleared successfully!");
+    }
+  };
+  const handleOkClick = () => {
+    setPopup(false);
+    clearCanvas();
+  };
+  const handleCancelClick = () => {
+    setPopup(false);
+  };
 
   const increaseBorderWidth = () => {
     const increasedWidth = currentBorderWidth + 1;
@@ -780,6 +799,8 @@ const CanvasComponent = () => {
   return (
     <div>
       <nav className="navbar">
+
+
         <img src={profileImage} alt="Profile" className="profile-image" onClick={toggleProfileMenu} />
         {showProfileMenu && (
           <div className="profile-menu">
@@ -857,6 +878,7 @@ const CanvasComponent = () => {
             <button data-testid="saveStateButton" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
             <button data-testid="groupButton" onClick={groupObjects}>Group</button>
             <button data-testid="ungroupedButton" onClick={ungroupObjects}>Ungroup</button>
+            <button data-testid="newdiagram" onClick={handleCreateNewDiagram}>New Diagram</button>
           </div>
           <div>
             <h1>Draw Here!!</h1>
@@ -871,11 +893,13 @@ const CanvasComponent = () => {
               ></canvas>
             </ContextMenuTrigger>
             <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
-              <MenuItem className="rc-menu-item" onClick={copySelectedObject}>Copy</MenuItem>
-              <MenuItem className="rc-menu-item" onClick={pasteSelectedObject}>Paste</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={{}}>Copy</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={copySelectedObject}>Paste</MenuItem>
               <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
-              <MenuItem className="rc-menu-item" onClick={{}}>Undo</MenuItem>
-              <MenuItem className="rc-menu-item" onClick={{}}>Redo</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={() => canvas.undo()}>Undo</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={() => canvas.redo()}>Redo</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={groupObjects}>Groups</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={ungroupObjects}>UnGroup</MenuItem>
             </ContextMenu>
 
           </div>
@@ -883,14 +907,15 @@ const CanvasComponent = () => {
         <div className="sidbar-right">
 
 
-          <> <h1>Shape Border</h1>
+          <> <h2>Border</h2>
             <hr></hr>
-            <input type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
-            <button data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
-            <button data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-          </>
+            <div className="borderbuttons">
+              <input className="bc" type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
+              <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
+              <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
+            </div> </>
 
-          <h1>Text</h1>
+          <h2>Text</h2>
           <hr></hr>
           <div className="dropdown-container">
             <FontPicker
@@ -948,6 +973,13 @@ const CanvasComponent = () => {
           msg={msg}
           handleClick={() => setShowMsgBox(false)}
         />
+      )}
+      {popup && (
+        <div className="toast">
+          <span>Create a new diagram? Are you sure?</span>
+          <button onClick={handleOkClick}>OK</button>
+          <button onClick={handleCancelClick}>Cancel</button>
+        </div>
       )}
     </div>
   );
