@@ -54,14 +54,46 @@ const CanvasComponent = () => {
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
   const [currentBorderColor, setCurrentBorderColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState(false);
-  const [copiedObjects, setCopiedObjects] = useState([]);
 
   useEffect(() => {
     if (!Cookies.get('token')) {
       navigation('/');
     }
   })
+  const copiedObjects  = () => {
+    const handleCopyShortcut = (event) => {
+        if (event.ctrlKey && event.key === 'v') {
+            event.preventDefault();
+        }
+    };
 
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+        activeObject.clone(function (cloned) {
+            canvas.discardActiveObject();
+            cloned.set({
+                left: cloned.left + 10,
+                top: cloned.top + 10,
+                evented: true,
+            });
+            if (cloned.type === 'activeSelection') {
+                cloned.canvas = canvas;
+                cloned.forEachObject(function (obj) {
+                    canvas.add(obj);
+                });
+                cloned.setCoords();
+            } else {
+                canvas.add(cloned); 
+            }
+            canvas.requestRenderAll();
+        });
+        
+
+       
+        document.addEventListener('keydown', handleCopyShortcut);
+    }
+};
+  
   const handlePreventNavigation = (event) => {
     event.preventDefault();
     if (Cookies.get('token')) {
@@ -71,9 +103,80 @@ const CanvasComponent = () => {
   window.addEventListener('popstate', handlePreventNavigation);
 
   useEffect(() => {
+    const handleKeyDown = (event) => {
+      const activeObject = canvas?.getActiveObject();
+      if (canvas && activeObject  ) {
+        const resizeAmount = 5; 
+        
+        switch (event.key) {
+          case 'w':
+            activeObject.set('height', activeObject.height + resizeAmount);
+            break;
+          case 's':
+            activeObject.set('height', activeObject.height - resizeAmount);
+            break;
+          case 'a':
+            activeObject.set('width', activeObject.width - resizeAmount);
+            break;
+          case 'd':
+            activeObject.set('width', activeObject.width + resizeAmount);
+            break;
+            
+          default:
+            break;
+        }
+        
+        canvas.renderAll();
+      }
+    };
+    if (canvas) {
+    window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canvas]);
+  
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const activeObject = canvas.getActiveObject();
+      if (activeObject) {
+        const moveAmount = 5;
+        
+        switch (event.key) {
+          case 'ArrowUp':
+            activeObject.set('top', activeObject.top - moveAmount);
+            break;
+          case 'ArrowDown':
+            activeObject.set('top', activeObject.top + moveAmount);
+            break;
+          case 'ArrowLeft':
+            activeObject.set('left', activeObject.left - moveAmount);
+            break;
+          case 'ArrowRight':
+            activeObject.set('left', activeObject.left + moveAmount);
+            break;
+          default:
+            break;
+        }
+        
+        canvas.renderAll();
+      }
+    };
+  
+    window.addEventListener('keydown', handleKeyDown);
+  
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canvas]);
+  
+
+  useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
-      width: 950,
+      width: 700,
       height: 600,
       selection: true,
     });
@@ -104,50 +207,8 @@ const CanvasComponent = () => {
     return () => initCanvas.dispose();
 
   }, []);
-  const copySelectedObject = () => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
-      activeObject.clone(function (cloned) {
-        canvas.discardActiveObject();
-        cloned.set({
-          left: cloned.left + 10,
-          top: cloned.top + 10,
-          evented: true,
-        });
-        if (cloned.type === 'activeSelection') {
-          cloned.canvas = canvas;
-          cloned.forEachObject(function (obj) {
-            canvas.add(obj);
-          });
-          cloned.setCoords();
-        } else {
-          canvas.add(cloned);
-        }
-        canvas.setActiveObject(cloned);
-        canvas.requestRenderAll();
-      });
-      setCopiedObjects([activeObject]);
-    }
-  };
-
-  const pasteSelectedObject = () => {
-    console.log(copiedObjects.length)
-    if (!copiedObjects.length) return;
-    canvas.discardActiveObject();
-    copiedObjects.forEach((obj) => {
-      obj.clone((cloned) => {
-        canvas.add(cloned);
-        cloned.set({
-          left: cloned.left + 10,
-          top: cloned.top + 10,
-          evented: true,
-        });
-        canvas.setActiveObject(cloned);
-      });
-    });
-    canvas.requestRenderAll();
-  };
-
+ 
+ 
   useEffect(() => {
     const handleKeyDown = (event) => {
 
@@ -156,18 +217,18 @@ const CanvasComponent = () => {
       } else if (event.ctrlKey && event.key === 'y') {
         canvas.redo();
       } else if (event.key === 'Delete') {
+        
         deleteSelectedObject();
-      } else if (event.ctrlKey && event.key === 'c') {
-        copySelectedObject();
-      } else if (event.ctrlKey && event.key === 'v') {
-        pasteSelectedObject();
       }
-    };
+      else if (event.ctrlKey && event.key === 'v') {
+        copiedObjects();
+
+     } };
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [canvas]);
+    
+}}, [canvas]);
 
 
 
@@ -396,13 +457,18 @@ const CanvasComponent = () => {
     canvas.add(group);
   };
 
+  
   const deleteSelectedObject = () => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
-      canvas.remove(activeObject);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach(obj => {
+        canvas.remove(obj);
+      });
+      canvas.discardActiveObject();
       canvas.requestRenderAll();
     }
   };
+  
 
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -519,8 +585,8 @@ const CanvasComponent = () => {
      
     }
     try {
-      // const userResponse = await getUserByEmail(jwtToken);
-      // const userId = userResponse.userId;
+      const userResponse = await getUserByEmail(jwtToken);
+      const userId = userResponse.userId;
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
       const tempCanvas = document.createElement("canvas");
@@ -626,19 +692,19 @@ const CanvasComponent = () => {
               <button data-testid="circleButton" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
               <button data-testid="squareButton" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
             </div>
-            <div>
+            <div >
               <button data-testid="triangleButton" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
               <button data-testid="diamondButton" onClick={addDiamond}><GoDiamond fontSize={70} /></button>
               <button data-testid="pentagonButton" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
             </div>
-            <div>
+            <div >
               <button data-testid="ellipseButton" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
               <button data-testid="roundrectButton" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
               <button data-testid="hexagonButton" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
             </div>
             <h2>Lines</h2>
             <hr></hr>
-            <div>
+            <div >
               <button data-testid="lineButton" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
               <button data-testid="arrowButton" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
               <button data-testid="biarrowdButton" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>

@@ -9,7 +9,7 @@
 .sidebar {
   width:20%;
   padding: 10px;
-  border-right: 3px solid #e0e0e0;
+  border-right: 2px solid #e0e0e0;
   display: flex;
   flex-direction: column;
  
@@ -63,7 +63,6 @@ button:hover .tooltip {
  
  canvas {
   border: 1px solid #e0e0e0;
-  width:1000 px;
   background: repeating-linear-gradient(transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px), repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px);
 }
  

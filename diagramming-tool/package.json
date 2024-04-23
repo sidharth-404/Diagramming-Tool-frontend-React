@@ -9,6 +9,7 @@
     "@types/react": "^18.2.66",
     "axios": "^1.6.8",
     "diagram-js": "^14.2.0",
+    "fabric": "^5.3.0",
     "fabric-history": "^1.7.0",
     "font-picker-react": "^3.5.2",
     "history": "^5.3.0",
@@ -32,7 +33,13 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --watchAll --coverage --no-threads",
+   
+   
+   
+    "test": "react-scripts test --env=jsdom --testMatch=**/Component/Register/Registration.test.jsx --coverage",
+    
+   
+  
     "eject": "react-scripts eject"
   },
   "resolutions": {

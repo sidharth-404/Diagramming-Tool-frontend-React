@@ -10,6 +10,7 @@ import CanvasComponent from './Component/Dashboard/Canvas';
 import HomePage from './Component/HomePage/HomePage';
 import ExistingPage from './Component/Login/ExistingPage';
 import UserProfile from './Component/UserProfile/UserProfile.jsx';
+import { ToastContainer } from 'react-toastify';
 
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/existing" element={<ExistingPage/>}/>
 
         </Routes>
+        <ToastContainer />
       </div>
       
     </Router>

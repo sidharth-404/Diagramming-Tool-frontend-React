@@ -1,3 +1,4 @@
+/* eslint-disable testing-library/no-node-access */
 /* eslint-disable no-undef */
 /* eslint-disable testing-library/prefer-screen-queries */
 import React from 'react';
@@ -7,13 +8,18 @@ import Registration from './Registration';
 import '@testing-library/jest-dom';
 import { registerUser } from '../../ApiService/ApiService';
 import MsgBoxComponent from '../ConfirmMsg/MsgBoxComponent';
- 
+import { BrowserRouter as Router } from 'react-router-dom';
  
  
 jest.mock('../../ApiService/ApiService', () => ({
   registerUser: jest.fn(),
 }));
- 
+jest.mock('react-toastify', () => ({
+  toast: {
+    error: jest.fn(),
+    success: jest.fn()
+  }
+}));
  
 describe('Registration component', () => {
   it('renders without crashing', () => {
@@ -118,7 +124,6 @@ describe('Registration component', () => {
   });
  
  
- 
   it('validates confirm password input', () => {
     render(
       <MemoryRouter>
@@ -171,7 +176,7 @@ describe('Registration component', () => {
  
 describe('Registration Component', () => {
   it('submits the form with valid data', async () => {
-    // Mock successful response from registerUser
+   
     registerUser.mockResolvedValue('User added successfully! Please login.');
  
     const { getByLabelText, getByText, findByText } = render(
@@ -180,18 +185,18 @@ describe('Registration Component', () => {
       </MemoryRouter>
     );
  
-    // Fill out the form fields
+  
     fireEvent.change(getByLabelText('First Name:'), { target: { value: 'John' } });
     fireEvent.change(getByLabelText('Last Name:'), { target: { value: 'Doe' } });
     fireEvent.change(getByLabelText('Email:'), { target: { value: 'john.doe@example.com' } });
     fireEvent.change(getByLabelText('Password:'), { target: { value: 'Password123!' } });
     fireEvent.change(getByLabelText('Confirm Password:'), { target: { value: 'Password123!' } });
  
-    // Submit the form
-    // eslint-disable-next-line testing-library/prefer-screen-queries
+   
+   
     fireEvent.submit(getByText('Register'));
  
-    // Ensure registerUser function was called with correct data
+   
     expect(registerUser).toHaveBeenCalledWith({
       firstName: 'John',
       lastName: 'Doe',
@@ -200,7 +205,7 @@ describe('Registration Component', () => {
       confirmPassword: 'Password123!'
     });
  
-    // Ensure success message is displayed
+    
     const successMessage = await findByText('User added successfully! Please login.');
     expect(successMessage).toBeInTheDocument();
   });
@@ -210,7 +215,6 @@ describe('Registration Component', () => {
  
  
 
- 
 it('validates first name input with numbers', () => {
   render(
     <MemoryRouter>
@@ -224,14 +228,29 @@ it('validates first name input with numbers', () => {
 });
 
 
-test('closes message box when close button is clicked', () => {
-  // Render the component
-  const { getByTestId } = render(<MsgBoxComponent showMsgBox={true} closeMsgBox={jest.fn()} msg="Test message" />);
 
-  // Simulate click on close button
-  fireEvent.click(getByTestId('close-button'));
+it('displays error message when form errors are present', async () => {
+  const { getByTestId, getByLabelText, getByText } = render(
+    <MemoryRouter>
+      <Registration />
+    </MemoryRouter>
+  );
 
-  // Check if the message box is closed and the message is empty
-  expect(getByTestId('notification-modal')).not.toBeVisible();
-  // You don't need to test for setshowMsgBox and setMsg since they are internal to the component
+ 
+  fireEvent.change(getByLabelText('First Name:'), { target: { value: '123' } });
+  fireEvent.change(getByLabelText('Last Name:'), { target: { value: '456' } });
+  fireEvent.change(getByLabelText('Email:'), { target: { value: 'invalid-email' } });
+  fireEvent.change(getByLabelText('Password:'), { target: { value: 'pass' } });
+  fireEvent.change(getByLabelText('Confirm Password:'), { target: { value: 'pass' } });
+
+  
+  fireEvent.submit(getByTestId('registration-form'));
+
+  
+  await waitFor(() => {
+    expect(toast.error).toHaveBeenCalledWith('Please fix the form errors.');
+  });
+
+  
+  expect(registerUser).not.toHaveBeenCalled();
 });
