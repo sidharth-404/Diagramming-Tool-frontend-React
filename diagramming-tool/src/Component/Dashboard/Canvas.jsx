@@ -34,6 +34,7 @@ import { IoMdColorFilter } from "react-icons/io";
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
+import { FaImage } from "react-icons/fa6";
 import jsPDF from "jspdf";
 
 
@@ -62,16 +63,18 @@ const CanvasComponent = () => {
   const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
   const [copiedObjects, setCopiedObjects] = useState([]);
+  const imageInputRef = useRef(null);
+
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
 
 
   useEffect(() => {
@@ -105,6 +108,8 @@ const CanvasComponent = () => {
   };
   window.addEventListener('popstate', handlePreventNavigation);
 
+ 
+
   useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
@@ -131,6 +136,7 @@ const CanvasComponent = () => {
       setSelectedShape(true)
     });
 
+   
     initCanvas.on('selection:cleared', () => {
       setGroup(null);
       setSelectedShape(false);
@@ -155,7 +161,7 @@ const CanvasComponent = () => {
         const arrowheadInstance = new fabric.Triangle({
           width: 10,
           height: 10,
-          stroke: currentBorderColor,
+          fill: currentBorderColor,
           left: pointer.x,
           top: pointer.y,
           angle: angle + 90,
@@ -514,7 +520,7 @@ const CanvasComponent = () => {
     const arrow1 = new fabric.Triangle({
       width: 10,
       height: 10,
-      stroke: currentBorderColor,
+      fill: currentBorderColor,
       left: 50,
       top: 410,
       angle: -90,
@@ -525,7 +531,7 @@ const CanvasComponent = () => {
     const arrow2 = new fabric.Triangle({
       width: 10,
       height: 10,
-      stroke: currentBorderColor,
+      fill: currentBorderColor,
       left: 300,
       top: 410,
       angle: 90,
@@ -623,7 +629,32 @@ const CanvasComponent = () => {
     const canvasState = canvas.toJSON();
     localStorage.setItem('canvasState', JSON.stringify(canvasState));
   };
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0]; 
+    if (!file) return;
 
+    if (!file.type.includes('image/jpeg') && !file.type.includes('image/png')) {
+      alert('Please select a JPG or PNG image.');
+      return;
+    }
+
+    const reader = new FileReader(); 
+    reader.onload = () => {
+      const dataUrl = reader.result; 
+      fabric.Image.fromURL(dataUrl, (img) => {
+       
+        img.set({
+          left: 0,
+          top: 0,
+          scaleX: 0.5,
+          scaleY: 0.5,
+        });
+        canvas.add(img); 
+        canvas.renderAll(); 
+      });
+    };
+    reader.readAsDataURL(file); 
+  };
 
   useEffect(() => {
     const loadCanvasState = () => {
@@ -906,12 +937,21 @@ const setDashedBorder = () => {
                 <span className="tooltip">Delete</span>
               )}
             </button>
+            <input type="file" data-testid="fileUpload" accept="image/*" 
+            onChange={handleImageUpload}
+            style={{ display: "none" }} 
+             ref={imageInputRef} />
+            <button title="Add Image" data-testid="imageInput" onClick={() => imageInputRef.current.click()}>
+            <FaImage />
+              
+            </button>          
            
             <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
             <button data-testid="saveStateButton" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
             <button data-testid="groupButton" onClick={groupObjects}>Group</button>
             <button data-testid="ungroupedButton" onClick={ungroupObjects}>Ungroup</button>
           </div>
+
           <div>
             <h1>Draw Here!!</h1>
             <ContextMenuTrigger id="canvas-context-menu" holdToDisplay={-1}>
@@ -934,7 +974,7 @@ const setDashedBorder = () => {
 
           </div>
         </div>
-        <div class="sidbar-right">
+        <div className="sidbar-right">
           {/* {selectedShape && ( */}
 
             <> <h1>Shape Border</h1>
