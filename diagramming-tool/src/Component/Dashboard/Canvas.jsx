@@ -23,13 +23,17 @@ import SavePopup from "../SavePop/SavePop";
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
 import { fabric } from 'fabric';
 import 'fabric-history';
-import { CiTextAlignCenter, CiTextAlignLeft, CiTextAlignRight } from "react-icons/ci";
 import { PiTextBBold, PiTextItalic } from "react-icons/pi";
 import { LuUnderline } from "react-icons/lu";
 import { IoMdColorFilter } from "react-icons/io";
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
-import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
+import { saveCanvasImageDummyToDB, getUserByEmail } from '../../ApiService/ApiService';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'
+import jsPDF from 'jspdf';
+import logo from '../../Assets/logo.png';
+
 
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
@@ -54,12 +58,9 @@ const CanvasComponent = () => {
   const [currentBorderColor, setCurrentBorderColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState(false);
   const [copiedObjects, setCopiedObjects] = useState([]);
-
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  
+ 
+  
 
   const handlePreventNavigation = (event) => {
     event.preventDefault();
@@ -82,7 +83,7 @@ const CanvasComponent = () => {
       cornerColor: 'blue',
       borderColor: 'red',
       cornerSize: 6,
-      padding: 5,
+      padding: -1,
       cornerStyle: 'circle',
       borderOpacityWhenMoving: 0.8,
       hasControls: true
@@ -93,7 +94,6 @@ const CanvasComponent = () => {
       setGroup(true);
       setSelectedShape(true)
     });
-
     initCanvas.on('selection:cleared', () => {
       setGroup(null);
       setSelectedShape(false);
@@ -345,7 +345,8 @@ const CanvasComponent = () => {
   const addArrowLine = () => {
     const line = new fabric.Line([50, 380, 300, 380], {
       stroke: currentBorderColor,
-      strokeWidth: 2,
+      fill:currentBorderColor,
+      strokeWidth:currentBorderWidth,
       selectable: true
     });
 
@@ -353,6 +354,8 @@ const CanvasComponent = () => {
       width: 10,
       height: 10,
       fill: currentBorderColor,
+      stroke:currentBorderColor,
+      strokeWidth:currentBorderWidth,
       left: 300,
       top: 380,
       angle: 90,
@@ -468,15 +471,23 @@ const CanvasComponent = () => {
   const saveCanvasState = () => {
     const canvasState = canvas.toJSON();
     localStorage.setItem('canvasState', JSON.stringify(canvasState));
+    localStorage.removeItem('selected-image')
   };
 
 
   useEffect(() => {
     const loadCanvasState = () => {
+     const importImage=localStorage.getItem('selected-image');
+          if(!importImage){
       const savedCanvasState = localStorage.getItem('canvasState');
       if (savedCanvasState && canvas) {
         canvas.loadFromJSON(savedCanvasState, canvas.renderAll.bind(canvas));
       }
+    }
+    else{
+      if(importImage&&canvas)
+      canvas.loadFromJSON(importImage, canvas.renderAll.bind(canvas));
+    }
     };
 
     loadCanvasState();
@@ -504,74 +515,98 @@ const CanvasComponent = () => {
     }
   }
 
-  function alignText() {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === 'i-text') {
-      activeObject.set('right', 0);
-      canvas.renderAll();
-    }
-  };
+
+
   const handleSave = async (fileName, format, saveToDatabase) => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
-      console.error('JWT token not found in localStorage.');
-     
+    return;
     }
+ 
     try {
-      // const userResponse = await getUserByEmail(jwtToken);
-      // const userId = userResponse.userId;
+      const userResponse = await getUserByEmail(jwtToken);
+      const userId = userResponse.userId;
+ 
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
+ 
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = canvasElement.width;
       tempCanvas.height = canvasElement.height;
       const tempCtx = tempCanvas.getContext("2d");
-
+ 
       if (format === "jpeg") {
         tempCtx.fillStyle = "white";
         tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       }
-      tempCtx.drawImage(canvasElement, 0, 0);
-      tempCanvas.toBlob((blob) => {
-        if (!blob) {
-          console.error("Failed to convert canvas to blob.");
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = () => {
-          const canvasDataUrl = reader.result;
-          if (canvasDataUrl) {
-            if (saveToDatabase) {
-              const base64String = canvasDataUrl.split(",")[1];
-              saveCanvasImageToDB(base64String)
-                .then(() => {
-                  console.log("Canvas image saved to database.");
-                  setShowMsgBox(true);
-                  setMsg("Image saved successfully!");
-                  setShowSavePopup(false);
-                })
-                .catch((error) => {
-                  console.error("Error saving canvas image to database:", error);
-                  setShowSavePopup(false);
-                  setShowMsgBox(true);
-                  setMsg("Error in saving");
-                });
-            } else {
-              const link = document.createElement("a");
-              link.download = fileName + "." + format;
-              link.href = canvasDataUrl;
-              link.click();
-              URL.revokeObjectURL(link.href);
-              setShowSavePopup(false);
-            }
+ 
+      tempCtx.drawImage(canvasElement, 0, 0)
+ 
+      if (format === "svg") {
+        const svgData = new XMLSerializer().serializeToString(canvasElement);
+        const blob = new Blob([svgData], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = fileName + ".svg";
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+        toast.success("Exported successfully!");
+        setShowSavePopup(false);
+      } else if (format === "pdf") {
+        const pdf = new jsPDF();
+        pdf.addImage(tempCanvas.toDataURL(), 'PNG', 0, 0);
+        pdf.save(fileName + ".pdf");
+        toast.success("Exported successfully!");
+        setShowSavePopup(false);
+      }
+  
+      else {
+        tempCanvas.toBlob((blob) => {
+          if (!blob) {
+            console.error("Failed to convert canvas to blob.");
+            return;
           }
-        };
-        reader.readAsDataURL(blob);
-      }, "image/" + format);
+          const reader = new FileReader();
+          reader.onload = () => {
+            const canvasDataUrl = reader.result;
+            if (canvasDataUrl) {
+              if (saveToDatabase) {
+        const canvasState = canvas.toJSON();
+        const base64String = canvasDataUrl.split(",")[1];
+        const imageJson = JSON.stringify(canvasState);
+         saveCanvasImageDummyToDB(fileName, imageJson,base64String,userId)
+                  .then(() => {
+                    console.log("Canvas image saved to database.");
+                    setShowMsgBox(true);
+                    setMsg("Image saved successfully!");
+                    setShowSavePopup(false);
+                  })
+                  .catch((error) => {
+                    console.error("Error saving canvas image to database:", error);
+                    setShowSavePopup(false);
+                    setShowMsgBox(true);
+                    setMsg("Error in saving");
+                  });
+              } else {
+                const link = document.createElement("a");
+                link.download = fileName + "." + format;
+                link.href = canvasDataUrl;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                toast.success("Exported successfully!");
+                setShowSavePopup(false);
+              }
+            }
+          };
+          reader.readAsDataURL(blob);
+        }, "image/" + format);
+      }
     } catch (error) {
       console.error('Error in fetching user data:', error);
     }
-  };
+};
+
 
   const increaseBorderWidth = () => {
     setCurrentBorderWidth(current => current + 1);
@@ -604,6 +639,7 @@ const CanvasComponent = () => {
   return (
     <div>
       <nav className="navbar">
+          <img src={logo} alt="Logo" className="logos" /><h3 style={{color:"black", fontSize:"6rm"}}>LogicDraw</h3>
         <img src={profileImage} alt="Profile" className="profile-image" onClick={toggleProfileMenu} />
         {showProfileMenu && (
           <div className="profile-menu">
@@ -621,7 +657,7 @@ const CanvasComponent = () => {
             <h2>Shapes</h2>
             <hr></hr>
             <div>
-              <button data-testid="rectangleButton" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
+              <button data-testid="rectangleButton"  onClick={addRectangle}><PiRectangle  fontSize={70}  /></button>
               <button data-testid="circleButton" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
               <button data-testid="squareButton" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
             </div>
@@ -690,7 +726,7 @@ const CanvasComponent = () => {
             ></canvas>
           </div>
         </div>
-        <div class="sidbar-right">
+        <div className="sidbar-right">
           {selectedShape && (
 
             <> <h1>Shape Border</h1>
@@ -702,7 +738,7 @@ const CanvasComponent = () => {
           )}
           <h1>Text</h1>
           <hr></hr>
-          <div class="dropdown-container">
+          <div className="dropdown-container">
             <FontPicker
               apiKey="AIzaSyBl5TouoL_peS4tDP78t8uDbepyWghkodI"
               activeFontFamily={activeFontFamily}
@@ -712,22 +748,17 @@ const CanvasComponent = () => {
                 changeTextFont(nextFont.family);
               }}/>
           </div>
-          <div class="button-container-textalign">
-            <button class="left" onClick={alignText}><CiTextAlignLeft /></button>
-            <button class="center"><CiTextAlignCenter /></button>
-            <button class="right"><CiTextAlignRight /></button>
+          <div className="button-container-textstyle">
+            <button className="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
+            <button className="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
+            <button className="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
           </div>
-          <div class="button-container-textstyle">
-            <button class="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
-            <button class="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
-            <button class="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
-          </div>
-          <div class="button-container-color">
-            <div class="text-color">Text color</div>
-            <button class="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
+          <div className="button-container-color">
+            <div className="text-color">Text color</div>
+            <button className="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
           </div>
           <div>
-            <button style={{ backgroundColor: "gray" }} class="textsize-increase" onClick={increaseTextSize}>+</button>
+            <button style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={increaseTextSize}>+</button>
             <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
             <span style={{ marginLeft: "25px" }} id="currentSize"></span>
           </div>
@@ -754,7 +785,7 @@ const CanvasComponent = () => {
         <MsgBoxComponent
           showMsgBox={showMsgBox}
           closeMsgBox={() => setShowMsgBox(false)}
-          msg="Sample Message"
+          msg={msg}
           handleClick={() => setShowMsgBox(false)}
         />
       )}

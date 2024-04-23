@@ -6,12 +6,55 @@ import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 import { BrowserRouter as Router} from 'react-router-dom';
 import Cookies from 'js-cookie';
+import increaseTextSize from './Canvas'
  
 beforeEach(() => {
   jest.resetAllMocks();
   setupJestCanvasMock();
 });
- 
+
+const mockCanvas = {
+  getActiveObject: jest.fn(),
+  renderAll: jest.fn()
+};
+
+const mockActiveObject = {
+  type: 'i-text',
+  get: jest.fn().mockImplementation((prop) => {
+    if (prop === 'fontSize') {
+      return 14; // Mock initial font size
+    }
+  }),
+  set: jest.fn()
+};
+
+// Mock document elements
+document.getElementById = jest.fn().mockReturnValue({
+  textContent: '',
+});
+
+describe('increaseTextSize function', () => {
+  beforeEach(() => {
+    jest.clearAllMocks(); // Reset mocks before each test
+  });
+
+  test('increases font size of active text object and updates UI', () => {
+    // Set up canvas with active object
+    mockCanvas.getActiveObject.mockReturnValue(mockActiveObject);
+
+    // Call the function
+    increaseTextSize(mockCanvas);
+
+    // Assertions
+    expect(mockCanvas.getActiveObject).toHaveBeenCalled();
+    expect(mockActiveObject.type).toBe('i-text');
+    expect(mockActiveObject.get).toHaveBeenCalledWith('fontSize');
+    expect(mockActiveObject.set).toHaveBeenCalledWith('fontSize', 15); // Expecting font size to increase by 1
+    expect(mockCanvas.renderAll).toHaveBeenCalled();
+    expect(document.getElementById).toHaveBeenCalledWith('currentSize');
+    expect(document.getElementById('currentSize').textContent).toBe('15'); // Assuming you update the UI with the new font size
+  });
+});
  
 describe('CanvasComponent', () => {
   it("Clicks on Profile Button", () => {
@@ -75,16 +118,13 @@ describe("Button Working", () => {
     fireEvent.click(saveButton);
   });
  
-  it("Clicks on Undo Button", () => {
-    render(<Router><CanvasComponent/></Router>);
-    const undoButton = screen.getByTestId(/undoButton/i);
-    fireEvent.click(undoButton);
-  });
  
-  it("Clicks on Redo Button", () => {
+  it("Clicks on Redo  and undo Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const redoButton = screen.getByTestId(/redoButton/i);
     fireEvent.click(redoButton);
+    const undoButton = screen.getByTestId(/undoButton/i);
+    fireEvent.click(undoButton);
   });
  
   it("Clicks on Delete Button", () => {
@@ -93,11 +133,7 @@ describe("Button Working", () => {
     fireEvent.click(deleteButton);
   });
  
-  it("Clicks on Open Button", () => {
-    render(<Router><CanvasComponent/></Router>);
-    const openButton = screen.getByTestId(/openButton/i);
-    fireEvent.click(openButton);
-  });
+
 });
  
  

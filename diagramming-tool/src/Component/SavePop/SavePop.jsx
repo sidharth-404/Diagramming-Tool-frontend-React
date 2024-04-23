@@ -48,6 +48,8 @@ const SavePopup = ({ onSave, onCancel }) => {
           >
             <option value="png">PNG</option>
             <option value="jpeg">JPEG</option>
+            <option value="svg">SVG</option>
+            <option value="pdf">PDF</option>
           </select>
         </div>
         <div className="buttons-group">

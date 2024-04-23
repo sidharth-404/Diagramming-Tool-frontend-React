@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { MDBContainer, MDBInput } from 'mdb-react-ui-kit';
 import {login} from '../../ApiService/auth';
-import {Link,useNavigate} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 import DiagramPage from './DiagramPage'; 
 
 function LoginApp() {
@@ -10,7 +10,6 @@ function LoginApp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigation=useNavigate();
   const [showDiagramPopup, setShowDiagramPopup] = useState(false); 
   const toggleDiagramPopup = () => {
     setShowDiagramPopup(!showDiagramPopup);
@@ -43,7 +42,6 @@ function LoginApp() {
       document.cookie = `token=${result}; path=/`;
       toggleDiagramPopup();
       
-      //navigation('/dashboard');
       console.log(data);
       
     } catch (error) {

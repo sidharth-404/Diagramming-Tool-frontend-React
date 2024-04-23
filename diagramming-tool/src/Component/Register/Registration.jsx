@@ -77,13 +77,13 @@ const Registration = () => {
  
     try {
       const response = await registerUser(formData);
-      setMsg(response);
+      setMsg(response.status);
       setshowMsgBox(true);
-      if (response === 'User added successfully! Please login.') {
-        setTimeout(() => {
-          navigateToLogin();
-        }, 3000);
-      }
+      // if (response === 'User added successfully! Please login.') {
+      //   setTimeout(() => {
+      //     navigateToLogin();
+      //   }, 3000);
+      // }
     } catch (error) {
       setMsg(error);
       setshowMsgBox(true);
