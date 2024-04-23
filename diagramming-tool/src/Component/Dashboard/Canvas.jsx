@@ -31,6 +31,7 @@ import { IoMdColorFilter } from "react-icons/io";
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
+import { FaImage } from "react-icons/fa6";
 
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
@@ -55,6 +56,8 @@ const CanvasComponent = () => {
   const [currentBorderColor, setCurrentBorderColor] = useState('#000000');
   const [selectedShape, setSelectedShape] = useState(false);
   const [copiedObjects, setCopiedObjects] = useState([]);
+  const imageInputRef = useRef(null);
+
 
   useEffect(() => {
     if (!Cookies.get('token')) {
@@ -70,6 +73,8 @@ const CanvasComponent = () => {
   };
   window.addEventListener('popstate', handlePreventNavigation);
 
+ 
+
   useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
@@ -83,7 +88,7 @@ const CanvasComponent = () => {
       cornerColor: 'blue',
       borderColor: 'red',
       cornerSize: 6,
-      padding: 5,
+      padding: 1,
       cornerStyle: 'circle',
       borderOpacityWhenMoving: 0.8,
       hasControls: true
@@ -95,6 +100,7 @@ const CanvasComponent = () => {
       setSelectedShape(true)
     });
 
+   
     initCanvas.on('selection:cleared', () => {
       setGroup(null);
       setSelectedShape(false);
@@ -470,7 +476,32 @@ const CanvasComponent = () => {
     const canvasState = canvas.toJSON();
     localStorage.setItem('canvasState', JSON.stringify(canvasState));
   };
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0]; 
+    if (!file) return;
 
+    if (!file.type.includes('image/jpeg') && !file.type.includes('image/png')) {
+      alert('Please select a JPG or PNG image.');
+      return;
+    }
+
+    const reader = new FileReader(); 
+    reader.onload = () => {
+      const dataUrl = reader.result; 
+      fabric.Image.fromURL(dataUrl, (img) => {
+       
+        img.set({
+          left: 0,
+          top: 0,
+          scaleX: 0.5,
+          scaleY: 0.5,
+        });
+        canvas.add(img); 
+        canvas.renderAll(); 
+      });
+    };
+    reader.readAsDataURL(file); 
+  };
 
   useEffect(() => {
     const loadCanvasState = () => {
@@ -621,24 +652,24 @@ const CanvasComponent = () => {
           <div className="shapebutton-container">
             <h2>Shapes</h2>
             <hr></hr>
-            <div>
+            <div style={{display: "flex"}}>
               <button data-testid="rectangleButton" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
               <button data-testid="circleButton" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
               <button data-testid="squareButton" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
             </div>
-            <div>
+            <div style={{display: "flex"}}>
               <button data-testid="triangleButton" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
               <button data-testid="diamondButton" onClick={addDiamond}><GoDiamond fontSize={70} /></button>
               <button data-testid="pentagonButton" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
             </div>
-            <div>
+            <div style={{display: "flex"}}>
               <button data-testid="ellipseButton" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
               <button data-testid="roundrectButton" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
               <button data-testid="hexagonButton" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
             </div>
             <h2>Lines</h2>
             <hr></hr>
-            <div>
+            <div style={{display: "flex"}}>
               <button data-testid="lineButton" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
               <button data-testid="arrowButton" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
               <button data-testid="biarrowdButton" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
@@ -678,9 +709,19 @@ const CanvasComponent = () => {
                 <span className="tooltip">Delete</span>
               )}
             </button>
+            <input type="file" data-testid="fileUpload" accept="image/*" 
+            onChange={handleImageUpload}
+            style={{ display: "none" }} 
+             ref={imageInputRef} />
+            <button title="Add Image" data-testid="imageInput" onClick={() => imageInputRef.current.click()}>
+            <FaImage />
+              
+            </button>
             <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
             <button style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
+            
           </div>
+
           <div>
             <h1>Draw Here!!</h1>
             <canvas id="grid-canvas"
@@ -691,7 +732,7 @@ const CanvasComponent = () => {
             ></canvas>
           </div>
         </div>
-        <div class="sidbar-right">
+        <div className="sidbar-right">
           {selectedShape && (
 
             <> <h1>Shape Border</h1>
@@ -703,7 +744,7 @@ const CanvasComponent = () => {
           )}
           <h1>Text</h1>
           <hr></hr>
-          <div class="dropdown-container">
+          <div className="dropdown-container">
             <FontPicker
               apiKey="AIzaSyBl5TouoL_peS4tDP78t8uDbepyWghkodI"
               activeFontFamily={activeFontFamily}
@@ -713,22 +754,22 @@ const CanvasComponent = () => {
                 changeTextFont(nextFont.family);
               }}/>
           </div>
-          <div class="button-container-textalign">
-            <button class="left" onClick={alignText}><CiTextAlignLeft /></button>
-            <button class="center"><CiTextAlignCenter /></button>
-            <button class="right"><CiTextAlignRight /></button>
+          <div className="button-container-textalign">
+            <button className="left" onClick={alignText}><CiTextAlignLeft /></button>
+            <button className="center"><CiTextAlignCenter /></button>
+            <button className="right"><CiTextAlignRight /></button>
           </div>
-          <div class="button-container-textstyle">
-            <button class="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
-            <button class="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
-            <button class="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
+          <div className="button-container-textstyle">
+            <button className="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
+            <button className="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
+            <button className="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
           </div>
-          <div class="button-container-color">
-            <div class="text-color">Text color</div>
-            <button class="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
+          <div className="button-container-color">
+            <div className="text-color">Text color</div>
+            <button className="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
           </div>
           <div>
-            <button style={{ backgroundColor: "gray" }} class="textsize-increase" onClick={increaseTextSize}>+</button>
+            <button style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={increaseTextSize}>+</button>
             <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
             <span style={{ marginLeft: "25px" }} id="currentSize"></span>
           </div>

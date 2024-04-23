@@ -1,3 +1,5 @@
+/* eslint-disable testing-library/no-node-access */
+/* eslint-disable testing-library/prefer-screen-queries */
 import React from "react";
 import { render, screen, fireEvent,waitFor } from "@testing-library/react";
 import CanvasComponent from "./Canvas";
@@ -19,6 +21,20 @@ describe('CanvasComponent', () => {
     const profileButton = screen.getByTestId('profileButton');
     expect(profileButton).toBeInTheDocument();
     fireEvent.click(profileButton);
+  });
+  test('add image functionality', () => {
+    render( <Router>
+      <CanvasComponent />
+    </Router>
+  );
+    const addImageButton = screen.getByTestId('imageInput');
+    fireEvent.click(addImageButton);
+    const file = new File(['image content'], 'image.png', { type: 'image/png' });
+    const fileInput = screen.getByTestId('fileUpload');
+    fireEvent.change(fileInput, { target: { files: [file] } });
+    const canvas = screen.getByTestId('canvas');
+    expect(canvas).toBeInTheDocument();
+    
   });
 
   it("Clicks on Password Button", () => {
