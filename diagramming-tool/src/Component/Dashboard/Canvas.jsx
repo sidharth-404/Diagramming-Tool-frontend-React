@@ -65,7 +65,6 @@ const CanvasComponent = () => {
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
   const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
-  const [copiedObjects, setCopiedObjects] = useState([]);
   const imageInputRef = useRef(null);
 
   const [showContextMenu, setShowContextMenu] = useState(false);
@@ -252,71 +251,128 @@ const CanvasComponent = () => {
 
 
 
-  const copySelectedObject = () => {
+  const copiedObjects  = () => {
+    const handleCopyShortcut = (event) => {
+        if (event.ctrlKey && event.key === 'v') {
+            event.preventDefault();
+        }
+    };
+
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
-      activeObject.clone(function (cloned) {
-        canvas.discardActiveObject();
-        cloned.set({
-          left: cloned.left + 10,
-          top: cloned.top + 10,
-          evented: true,
+        activeObject.clone(function (cloned) {
+            canvas.discardActiveObject();
+            cloned.set({
+                left: cloned.left + 10,
+                top: cloned.top + 10,
+                evented: true,
+            });
+            if (cloned.type === 'activeSelection') {
+                cloned.canvas = canvas;
+                cloned.forEachObject(function (obj) {
+                    canvas.add(obj);
+                });
+                cloned.setCoords();
+            } else {
+                canvas.add(cloned); 
+            }
+            canvas.requestRenderAll();
         });
-        if (cloned.type === 'activeSelection') {
-          cloned.canvas = canvas;
-          cloned.forEachObject(function (obj) {
-            canvas.add(obj);
-          });
-          cloned.setCoords();
-        } else {
-          canvas.add(cloned);
-        }
-        canvas.setActiveObject(cloned);
-        canvas.requestRenderAll();
-      });
-      setCopiedObjects([activeObject]);
+        
+
+       
+        document.addEventListener('keydown', handleCopyShortcut);
+    }
+};
+
+useEffect(() => {
+  const handleKeyDown = (event) => {
+
+    if (event.ctrlKey && event.key === 'z') {
+      canvas.undo();
+    } else if (event.ctrlKey && event.key === 'y') {
+      canvas.redo();
+    } else if (event.key === 'Delete') {
+      deleteSelectedObject();
+    } else if (event.ctrlKey && event.key === 'v') {
+      copiedObjects();
+    } 
+  };
+  window.addEventListener('keydown', handleKeyDown);
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown);
+  };
+}, [canvas]);
+
+useEffect(() => {
+  const handleKeyDown = (event) => {
+    const activeObject = canvas?.getActiveObject();
+    if (canvas && activeObject  ) {
+      const resizeAmount = 5; 
+      
+      switch (event.key) {
+        case 'w':
+          activeObject.set('height', activeObject.height + resizeAmount);
+          break;
+        case 's':
+          activeObject.set('height', activeObject.height - resizeAmount);
+          break;
+        case 'a':
+          activeObject.set('width', activeObject.width - resizeAmount);
+          break;
+        case 'd':
+          activeObject.set('width', activeObject.width + resizeAmount);
+          break;
+          
+        default:
+          break;
+      }
+      
+      canvas.renderAll();
+    }
+  };
+  if (canvas) {
+  window.addEventListener('keydown', handleKeyDown);
+  }
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown);
+  };
+}, [canvas]);
+
+
+useEffect(() => {
+  const handleKeyDown = (event) => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+      const moveAmount = 5;
+      
+      switch (event.key) {
+        case 'ArrowUp':
+          activeObject.set('top', activeObject.top - moveAmount);
+          break;
+        case 'ArrowDown':
+          activeObject.set('top', activeObject.top + moveAmount);
+          break;
+        case 'ArrowLeft':
+          activeObject.set('left', activeObject.left - moveAmount);
+          break;
+        case 'ArrowRight':
+          activeObject.set('left', activeObject.left + moveAmount);
+          break;
+        default:
+          break;
+      }
+      
+      canvas.renderAll();
     }
   };
 
-  const pasteSelectedObject = () => {
-    console.log(copiedObjects.length)
-    if (!copiedObjects.length) return;
-    canvas.discardActiveObject();
-    copiedObjects.forEach((obj) => {
-      obj.clone((cloned) => {
-        canvas.add(cloned);
-        cloned.set({
-          left: cloned.left + 10,
-          top: cloned.top + 10,
-          evented: true,
-        });
-        canvas.setActiveObject(cloned);
-      });
-    });
-    canvas.requestRenderAll();
+  window.addEventListener('keydown', handleKeyDown);
+
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown);
   };
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-
-      if (event.ctrlKey && event.key === 'z') {
-        canvas.undo();
-      } else if (event.ctrlKey && event.key === 'y') {
-        canvas.redo();
-      } else if (event.key === 'Delete') {
-        deleteSelectedObject();
-      } else if (event.ctrlKey && event.key === 'c') {
-        copySelectedObject();
-      } else if (event.ctrlKey && event.key === 'v') {
-        pasteSelectedObject();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [canvas]);
-
+}, [canvas]);
 
 
   const handleColorChange = (e) => {
@@ -553,17 +609,17 @@ const CanvasComponent = () => {
   };
 
   const deleteSelectedObject = () => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
-     
-      setShowMsgBox(true);
-      setMsg("do you want to delete!");
-     // handleConfirm();
-      canvas.remove(activeObject);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach(obj => {
+        canvas.remove(obj);
+      });
+      canvas.discardActiveObject();
       canvas.requestRenderAll();
-      
     }
   };
+
+  
 
 
   const toggleProfileMenu = () => {
@@ -970,8 +1026,8 @@ const setDashedBorder = () => {
               ></canvas>
             </ContextMenuTrigger>
             <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
-              <MenuItem className="rc-menu-item" onClick={copySelectedObject}>Copy</MenuItem>
-              <MenuItem className="rc-menu-item" onClick={pasteSelectedObject}>Paste</MenuItem>
+              <MenuItem className="rc-menu-item">Copy</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={copiedObjects}>Paste</MenuItem>
               <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
               <MenuItem className="rc-menu-item" onClick={{}}>Undo</MenuItem>
               <MenuItem className="rc-menu-item" onClick={{}}>Redo</MenuItem>
