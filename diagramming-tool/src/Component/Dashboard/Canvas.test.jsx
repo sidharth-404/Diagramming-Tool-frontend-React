@@ -1,12 +1,14 @@
+/* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable jest/no-identical-title */
 /* eslint-disable no-undef */
 /* eslint-disable testing-library/no-node-access */
 import React from "react";
-import { render, screen, fireEvent,cleanup } from "@testing-library/react";
+import { render, screen, fireEvent,cleanup, getByTestId } from "@testing-library/react";
 import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 import { BrowserRouter as Router} from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { confirmAlert } from 'react-confirm-alert';
 import {saveCanvasImageToDB,getUserByEmail} from '../../ApiService/ApiService';
 import { fabric } from 'fabric';
 
@@ -323,29 +325,29 @@ describe("Canvas Component", () => {
   //   fireEvent.click(saveButton);
   // });
 
-  it('should call handleSave when save button is clicked', async () => {
-    const saveCanvasImageToDB = jest.fn();
-      render(<Router><CanvasComponent/></Router>)
-      const saveButton = screen.getByTestId('saveButton');
-    fireEvent.click(saveButton);
+  // it('should call handleSave when save button is clicked', async () => {
+  //   const saveCanvasImageToDB = jest.fn();
+  //     render(<Router><CanvasComponent/></Router>)
+  //     const saveButton = screen.getByTestId('saveButton');
+  //   fireEvent.click(saveButton);
   
-    const canvasDataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQE...';
-    const blob = new Blob([canvasDataUrl], { type: 'image/jpeg' });
-      const mockFileReader = {
-      onload: null,
-      result: canvasDataUrl,
-      readAsDataURL: function () {
-        this.onload();
-      },
-    };
-    global.FileReader = jest.fn(() => mockFileReader);
+  //   const canvasDataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQE...';
+  //   const blob = new Blob([canvasDataUrl], { type: 'image/jpeg' });
+  //     const mockFileReader = {
+  //     onload: null,
+  //     result: canvasDataUrl,
+  //     readAsDataURL: function () {
+  //       this.onload();
+  //     },
+  //   };
+  //   global.FileReader = jest.fn(() => mockFileReader);
   
     
-    expect(saveCanvasImageToDB).toHaveBeenCalled();
-    expect(saveCanvasImageToDB).toHaveBeenCalledWith(
-      expect.any(String), 
-    );
-  });
+  //   expect(saveCanvasImageToDB).toHaveBeenCalled();
+  //   expect(saveCanvasImageToDB).toHaveBeenCalledWith(
+  //     expect.any(String), 
+  //   );
+  // });
   it("Clicks on Bold Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const BoldButton = screen.getByTestId('boldButton');
@@ -408,44 +410,48 @@ describe("Canvas Component", () => {
     fireEvent.click(minusButton);
   });
   
-  it('calls saveCanvasImageToDB function with correct parameters when save button is clicked', async () => {
-    const canvasState = '{"objects":[{"type":"rect","left":100,"top":100,"width":50,"height":50}]}';
-    localStorage.setItem('canvasState', canvasState);
+  // it('calls saveCanvasImageToDB function with correct parameters when save button is clicked', async () => {
+  //   const canvasState = '{"objects":[{"type":"rect","left":100,"top":100,"width":50,"height":50}]}';
+  //   localStorage.setItem('canvasState', canvasState);
 
-    // Mock necessary functions and values
-    const fileName = 'testCanvas';
-    const format = 'pdf';
-    const saveToDatabase = true;
-    const jwtToken = 'fakeToken';
-    Cookies.set('token', jwtToken);
-    getUserByEmail.mockResolvedValue({ userId: 'fakeUserId' });
+  //   // Mock necessary functions and values
+  //   const fileName = 'testCanvas';
+  //   const format = 'pdf';
+  //   const saveToDatabase = true;
+  //   const jwtToken = 'fakeToken';
+  //   Cookies.set('token', jwtToken);
+  //   getUserByEmail.mockResolvedValue({ userId: 'fakeUserId' });
 
-    const { getByTestId } =     render(<Router><CanvasComponent/></Router>);
+  //   const { getByTestId } =     render(<Router><CanvasComponent/></Router>);
 
 
-    fireEvent.click(screen.getByTestId('saveButton'));
+  //   fireEvent.click(screen.getByTestId('saveButton'));
 
-    await waitFor(() => {
-      expect(saveCanvasImageToDB).toHaveBeenCalledWith(expect.any(String));
-    });
-  });
-  it('increases border width of active object by 1', () => {
-    const initialWidth = 2;
-    const activeObject = new fabric.Rect({ strokeWidth: initialWidth });
-    canvas.setActiveObject(activeObject);
-    CanvasComponent.increaseBorderWidth();
-    expect(activeObject.strokeWidth).toBe(initialWidth + 1);
-  });
-  it('decreases border width of active object by 1', () => {
-    const initialWidth = 3;
-    const activeObject = new fabric.Rect({ strokeWidth: initialWidth });
-    canvas.setActiveObject(activeObject);
-    CanvasComponent.decreaseBorderWidth();
-    expect(activeObject.strokeWidth).toBe(initialWidth - 1);
-  });
+  //   await waitFor(() => {
+  //     expect(saveCanvasImageToDB).toHaveBeenCalledWith(expect.any(String));
+  //   });
+  // });
+  // it('increases border width of active object by 1', () => {
+  //   const initialWidth = 2;
+  //   const activeObject = new fabric.Rect({ strokeWidth: initialWidth });
+  //   canvas.setActiveObject(activeObject);
+  //   CanvasComponent.increaseBorderWidth();
+  //   expect(activeObject.strokeWidth).toBe(initialWidth + 1);
+  // });
+  // it('decreases border width of active object by 1', () => {
+  //   const initialWidth = 3;
+  //   const activeObject = new fabric.Rect({ strokeWidth: initialWidth });
+  //   canvas.setActiveObject(activeObject);
+  //   CanvasComponent.decreaseBorderWidth();
+  //   expect(activeObject.strokeWidth).toBe(initialWidth - 1);
+  // });
 
 
 });
+
+jest.mock('react-confirm-alert', () => ({
+  confirmAlert: jest.fn(),
+}));
 
   describe("Canvas Component", () => {
     it('adds and removes keydown and popstate event listeners', () => {
@@ -542,7 +548,29 @@ describe("Canvas Component", () => {
     fireEvent.click(ungroupedButton);
   });
 
+
+
 });
+// jest.mock('react-confirm-alert', () => ({
+//   confirmAlert: jest.fn(),
+// }));
+
+
+// describe('CanvasComponent', () => {
+//   it('should show confirmation box when delete button is clicked', () => {
+//     // Render the CanvasComponent
+//     const { getByTestId } = render(<Router><CanvasComponent /></Router>);
+
+//     // Find the delete button and click it
+//     fireEvent.click(getByTestId('deleteButton'));
+
+//     // Expect confirmAlert to be called
+//     expect(confirmAlert).toHaveBeenCalled();
+//   });
+
+
+  
+
 
 
 

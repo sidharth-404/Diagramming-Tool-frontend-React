@@ -1,7 +1,9 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import "./Canvas.css";
-import { toast } from 'react-toastify';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import { ToastContainer,toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
@@ -41,9 +43,6 @@ const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false);
-  const [showMsgBox1, setShowMsgBox1] = useState(false);
-  
-
   const [hoveredButton, setHoveredButton] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navigation = useNavigate();
@@ -67,11 +66,11 @@ const CanvasComponent = () => {
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
 
 
   useEffect(() => {
@@ -543,18 +542,86 @@ const CanvasComponent = () => {
     canvas.add(group);
   };
 
+  // const deleteSelectedObject = () => {
+
+  //   const activeObject = canvas.getActiveObject();
+    
+  //   if (activeObject) {
+  //     confirmAlert({
+  //       title: 'Confirm deletion',
+  //       message: 'Are you sure you want to delete this object?',
+  //       buttons: [
+  //         {
+  //           label: 'Yes',
+  //           onClick: () => {
+  //             canvas.remove(activeObject);
+ 
+  //           }
+  //         },
+  //         {
+  //           label: 'No',
+  //           onClick: () => {
+
+  //           }
+  //         }
+  //       ]
+  //     });
+  //   }
+  // };
   const deleteSelectedObject = () => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
-     
-      setShowMsgBox(true);
-      setMsg("do you want to delete!");
-     // handleConfirm();
-      canvas.remove(activeObject);
-      canvas.requestRenderAll();
-      
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      confirmAlert({
+        title: 'Confirm deletion',
+        message: 'Are you sure you want to delete these objects?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: () => {
+              activeObjects.forEach(obj => {
+                canvas.remove(obj);
+              });
+              canvas.discardActiveObject();
+              canvas.requestRenderAll();
+            }
+          },
+          {
+            label: 'No',
+            onClick: () => {
+              // Do nothing or provide feedback to the user
+            }
+          }
+        ]
+      });
+    } else {
+      const activeObject = canvas.getActiveObject();
+      if (activeObject) {
+        confirmAlert({
+          title: 'Confirm deletion',
+          message: 'Are you sure you want to delete this object?',
+          buttons: [
+            {
+              label: 'Yes',
+              onClick: () => {
+                canvas.remove(activeObject);
+                canvas.discardActiveObject();
+                canvas.requestRenderAll();
+              }
+            },
+            {
+              label: 'No',
+              onClick: () => {
+                // Do nothing or provide feedback to the user
+              }
+            }
+          ]
+        });
+      }
     }
   };
+  
+
+  
 
 
   const toggleProfileMenu = () => {
@@ -898,13 +965,12 @@ const setDashedBorder = () => {
             </button>
             <button title="Delete" data-testid="deleteButton"
               onClick={() => deleteSelectedObject()}
-              onMouseEnter={() => setHoveredButton("delete")}
-              onMouseLeave={() => setHoveredButton(null)}
+          
             >
               <MdDeleteForever />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
-              )}
+              )} <ToastContainer />
             </button>
            
             <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
