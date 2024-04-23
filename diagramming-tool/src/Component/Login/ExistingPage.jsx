@@ -4,7 +4,6 @@ import { importSavedImageFromDb, getUserByEmail } from '../../ApiService/ApiServ
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 
-
 function ExistingPage() {
   const [imageData, setImageData] = useState([]);
   const [selectedImage, setSelectedImage] = useState('');

@@ -229,5 +229,5 @@ test('closes message box when close button is clicked', () => {
 
   fireEvent.click(getByTestId('close-button'));
   expect(getByTestId('notification-modal')).not.toBeVisible();
-
+  // You don't need to test for setshowMsgBox and setMsg since they are internal to the component
 });

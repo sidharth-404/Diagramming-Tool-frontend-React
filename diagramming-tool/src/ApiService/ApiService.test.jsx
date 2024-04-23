@@ -1,6 +1,6 @@
-const axios = require('axios');
-const { registerUser, saveCanvasImageToDB, getUserByEmail,sendResetPasswordEmail,verifyResetPasswordOTP } = require('./ApiService');
-const MockAdapter = require('axios-mock-adapter');
+import axios from 'axios';
+import { registerUser, saveCanvasImageToDB, getUserByEmail, sendResetPasswordEmail, verifyResetPasswordOTP } from './ApiService';
+import MockAdapter from 'axios-mock-adapter';
 
 const mock = new MockAdapter(axios);
 const API_URL = 'http://localhost:8080/api/diagrammingtool';

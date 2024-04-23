@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Registration.css';
-import MsgComponent from '../ConfirmMsg/MsgBoxComponent';
 import { registerUser } from '../../ApiService/ApiService'
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
  
 const Registration = () => {
   const [formData, setFormData] = useState({
@@ -13,8 +14,7 @@ const Registration = () => {
     confirmPassword: ''
   });
  
-  const [showMsgBox, setshowMsgBox] = useState(false);
-  const [msg, setMsg] = useState('');
+  
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
  
@@ -70,23 +70,22 @@ const Registration = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (Object.values(errors).some(error => error !== '')) {
-      setMsg('Please fix the form errors.');
-      setshowMsgBox(true);
+      toast.error('Please fix the form errors.');
       return;
     }
  
     try {
       const response = await registerUser(formData);
-      setMsg(response.status);
-      setshowMsgBox(true);
-      // if (response === 'User added successfully! Please login.') {
-      //   setTimeout(() => {
-      //     navigateToLogin();
-      //   }, 3000);
-      // }
+      toast.success(response);
+     
+      if (response === 'User added successfully! Please login.') {
+        setTimeout(() => {
+          navigateToLogin();
+        }, 3000);
+      }
     } catch (error) {
-      setMsg(error);
-      setshowMsgBox(true);
+      toast.error(error);
+    
     }
   };
  
@@ -94,19 +93,13 @@ const Registration = () => {
     navigate('/login');
   };
  
-  const handleOkClick = () => {
-    setshowMsgBox(false);
-    setMsg('');
-  };
+  
  
-  const closelMsgBox = () => {
-    setshowMsgBox(false);
-    setMsg('');
-  };
+ 
  
   return (
     <div className="registration-container">
-      <form onSubmit={handleSubmit}>
+      <form data-testid ="registration-form" onSubmit={handleSubmit}>
         <div className="form-left">
           <h2 className="registration-heading">Registration</h2>
           <div className="form-group">
@@ -174,7 +167,7 @@ const Registration = () => {
       </form>
       <div className="background-right"></div>
  
-      <MsgComponent showMsgBox={showMsgBox} closeMsgBox={closelMsgBox} msg={msg} handleOkClick={handleOkClick} />
+     
     </div>
   );
 };

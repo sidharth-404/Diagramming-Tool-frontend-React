@@ -1,42 +1,42 @@
 /* eslint-disable testing-library/prefer-screen-queries */
+/* eslint-disable jest/no-identical-title */
+/* eslint-disable no-undef */
 /* eslint-disable testing-library/no-node-access */
 import React from "react";
-import { render, screen, fireEvent,waitFor } from "@testing-library/react";
+import { render, screen, fireEvent,cleanup, getByTestId } from "@testing-library/react";
 import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 import { BrowserRouter as Router} from 'react-router-dom';
 import Cookies from 'js-cookie';
-import increaseTextSize from './Canvas'
- 
+import {saveCanvasImageToDB,getUserByEmail} from '../../ApiService/ApiService';
+import { fabric } from 'fabric';
+
+
+jest.mock('fabric', () => ({
+  ...jest.requireActual('fabric'),
+  Canvas: {
+    undo: jest.fn(),
+    redo: jest.fn(),  
+    getActiveObject: jest.fn(),
+    remove: jest.fn(),
+    requestRenderAll: jest.fn(),
+    clone: jest.fn(),
+    setActiveObject: jest.fn(),
+    add: jest.fn(),
+  },
+}));
+
+
+let canvas;
 beforeEach(() => {
   jest.resetAllMocks();
   setupJestCanvasMock();
+  canvas = new fabric.Canvas();
 });
-
-const mockCanvas = {
-  getActiveObject: jest.fn(),
-  renderAll: jest.fn()
-};
-
-const mockActiveObject = {
-  type: 'i-text',
-  get: jest.fn().mockImplementation((prop) => {
-    if (prop === 'fontSize') {
-      return 14; // Mock initial font size
-    }
-  }),
-  set: jest.fn()
-};
-
-// Mock document elements
-document.getElementById = jest.fn().mockReturnValue({
-  textContent: '',
-});
-
-describe('increaseTextSize function', () => {
-  beforeEach(() => {
-    jest.clearAllMocks(); // Reset mocks before each test
-  });
+jest.mock('../../ApiService/ApiService', () => ({
+  saveCanvasImageToDB: jest.fn(),
+  getUserByEmail: jest.fn(),
+}));
 
   test('increases font size of active text object and updates UI', () => {
     // Set up canvas with active object
@@ -54,9 +54,10 @@ describe('increaseTextSize function', () => {
     expect(document.getElementById).toHaveBeenCalledWith('currentSize');
     expect(document.getElementById('currentSize').textContent).toBe('15'); // Assuming you update the UI with the new font size
   });
-});
+
  
 describe('CanvasComponent', () => {
+
   it("Clicks on Profile Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const profileImage = screen.getByAltText('Profile');
@@ -65,7 +66,21 @@ describe('CanvasComponent', () => {
     expect(profileButton).toBeInTheDocument();
     fireEvent.click(profileButton);
   });
- 
+  test('add image functionality', () => {
+    render( <Router>
+      <CanvasComponent />
+    </Router>
+  );
+    const addImageButton = screen.getByTestId('imageInput');
+    fireEvent.click(addImageButton);
+    const file = new File(['image content'], 'image.png', { type: 'image/png' });
+    const fileInput = screen.getByTestId('fileUpload');
+    fireEvent.change(fileInput, { target: { files: [file] } });
+    const canvas = screen.getByTestId('canvas');
+    expect(canvas).toBeInTheDocument();
+    
+  });
+
   it("Clicks on Password Button", () => {
     const handleProfileOptionClick = jest.fn();
     jest.spyOn(Cookies, 'remove');
@@ -90,12 +105,11 @@ describe('CanvasComponent', () => {
  
   it('deleteSelectedObject function removes selected object from canvas', () => {
     const { getByTestId } = render(<Router><CanvasComponent/></Router>);
-    // eslint-disable-next-line testing-library/prefer-screen-queries
-    const canvas = getByTestId('canvas');
-    const rectangleButton = getByTestId('rectangleButton');
+    const canvas =screen.getByTestId('canvas');
+    const rectangleButton =screen.getByTestId('rectangleButton');
     fireEvent.click(rectangleButton);
     const addedRectangle = canvas.children[1];
-    const deleteButton = getByTestId('deleteButton');
+    const deleteButton =screen. getByTestId('deleteButton');
     fireEvent.click(deleteButton);
     expect(canvas.children).toHaveLength(0);
     expect(canvas.contains(addedRectangle)).toBeFalsy();
@@ -103,8 +117,8 @@ describe('CanvasComponent', () => {
  
   it('adds rectangle to canvas when rectangle button is clicked', () => {
     const { getByTestId } = render(<Router><CanvasComponent/></Router>);
-    const canvas = getByTestId('canvas');
-    const rectangleButton = getByTestId('rectangleButton');
+    const canvas = screen.getByTestId('canvas');
+    const rectangleButton = screen.getByTestId('rectangleButton');
     fireEvent.click(rectangleButton);
     expect(canvas.children.length).toBe(0);
   });
@@ -144,8 +158,9 @@ describe("Canvas Component", () => {
     const canvas = screen.getByTestId('canvas');
     fireEvent.dblClick(canvas);
   });
- 
- 
+  
+
+
   it("selects a rectangle on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -279,7 +294,7 @@ describe("Canvas Component", () => {
  
   it('changes color of selected object', () => {
     const { getByTestId } = render(<Router><CanvasComponent/></Router>);
-    const colorPicker = getByTestId('colorPicker');
+    const colorPicker = screen.getByTestId('colorPicker');
     fireEvent.change(colorPicker, { target: { value: '#ff0000' } });
   });
  
@@ -290,7 +305,361 @@ describe("Canvas Component", () => {
     fireEvent.mouseMove(canvas, { clientX: 150, clientY: 150 });
     fireEvent.mouseUp(canvas, { clientX: 150, clientY: 150 });
   });
+
+
+
+
+
+ 
+  it('should set solid border when solid line button is clicked', () => {
+    render(<Router><CanvasComponent/></Router>);
+    const solidLineButton = screen.getByTitle('Solid Line');
+    fireEvent.click(solidLineButton);
+   
+  });
+
+  it('should set dotted border when dotted line button is clicked', () => {
+    render(<Router><CanvasComponent/></Router>);
+    const dottedLineButton = screen.getByTitle('Dotted Line');
+    fireEvent.click(dottedLineButton);
+    
+  });
+
+  it('should set dashed border when dashed line button is clicked', () => {
+    render(<Router><CanvasComponent/></Router>);
+    const dashedLineButton = screen.getByTitle('Dashed Line');
+    fireEvent.click(dashedLineButton);
+   
+  });
+
+
+  
+
+ 
+
+  it('should increase border width when increase border button is clicked', async () => {
+   render(<Router><CanvasComponent/></Router>);
+    const increaseBorderButton = screen.getByTestId('increaseBorder');
+    fireEvent.click(increaseBorderButton);
+  });
+
+  it('should decrease border width when decrease border button is clicked', async () => {
+   render(<Router><CanvasComponent/></Router>);
+    const decreaseBorderButton =screen.getByTestId('decreaseBorder');
+    fireEvent.click(decreaseBorderButton);
+  });
+
+  it('should call handleBorderColorChange when border color picker is changed', async () => {
+    render(<Router><CanvasComponent/></Router>)
+    const colorPicker = screen.getByTestId('colorShapePicker');
+    fireEvent.change(colorPicker, { target: { value: '#ff0000' } });
+  });
+
+
+ 
+  it('should call handleSave when save button is clicked', async () => {
+    const saveCanvasImageToDB = jest.fn();
+      render(<Router><CanvasComponent/></Router>)
+      const saveButton = screen.getByTestId('saveButton');
+    fireEvent.click(saveButton);
+  
+
+  it("Clicks on Bold Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const BoldButton = screen.getByTestId('boldButton');
+    fireEvent.click(BoldButton);
+   
+  });
+ 
+  it("Clicks on italic Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const italicButton = screen.getByTestId('italicButton');
+    fireEvent.click(italicButton);
+  });
+ 
+  it("Clicks on underline Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const underButton = screen.getByTestId('underButton');
+    fireEvent.click(underButton);
+  });
+  it("Clicks on textcolor Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const textcButton = screen.getByTestId('textcolorButton');
+    fireEvent.click(textcButton);
+  });
+ 
+  it("Clicks on textplus Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const plusButton = screen.getByTestId('plusButton');
+    fireEvent.click(plusButton);
+  });
+ 
+  it("Clicks on textminus Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const minusButton = screen.getByTestId('minusButton');
+    fireEvent.click(minusButton);
+  });
+ 
+  it("Clicks onleft Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const minusButton = screen.getByTestId('leftButton');
+    fireEvent.click(minusButton);
+  });
+ 
+ 
+  it("Clicks on right Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const minusButton = screen.getByTestId('centerButton');
+    fireEvent.click(minusButton);
+  });
+ 
+  it("Clicks on center Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const minusButton = screen.getByTestId('rightButton');
+    fireEvent.click(minusButton);
+  });
+  
+  it('calls saveCanvasImageToDB function with correct parameters when save button is clicked', async () => {
+    const canvasState = '{"objects":[{"type":"rect","left":100,"top":100,"width":50,"height":50}]}';
+    localStorage.setItem('canvasState', canvasState);
+
+    // Mock necessary functions and values
+    const fileName = 'testCanvas';
+    const format = 'pdf';
+    const saveToDatabase = true;
+    const jwtToken = 'fakeToken';
+    Cookies.set('token', jwtToken);
+    getUserByEmail.mockResolvedValue({ userId: 'fakeUserId' });
+
+    const { getByTestId } =     render(<Router><CanvasComponent/></Router>);
+
+
+    fireEvent.click(screen.getByTestId('saveButton'));
+
+    await waitFor(() => {
+      expect(saveCanvasImageToDB).toHaveBeenCalledWith(expect.any(String));
+    });
+  });
+  it('increases border width of active object by 1', () => {
+    const initialWidth = 2;
+    const activeObject = new fabric.Rect({ strokeWidth: initialWidth });
+    canvas.setActiveObject(activeObject);
+    CanvasComponent.increaseBorderWidth();
+    expect(activeObject.strokeWidth).toBe(initialWidth + 1);
+  });
+  it('decreases border width of active object by 1', () => {
+    const initialWidth = 3;
+    const activeObject = new fabric.Rect({ strokeWidth: initialWidth });
+    canvas.setActiveObject(activeObject);
+    CanvasComponent.decreaseBorderWidth();
+    expect(activeObject.strokeWidth).toBe(initialWidth - 1);
+  });
+
+
 });
- 
- 
- 
+
+jest.mock('react-confirm-alert', () => ({
+  confirmAlert: jest.fn(),
+}));
+
+  describe("Canvas Component", () => {
+    it('adds and removes keydown and popstate event listeners', () => {
+      const addSpy = jest.spyOn(window, 'addEventListener');
+      const removeSpy = jest.spyOn(window, 'removeEventListener');
+      render(<Router><CanvasComponent/></Router>);
+      expect(addSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(addSpy).toHaveBeenCalledWith('popstate', expect.any(Function));
+      cleanup();
+      expect(removeSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(removeSpy).toHaveBeenCalledWith('popstate', expect.any(Function));
+    });
+    it('initializes fabric canvas and sets up object defaults', () => {
+      const { getByTestId } = render(<Router><CanvasComponent/></Router>);
+      const canvasEl = screen.getByTestId('canvas');
+      expect(canvasEl).toBeTruthy(); 
+    });
+    
+    it('handles grouping and ungrouping of objects on selection', () => {
+      const { getByTestId } = render(<Router><CanvasComponent/></Router>);
+      fireEvent.mouseDown(screen.getByTestId('canvas'), { clientX: 100, clientY: 100 });
+      fireEvent.mouseUp(screen.getByTestId('canvas'), { clientX: 200, clientY: 200 }); // Simulate selection area
+  });
+
+  it("Clicks on Bold Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const BoldButton = screen.getByTestId('boldButton');
+    fireEvent.click(BoldButton);
+   
+  });
+
+  it("Clicks on italic Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const italicButton = screen.getByTestId('italicButton');
+    fireEvent.click(italicButton);
+  });
+
+  it("Clicks on underline Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const underButton = screen.getByTestId('underButton');
+    fireEvent.click(underButton);
+  });
+  it("Clicks on textcolor Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const textcButton = screen.getByTestId('textcolorButton');
+    fireEvent.click(textcButton);
+  });
+
+  it("Clicks on textplus Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const plusButton = screen.getByTestId('plusButton');
+    fireEvent.click(plusButton);
+  });
+
+  it("Clicks on textminus Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const minusButton = screen.getByTestId('minusButton');
+    fireEvent.click(minusButton);
+  });
+
+  it("Clicks on left Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const leftButton = screen.getByTestId('leftButton');
+    fireEvent.click(leftButton);
+  });
+
+
+  it("Clicks on center Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const centerButton = screen.getByTestId('centerButton');
+    fireEvent.click(centerButton);
+  });
+
+  it("Clicks on right Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const rightButton = screen.getByTestId('rightButton');
+    fireEvent.click(rightButton);
+  });
+  it("Clicks on group Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const groupButton = screen.getByTestId('groupButton');
+    fireEvent.click(groupButton);
+  });
+  it("Clicks on ungroup Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const ungroupedButton = screen.getByTestId('ungroupedButton');
+    fireEvent.click(ungroupedButton);
+  });
+
+});
+
+  describe("Canvas Component", () => {
+    it('adds and removes keydown and popstate event listeners', () => {
+      const addSpy = jest.spyOn(window, 'addEventListener');
+      const removeSpy = jest.spyOn(window, 'removeEventListener');
+      render(<Router><CanvasComponent/></Router>);
+      expect(addSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(addSpy).toHaveBeenCalledWith('popstate', expect.any(Function));
+      cleanup();
+      expect(removeSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(removeSpy).toHaveBeenCalledWith('popstate', expect.any(Function));
+    });
+    it('initializes fabric canvas and sets up object defaults', () => {
+      const { getByTestId } = render(<Router><CanvasComponent/></Router>);
+      const canvasEl = screen.getByTestId('canvas');
+      expect(canvasEl).toBeTruthy(); 
+    });
+    
+    it('handles grouping and ungrouping of objects on selection', () => {
+      const { getByTestId } = render(<Router><CanvasComponent/></Router>);
+      fireEvent.mouseDown(screen.getByTestId('canvas'), { clientX: 100, clientY: 100 });
+      fireEvent.mouseUp(screen.getByTestId('canvas'), { clientX: 200, clientY: 200 }); // Simulate selection area
+  });
+
+  it("Clicks on Bold Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const BoldButton = screen.getByTestId('boldButton');
+    fireEvent.click(BoldButton);
+    
+  });
+
+  it("Clicks on italic Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const italicButton = screen.getByTestId('italicButton');
+    fireEvent.click(italicButton);
+  });
+
+  it("Clicks on underline Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const underButton = screen.getByTestId('underButton');
+    fireEvent.click(underButton);
+  });
+  it("Clicks on textcolor Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const textcButton = screen.getByTestId('textcolorButton');
+    fireEvent.click(textcButton);
+  });
+
+  it("Clicks on textplus Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const plusButton = screen.getByTestId('plusButton');
+    fireEvent.click(plusButton);
+  });
+
+  it("Clicks on textminus Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const minusButton = screen.getByTestId('minusButton');
+    fireEvent.click(minusButton);
+  });
+
+  it("Clicks on left Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const leftButton = screen.getByTestId('leftButton');
+    fireEvent.click(leftButton);
+  });
+
+
+  it("Clicks on center Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const centerButton = screen.getByTestId('centerButton');
+    fireEvent.click(centerButton);
+  });
+
+  it("Clicks on right Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const rightButton = screen.getByTestId('rightButton');
+    fireEvent.click(rightButton);
+  });
+  it("Clicks on group Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const groupButton = screen.getByTestId('groupButton');
+    fireEvent.click(groupButton);
+  });
+  it("Clicks on ungroup Button", () => {
+    render(<Router><CanvasComponent/></Router>);
+    const ungroupedButton = screen.getByTestId('ungroupedButton');
+    fireEvent.click(ungroupedButton);
+  });
+
+
+  test('displays message box when file type is not supported', () => {
+    render(<Router><CanvasComponent/></Router>); 
+    const fileInput = screen.getByTestId('file-input');
+    const file = new File(['dummy content'], 'dummy.jpg', { type: 'image/jpeg' });
+    userEvent.upload(fileInput, file);
+    const messageBox = screen.getByTestId('message-box');
+    expect(messageBox).toBeInTheDocument();
+    expect(messageBox).toHaveTextContent('Please select a JPG or PNG image.');
+  });
+
+});
+});
+
+
+  
+
+
+
+
+
+
+
