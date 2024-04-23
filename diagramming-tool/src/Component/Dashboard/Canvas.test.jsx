@@ -591,14 +591,7 @@ describe("Canvas Component", () => {
     render(<Router><CanvasComponent/></Router>);
     const BoldButton = screen.getByTestId('boldButton');
     fireEvent.click(BoldButton);
-    // const boldText = screen.getByTestId('textElement'); // Assuming you have a text element with a test id
-    // expect(boldText).toHaveStyle('font-weight: bold');
-  
-    // // Simulate another click on the bold button to toggle off bold
-    // fireEvent.click(BoldButton);
-  
-    // // Check if the bold style is removed
-    // expect(boldText).not.toHaveStyle('font-weight: bold');
+    
   });
 
   it("Clicks on italic Button", () => {
@@ -661,23 +654,15 @@ describe("Canvas Component", () => {
 
 
   test('displays message box when file type is not supported', () => {
-    render(<YourComponent />); // Render your component
-  
-    // Find the file input element
+    render(<YourComponent />); 
     const fileInput = screen.getByTestId('file-input');
-  
-    // Simulate selecting a file with an unsupported type
     const file = new File(['dummy content'], 'dummy.jpg', { type: 'image/jpeg' });
     userEvent.upload(fileInput, file);
-  
-    // Check if the message box is displayed
     const messageBox = screen.getByTestId('message-box');
     expect(messageBox).toBeInTheDocument();
-    
-    // Check if the correct message is displayed
     expect(messageBox).toHaveTextContent('Please select a JPG or PNG image.');
   });
-  
+
 });
 
 

@@ -72,11 +72,11 @@ const CanvasComponent = () => {
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
 
 
   useEffect(() => {
@@ -864,14 +864,6 @@ useEffect(() => {
     }
   };
 
-  // const increaseBorderWidth = () => {
-  //   setCurrentBorderWidth(current => current + 1);
-  //   const activeObject = canvas.getActiveObject();
-  //   if (activeObject) {
-  //     activeObject.set('strokeWidth', currentBorderWidth + 1);
-  //     canvas.requestRenderAll();
-  //   }
-  // };
 
 
   const increaseBorderWidth = () => {
@@ -887,16 +879,7 @@ useEffect(() => {
 
  
   
-  // const decreaseBorderWidth = () => {
-  //   if (currentBorderWidth > 1) {
-  //     setCurrentBorderWidth(current => current - 1);
-  //     const activeObject = canvas.getActiveObject();
-  //     if (activeObject) {
-  //       activeObject.set('strokeWidth', currentBorderWidth - 1);
-  //       canvas.requestRenderAll();
-  //     }
-  //   }
-  // };
+
   const decreaseBorderWidth = () => {
     if (currentBorderWidth > 1) {
       setCurrentBorderWidth(current => current - 1);
@@ -910,13 +893,7 @@ useEffect(() => {
     }
   };
 
-  // const handleBorderColorChange = (e) => {
-  //   setCurrentBorderColor(e.target.value);
-  //   if (canvas && canvas.getActiveObject()) {
-  //     canvas.getActiveObject().set('stroke', e.target.value);
-  //     canvas.requestRenderAll();
-  //   }
-  // };
+ 
   const handleBorderColorChange = (e) => {
     const newBorderColor = e.target.value;
     setCurrentBorderColor(newBorderColor);
