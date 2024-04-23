@@ -7,8 +7,6 @@ import { MemoryRouter } from 'react-router-dom';
 import Registration from './Registration';
 import '@testing-library/jest-dom';
 import { registerUser } from '../../ApiService/ApiService';
-import MsgBoxComponent from '../ConfirmMsg/MsgBoxComponent';
-import { BrowserRouter as Router } from 'react-router-dom';
  
  
 jest.mock('../../ApiService/ApiService', () => ({
