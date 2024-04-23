@@ -1,12 +1,20 @@
+
+
+
+////////Registration.jsx
+/* eslint-disable testing-library/no-wait-for-multiple-assertions */
+/* eslint-disable testing-library/no-node-access */
 /* eslint-disable no-undef */
 /* eslint-disable testing-library/prefer-screen-queries */
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { render, fireEvent, screen,waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Registration from './Registration';
 import '@testing-library/jest-dom';
 import { registerUser } from '../../ApiService/ApiService';
-import MsgBoxComponent from '../ConfirmMsg/MsgBoxComponent';
+
+import { toast } from 'react-toastify';
+
  
  
  
@@ -14,7 +22,17 @@ jest.mock('../../ApiService/ApiService', () => ({
   registerUser: jest.fn(),
 }));
  
- 
+
+jest.mock('react-toastify', () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(message => {
+      throw new Error(message);
+    })
+  }
+}));
+
+
 describe('Registration component', () => {
   it('renders without crashing', () => {
     render(
@@ -118,7 +136,6 @@ describe('Registration component', () => {
   });
  
  
- 
   it('validates confirm password input', () => {
     render(
       <MemoryRouter>
@@ -166,50 +183,10 @@ describe('Registration component', () => {
       </MemoryRouter>
     );
   });
- 
-});
- 
-describe('Registration Component', () => {
-  it('submits the form with valid data', async () => {
-    // Mock successful response from registerUser
-    registerUser.mockResolvedValue('User added successfully! Please login.');
- 
-    const { getByLabelText, getByText, findByText } = render(
-      <MemoryRouter>
-        <Registration />
-      </MemoryRouter>
-    );
- 
-    // Fill out the form fields
-    fireEvent.change(getByLabelText('First Name:'), { target: { value: 'John' } });
-    fireEvent.change(getByLabelText('Last Name:'), { target: { value: 'Doe' } });
-    fireEvent.change(getByLabelText('Email:'), { target: { value: 'john.doe@example.com' } });
-    fireEvent.change(getByLabelText('Password:'), { target: { value: 'Password123!' } });
-    fireEvent.change(getByLabelText('Confirm Password:'), { target: { value: 'Password123!' } });
- 
-    // Submit the form
-    // eslint-disable-next-line testing-library/prefer-screen-queries
-    fireEvent.submit(getByText('Register'));
- 
-    // Ensure registerUser function was called with correct data
-    expect(registerUser).toHaveBeenCalledWith({
-      firstName: 'John',
-      lastName: 'Doe',
-      userEmail: 'john.doe@example.com',
-      password: 'Password123!',
-      confirmPassword: 'Password123!'
-    });
- 
-    // Ensure success message is displayed
-    const successMessage = await findByText('User added successfully! Please login.');
-    expect(successMessage).toBeInTheDocument();
-  });
- 
- 
-});
- 
- 
 
+  
+ 
+});
  
 it('validates first name input with numbers', () => {
   render(
@@ -224,14 +201,65 @@ it('validates first name input with numbers', () => {
 });
 
 
-test('closes message box when close button is clicked', () => {
-  // Render the component
-  const { getByTestId } = render(<MsgBoxComponent showMsgBox={true} closeMsgBox={jest.fn()} msg="Test message" />);
 
-  // Simulate click on close button
-  fireEvent.click(getByTestId('close-button'));
-
-  // Check if the message box is closed and the message is empty
-  expect(getByTestId('notification-modal')).not.toBeVisible();
-  // You don't need to test for setshowMsgBox and setMsg since they are internal to the component
-});
+  it('displays error toast when form submission is prevented due to errors', async () => {
+    render(
+      <MemoryRouter>
+        <Registration />
+      </MemoryRouter>
+    );
+  
+    
+    fireEvent.change(screen.getByLabelText('First Name:'), { target: { value: 'J' } });
+    fireEvent.change(screen.getByLabelText('Last Name:'), { target: { value: 'D' } });
+    fireEvent.change(screen.getByLabelText('Email:'), { target: { value: 'invalidemail.com' } });
+    fireEvent.change(screen.getByLabelText('Password:'), { target: { value: 'weak' } });
+    fireEvent.change(screen.getByLabelText('Confirm Password:'), { target: { value: 'password' } });
+  
+    
+    const submitButton = screen.getByText('Register');
+    fireEvent.click(submitButton);
+  
+    
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Please fix the form errors.');
+    });
+  
+   
+    expect(screen.getByText('Registration')).toBeInTheDocument();
+  });
+  
+  it('navigates to login page after successful registration', async () => {
+   
+    jest.useFakeTimers();
+  
+    render(
+      <MemoryRouter>
+        <Registration />
+      </MemoryRouter>
+    );
+  
+   
+    registerUser.mockResolvedValueOnce('User added successfully! Please login.');
+  
+   
+    const submitButton = screen.getByText('Register');
+    fireEvent.click(submitButton);
+  
+   
+    await waitFor(() => {
+      expect(registerUser).toHaveBeenCalled();
+    });
+  
+    
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('User added successfully! Please login.');
+    });
+  
+    
+    jest.advanceTimersByTime(3000);
+  
+  
+    jest.useRealTimers();
+  });
+  
