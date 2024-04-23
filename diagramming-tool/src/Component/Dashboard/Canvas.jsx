@@ -375,13 +375,7 @@ useEffect(() => {
 }, [canvas]);
 
 
-  // const handleColorChange = (e) => {
-  //   setCurrentColor(e.target.value);
-  //   if (canvas && canvas.getActiveObject()) {
-  //     canvas.getActiveObject().set('fill', e.target.value);
-  //     canvas.requestRenderAll();
-  //   }
-  // };
+
 
   const handleColorChange = (e) => {
     const newColor = e.target.value;

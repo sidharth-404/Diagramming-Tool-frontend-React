@@ -4,11 +4,11 @@ import HomePage from './HomePage';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 
-// Mocking Cookies module
+
 jest.mock('js-cookie', () => ({
   get: jest.fn((name) => {
     if (name === 'token') {
-      // Simulating the presence of a token cookie
+      
       return 'some-token-value';
     }
     return undefined;
@@ -30,7 +30,7 @@ describe('HomePage', () => {
     render(<Router><HomePage /></Router>);
     fireEvent.click(screen.getByTestId('get-started-button'));
 
-    // Here, we need to assert that the options box is rendered after clicking the button
+    
     expect(screen.getByTestId('options-box')).toBeInTheDocument();
   });
   

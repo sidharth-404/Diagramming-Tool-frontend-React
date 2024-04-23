@@ -337,12 +337,7 @@ describe("Canvas Component", () => {
     fireEvent.change(colorPicker, { target: { value: '#ff0000' } });
   });
 
-  // it('should call handleSave when save button is clicked', async () => {
-  //   render(<Router><CanvasComponent/></Router>)
-  //   const saveButton = screen.getByTestId('saveButton');
-  //   fireEvent.click(saveButton);
-  // });
-
+ 
   it('should call handleSave when save button is clicked', async () => {
     const saveCanvasImageToDB = jest.fn();
       render(<Router><CanvasComponent/></Router>)
@@ -370,14 +365,7 @@ describe("Canvas Component", () => {
     render(<Router><CanvasComponent/></Router>);
     const BoldButton = screen.getByTestId('boldButton');
     fireEvent.click(BoldButton);
-    // const boldText = screen.getByTestId('textElement'); // Assuming you have a text element with a test id
-    // expect(boldText).toHaveStyle('font-weight: bold');
- 
-    // // Simulate another click on the bold button to toggle off bold
-    // fireEvent.click(BoldButton);
- 
-    // // Check if the bold style is removed
-    // expect(boldText).not.toHaveStyle('font-weight: bold');
+   
   });
  
   it("Clicks on italic Button", () => {
@@ -494,14 +482,7 @@ describe("Canvas Component", () => {
     render(<Router><CanvasComponent/></Router>);
     const BoldButton = screen.getByTestId('boldButton');
     fireEvent.click(BoldButton);
-    // const boldText = screen.getByTestId('textElement'); // Assuming you have a text element with a test id
-    // expect(boldText).toHaveStyle('font-weight: bold');
-  
-    // // Simulate another click on the bold button to toggle off bold
-    // fireEvent.click(BoldButton);
-  
-    // // Check if the bold style is removed
-    // expect(boldText).not.toHaveStyle('font-weight: bold');
+   
   });
 
   it("Clicks on italic Button", () => {
