@@ -1,6 +1,9 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import "./Canvas.css";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
 import { MdDeleteForever } from "react-icons/md";
 import { PiRectangle } from "react-icons/pi";
@@ -22,7 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import SavePopup from "../SavePop/SavePop";
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
-import { fabric } from 'fabric';
+import { fabric } from "fabric";
 import 'fabric-history';
 import { CiTextAlignCenter, CiTextAlignLeft, CiTextAlignRight } from "react-icons/ci";
 import { PiTextBBold, PiTextItalic } from "react-icons/pi";
@@ -31,11 +34,19 @@ import { IoMdColorFilter } from "react-icons/io";
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
+import { FaImage } from "react-icons/fa6";
+import jsPDF from "jspdf";
+import { FaRegObjectGroup } from "react-icons/fa";
+import { FaRegObjectUngroup } from "react-icons/fa";
+import { MdOutlineSaveAlt } from "react-icons/md";
+import { MdFormatColorFill } from "react-icons/md";
 
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false);
+  const [showMsgBox1, setShowMsgBox1] = useState(false);
+  
 
   const [hoveredButton, setHoveredButton] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -52,15 +63,45 @@ const CanvasComponent = () => {
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
-  const [currentBorderColor, setCurrentBorderColor] = useState('#000000');
+  const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
   const [copiedObjects, setCopiedObjects] = useState([]);
+  const imageInputRef = useRef(null);
+
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  const [line, setLine] = useState(null);
+  const [arrowhead, setArrowhead] = useState(null);
 
   // useEffect(() => {
   //   if (!Cookies.get('token')) {
   //     navigation('/');
   //   }
   // })
+
+
+  useEffect(() => {
+    const handleOutsideClick = () => {
+      setShowContextMenu(false);
+    };
+
+    const canvasElement = canvasRef.current;
+    if (canvasElement) {
+      canvasElement.addEventListener('click', handleOutsideClick);
+    }
+
+    return () => {
+      if (canvasElement) {
+        canvasElement.removeEventListener('click', handleOutsideClick);
+      }
+    };
+  }, [canvasRef]);
+
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    setShowContextMenu(true);
+    setContextMenuPosition({ x: event.clientX, y: event.clientY });
+  };
 
   const handlePreventNavigation = (event) => {
     event.preventDefault();
@@ -70,6 +111,8 @@ const CanvasComponent = () => {
   };
   window.addEventListener('popstate', handlePreventNavigation);
 
+ 
+
   useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
@@ -78,12 +121,13 @@ const CanvasComponent = () => {
       selection: true,
     });
 
+
     fabric.Object.prototype.set({
       transparentCorners: false,
       cornerColor: 'blue',
       borderColor: 'red',
       cornerSize: 6,
-      padding: 5,
+      padding: 2,
       cornerStyle: 'circle',
       borderOpacityWhenMoving: 0.8,
       hasControls: true
@@ -95,15 +139,119 @@ const CanvasComponent = () => {
       setSelectedShape(true)
     });
 
+   
     initCanvas.on('selection:cleared', () => {
       setGroup(null);
       setSelectedShape(false);
+    });
+
+    initCanvas.on('mouse:dblclick', (e) => {
+      if (e.target && e.target.__corner) {
+        const objectCorner = e.target.getPointByOrigin(e.target.__corner);
+        const pointer = initCanvas.getPointer(e.e, true);
+        const newStartPoint = { x: pointer.x, y: pointer.y };
+
+        const lineInstance = new fabric.Line([objectCorner.x, objectCorner.y, pointer.x, pointer.y], {
+          stroke: currentBorderColor,
+          strokeWidth: 2,
+          selectable: true,
+        });
+
+        setLine(lineInstance);
+        initCanvas.add(lineInstance);
+
+        const angle = Math.atan2(pointer.y - objectCorner.y, pointer.x - objectCorner.x) * (180 / Math.PI);
+        const arrowheadInstance = new fabric.Triangle({
+          width: 10,
+          height: 10,
+          fill: currentBorderColor,
+          left: pointer.x,
+          top: pointer.y,
+          angle: angle + 90,
+          originX: 'center',
+          originY: 'center',
+          selectable: true,
+        });
+
+        setArrowhead(arrowheadInstance);
+        initCanvas.add(arrowheadInstance);
+
+        const onMouseMove = (event) => {
+          const pointer = initCanvas.getPointer(event.e, true);
+          lineInstance.set({ x1: newStartPoint.x, y1: newStartPoint.y, x2: pointer.x, y2: pointer.y });
+          arrowheadInstance.set({ left: pointer.x, top: pointer.y });
+          initCanvas.requestRenderAll();
+        };
+
+        const onMouseUp = () => {
+          initCanvas.off('mouse:move', onMouseMove);
+          initCanvas.off('mouse:up', onMouseUp);
+          console.log("Mouse up")
+          const lineWithArrowhead = new fabric.Group([lineInstance, arrowheadInstance], {
+            selectable: true,
+          });
+          initCanvas.remove(lineInstance);
+          initCanvas.remove(arrowheadInstance)
+          setLine(lineWithArrowhead);
+          initCanvas.add(lineWithArrowhead);
+
+        };
+
+        initCanvas.on('mouse:move', onMouseMove);
+        initCanvas.on('mouse:up', onMouseUp);
+      }
     });
 
     setCanvas(initCanvas);
     return () => initCanvas.dispose();
 
   }, []);
+
+  const groupObjects = () => {
+    const selectedObjects = canvas.getActiveObjects();
+    if (selectedObjects.length > 1) {
+      const group = new fabric.Group(selectedObjects, {
+        originX: 'left',
+        originY: 'bottom',
+        selectable: true,
+        cornerColor: 'yellow',
+        borderColor: 'black',
+        cornerSize: 6,
+        padding: 5,
+        cornerStyle: 'square',
+      });
+      group.set({
+        left: 0,
+        top: canvas.getHeight() - group.height * group.scaleY
+      });
+      selectedObjects.forEach(obj => {
+        canvas.remove(obj);
+      });
+      canvas.add(group);
+      canvas.renderAll();
+    }
+  };
+
+  const ungroupObjects = () => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'group') {
+
+      const items = activeObject._objects;
+      activeObject._restoreObjectsState();
+      canvas.remove(activeObject);
+      items.forEach((obj) => {
+        canvas.add(obj);
+      });
+
+      canvas.discardActiveObject();
+      canvas.renderAll();
+    } else {
+      console.warn('No group is selected.');
+    }
+  };
+
+
+
   const copySelectedObject = () => {
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
@@ -348,7 +496,7 @@ const CanvasComponent = () => {
       if (text.text.trim() === 'New Text' || text.text.trim() === '') {
         text.visible = false;
       }
-       canvas.requestRenderAll();
+      canvas.requestRenderAll();
     });
   };
   const addLine = () => {
@@ -379,6 +527,7 @@ const CanvasComponent = () => {
       originY: 'center'
     });
     const group = new fabric.Group([line, arrow], {});
+
     canvas.add(group);
   };
 
@@ -411,16 +560,29 @@ const CanvasComponent = () => {
       originY: 'center'
     });
     const group = new fabric.Group([line, arrow1, arrow2], {});
+
+
+    group.set({
+      stroke: currentBorderColor,
+      strokeWidth: currentBorderWidth,
+    });
+
     canvas.add(group);
   };
 
   const deleteSelectedObject = () => {
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
+     
+      setShowMsgBox(true);
+      setMsg("do you want to delete!");
+     // handleConfirm();
       canvas.remove(activeObject);
       canvas.requestRenderAll();
+      
     }
   };
+
 
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -488,7 +650,33 @@ const CanvasComponent = () => {
     const canvasState = canvas.toJSON();
     localStorage.setItem('canvasState', JSON.stringify(canvasState));
   };
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0]; 
+    if (!file) return;
 
+    if (!file.type.includes('image/jpeg') && !file.type.includes('image/png')) {
+      setMsg('Please select a JPG or PNG image.');
+      setShowMsgBox(true);
+      return;
+    }
+
+    const reader = new FileReader(); 
+    reader.onload = () => {
+      const dataUrl = reader.result; 
+      fabric.Image.fromURL(dataUrl, (img) => {
+       
+        img.set({
+          left: 0,
+          top: 0,
+          scaleX: 0.5,
+          scaleY: 0.5,
+        });
+        canvas.add(img); 
+        canvas.renderAll(); 
+      });
+    };
+    reader.readAsDataURL(file); 
+  };
 
   useEffect(() => {
     const loadCanvasState = () => {
@@ -530,17 +718,23 @@ const CanvasComponent = () => {
       canvas.renderAll();
     }
   };
+
+
   const handleSave = async (fileName, format, saveToDatabase) => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
       console.error('JWT token not found in localStorage.');
-     
+     return;
+
     }
+
     try {
-      // const userResponse = await getUserByEmail(jwtToken);
-      // const userId = userResponse.userId;
+      const userResponse = await getUserByEmail(jwtToken);
+      const userId = userResponse.userId;
+
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
+
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = canvasElement.width;
       tempCanvas.height = canvasElement.height;
@@ -550,43 +744,65 @@ const CanvasComponent = () => {
         tempCtx.fillStyle = "white";
         tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       }
-      tempCtx.drawImage(canvasElement, 0, 0);
-      tempCanvas.toBlob((blob) => {
-        if (!blob) {
-          console.error("Failed to convert canvas to blob.");
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = () => {
-          const canvasDataUrl = reader.result;
-          if (canvasDataUrl) {
-            if (saveToDatabase) {
-              const base64String = canvasDataUrl.split(",")[1];
-              saveCanvasImageToDB(base64String)
-                .then(() => {
-                  console.log("Canvas image saved to database.");
-                  setShowMsgBox(true);
-                  setMsg("Image saved successfully!");
-                  setShowSavePopup(false);
-                })
-                .catch((error) => {
-                  console.error("Error saving canvas image to database:", error);
-                  setShowSavePopup(false);
-                  setShowMsgBox(true);
-                  setMsg("Error in saving");
-                });
-            } else {
-              const link = document.createElement("a");
-              link.download = fileName + "." + format;
-              link.href = canvasDataUrl;
-              link.click();
-              URL.revokeObjectURL(link.href);
-              setShowSavePopup(false);
-            }
+
+      tempCtx.drawImage(canvasElement, 0, 0)
+
+      if (format === "svg") {
+        const svgData = new XMLSerializer().serializeToString(canvasElement);
+        const blob = new Blob([svgData], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = fileName + ".svg";
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+        toast.success("Exported successfully!");
+        setShowSavePopup(false);
+      } else if (format === "pdf") {
+        const pdf = new jsPDF();
+        pdf.addImage(tempCanvas.toDataURL(), 'PNG', 0, 0);
+        pdf.save(fileName + ".pdf");
+        toast.success("Exported successfully!");
+        setShowSavePopup(false);
+      } else {
+        tempCanvas.toBlob((blob) => {
+          if (!blob) {
+            console.error("Failed to convert canvas to blob.");
+            return;
           }
-        };
-        reader.readAsDataURL(blob);
-      }, "image/" + format);
+          const reader = new FileReader();
+          reader.onload = () => {
+            const canvasDataUrl = reader.result;
+            if (canvasDataUrl) {
+              if (saveToDatabase) {
+                const base64String = canvasDataUrl.split(",")[1];
+                saveCanvasImageToDB(base64String)
+                  .then(() => {
+                    console.log("Canvas image saved to database.");
+                    setShowMsgBox(true);
+                    setMsg("Image saved successfully!");
+                    setShowSavePopup(false);
+                  })
+                  .catch((error) => {
+                    console.error("Error saving canvas image to database:", error);
+                    setShowSavePopup(false);
+                    setShowMsgBox(true);
+                    setMsg("Error in saving");
+                  });
+              } else {
+                const link = document.createElement("a");
+                link.download = fileName + "." + format;
+                link.href = canvasDataUrl;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                toast.success("Exported successfully!");
+                setShowSavePopup(false);
+              }
+            }
+          };
+          reader.readAsDataURL(blob);
+        }, "image/" + format);
+      }
     } catch (error) {
       console.error('Error in fetching user data:', error);
     }
@@ -656,6 +872,42 @@ const CanvasComponent = () => {
       canvas.requestRenderAll();
     }
   };
+ 
+
+  const setDottedBorder = () => {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+        activeObjects.forEach((obj) => {
+            obj.set('strokeDashArray', [2, 2]); 
+        });
+        canvas.requestRenderAll();
+    }
+};
+
+
+
+
+const setSolidBorder = () => {
+  const activeObjects = canvas.getActiveObjects();
+  if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+          obj.set('strokeDashArray', null); 
+      });
+      canvas.requestRenderAll();
+  }
+};
+const setDashedBorder = () => {
+  const activeObjects = canvas.getActiveObjects();
+  if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+          obj.set('strokeDashArray', [8, 5]); 
+      });
+      canvas.requestRenderAll();
+  }
+};
+
+
+
   
 
   return (
@@ -678,26 +930,26 @@ const CanvasComponent = () => {
             <h2>Shapes</h2>
             <hr></hr>
             <div>
-              <button data-testid="rectangleButton" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
-              <button data-testid="circleButton" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
-              <button data-testid="squareButton" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
+              <button data-testid="rectangleButton" title="Rectangle" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
+              <button data-testid="circleButton" title="Circle" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
+              <button data-testid="squareButton" title="Square" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
             </div>
             <div>
-              <button data-testid="triangleButton" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
-              <button data-testid="diamondButton" onClick={addDiamond}><GoDiamond fontSize={70} /></button>
-              <button data-testid="pentagonButton" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
+              <button data-testid="triangleButton" title="Triangle" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
+              <button data-testid="diamondButton" title="Diamond" onClick={addDiamond}><GoDiamond fontSize={70} /></button>
+              <button data-testid="pentagonButton" title="Pentagon" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
             </div>
             <div>
-              <button data-testid="ellipseButton" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
-              <button data-testid="roundrectButton" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
-              <button data-testid="hexagonButton" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
+              <button data-testid="ellipseButton"title="Ellipse" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
+              <button data-testid="roundrectButton" title="Rounded Rectangle" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
+              <button data-testid="hexagonButton" title="Hexagon" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
             </div>
             <h2>Lines</h2>
             <hr></hr>
             <div>
-              <button data-testid="lineButton" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
-              <button data-testid="arrowButton" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
-              <button data-testid="biarrowdButton" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
+              <button data-testid="lineButton" title="Line" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
+              <button data-testid="arrowButton"title="Directional Connector" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
+              <button data-testid="biarrowdButton" title="Bidirectional Connector" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
             </div>
             <h2>Add Text</h2>
             <hr></hr>
@@ -710,84 +962,97 @@ const CanvasComponent = () => {
           <div className="button-container">
             <button title="Save To Database" data-testid="saveButton"
               onClick={() => setShowSavePopup(true)}
-            >
-              <TfiSave />
+            > 
+             <MdOutlineSaveAlt fontSize={30} />
+             
               {hoveredButton === "save" && <span className="tooltip">Save</span>}
             </button>
             <button title="Undo" data-testid="undoButton"
               onClick={() => canvas.undo()}
             >
-              <IoArrowUndo />
+              <IoArrowUndo fontSize={30} />
               {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
             </button>
             <button title="Redo" data-testid="redoButton"
               onClick={() => canvas.redo()}
             >
-              <IoArrowRedo />
+              <IoArrowRedo fontSize={30} />
               {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
             </button>
             <button title="Delete" data-testid="deleteButton"
               onClick={() => deleteSelectedObject()}
+              onMouseEnter={() => setHoveredButton("delete")}
+              onMouseLeave={() => setHoveredButton(null)}
             >
-              <MdDeleteForever />
+              <MdDeleteForever fontSize={30} />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
               )}
             </button>
-            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
-            <button style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
+            <input type="file" data-testid="fileUpload" accept="image/*" 
+            onChange={handleImageUpload}
+            style={{ display: "none" }} 
+             ref={imageInputRef} />
+            <button title="Add Image" data-testid="imageInput" onClick={() => imageInputRef.current.click()}>
+            <FaImage fontSize={30} />
+              
+            </button>          
+           
+            
+            <button data-testid="saveStateButton" title="save the current state" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>
+            <TfiSave fontSize={30} /></button>
+            <button data-testid="groupButton" title="group" onClick={groupObjects}><FaRegObjectGroup fontSize={30} /></button>
+            <button data-testid="ungroupedButton" title="ungroup" onClick={ungroupObjects}><FaRegObjectUngroup fontSize={30} /></button>
+            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange}/>
           </div>
+
           <div>
             <h1>Draw Here!!</h1>
-            <canvas id="grid-canvas"
-              data-testid="canvas"
-              ref={canvasRef}
-              aria-label="Canvas"
-              style={{ border: "1px solid black", position: "relative", width: "900px" }}
-            ></canvas>
+            <ContextMenuTrigger id="canvas-context-menu" holdToDisplay={-1}>
+              <canvas
+                id="grid-canvas"
+                data-testid="canvas"
+                ref={canvasRef}
+                aria-label="Canvas"
+                style={{ border: "1px solid black", position: "relative", width: "800px" }}
+                onContextMenu={handleContextMenu}
+              ></canvas>
+            </ContextMenuTrigger>
+            <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
+              <MenuItem className="rc-menu-item" onClick={copySelectedObject}>Copy</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={pasteSelectedObject}>Paste</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={{}}>Undo</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={{}}>Redo</MenuItem>
+            </ContextMenu>
+
           </div>
         </div>
-        <div class="sidbar-right">
+        <div className="sidbar-right">
           {/* {selectedShape && ( */}
 
               <> <h1>Shape Border</h1>
               <hr></hr>
-              {/* <input type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" /> */}
-              <input
-  type="color"
-  value={currentBorderColor}
-  onChange={handleBorderColorChange}
-  title="border color"
-  data-testid="borderColorInput" // Add data-testid attribute here
-/>
+             
+              
+              <input data-testid="colorShapePicker" type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
+              <button data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }}  onClick={increaseBorderWidth} title="Increase Border">+</button>
+              <button  data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
+             
+             <div class="border-pattern" >
+               
+                <button class="dropdown-option"  Title='Solid Line'  onClick={setSolidBorder}>____</button>
+                <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line" onClick={setDottedBorder}>......</button>
+                <button class="dropdown-option" title="Dashed Line" onClick={setDashedBorder}>_ _ _</button>
+                
+                </div>
+            
 
-              {/* <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button> */}
-              <button
-    style={{ backgroundColor: "gray", marginLeft: "5px" }}
-    onClick={increaseBorderWidth}
-    title="Increase Border"
-    data-testid="increaseBorderButton" // Add data-testid attribute here
->
-    +
-</button>
-
-
-
-              {/* <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button> */}
-              <button
-    style={{ backgroundColor: "gray", marginLeft: "5px" }}
-    onClick={decreaseBorderWidth}
-    title="Decrease Border"
-    data-testid="decreaseBorderButton" // Add data-testid attribute here
->
-    -
-</button>
-
-            </>
+            </> 
           {/* )} */}
           <h1>Text</h1>
           <hr></hr>
-          <div class="dropdown-container">
+          <div className="dropdown-container">
             <FontPicker
               apiKey="AIzaSyBl5TouoL_peS4tDP78t8uDbepyWghkodI"
               activeFontFamily={activeFontFamily}
@@ -795,29 +1060,30 @@ const CanvasComponent = () => {
                 setActiveFontFamily(nextFont.family);
                 setSelectedFontFamily(nextFont.family);
                 changeTextFont(nextFont.family);
-              }}/>
+              }} />
           </div>
-          <div class="button-container-textalign">
-            <button class="left" onClick={alignText}><CiTextAlignLeft /></button>
-            <button class="center"><CiTextAlignCenter /></button>
-            <button class="right"><CiTextAlignRight /></button>
+          <div className="button-container-textalign">
+            <button data-testid="leftButton" className="left" onClick={alignText}><CiTextAlignLeft /></button>
+            <button data-testid="centerButton" className="center"><CiTextAlignCenter /></button>
+            <button data-testid="rightButton" className="right"><CiTextAlignRight /></button>
           </div>
-          <div class="button-container-textstyle">
-            <button class="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
-            <button class="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
-            <button class="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
+          <div className="button-container-textstyle">
+            <button data-testid="boldButton" className="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
+            <button data-testid="italicButton" className="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
+            <button data-testid="underButton" className="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
           </div>
-          <div class="button-container-color">
-            <div class="text-color">Text color</div>
-            <button class="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
+          <div className="button-container-color">
+            <div className="text-color">Text color</div>
+            <button data-testid="textcolorButton" className="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
           </div>
           <div>
-            <button style={{ backgroundColor: "gray" }} class="textsize-increase" onClick={increaseTextSize}>+</button>
-            <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
+            <button data-testid="plusButton" style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={increaseTextSize}>+</button>
+            <button data-testid="minusButton" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
             <span style={{ marginLeft: "25px" }} id="currentSize"></span>
           </div>
           {showTextColorPicker && (
             <SketchPicker
+              data-testid="sketch-picker"
               color={selectedTextColor}
               onChange={(color) => {
                 setSelectedTextColor(color.hex);
@@ -839,12 +1105,13 @@ const CanvasComponent = () => {
         <MsgBoxComponent
           showMsgBox={showMsgBox}
           closeMsgBox={() => setShowMsgBox(false)}
-          msg="Sample Message"
+          msg={msg}
           handleClick={() => setShowMsgBox(false)}
         />
       )}
     </div>
   );
 };
+
 
 export default CanvasComponent;

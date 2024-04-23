@@ -1,3 +1,4 @@
+
 .dashboard-container {
   display: flex;
 }
@@ -71,7 +72,6 @@ button:hover .tooltip {
  
 .shape-button {
   border: 1px solid #e0e0e0;
-  /* Added border */
   border-radius: 5px;
   padding: 10px;
   margin: 5px;
@@ -92,7 +92,6 @@ button:hover .tooltip {
   color: white;
  margin-left: 0;
   padding: 5px 5px;
-  /* Padding for the navbar content */
   display: flex;
   align-items: center;
   height: 50px;
@@ -101,7 +100,7 @@ button:hover .tooltip {
  
  
  
-/* Home.css */
+
  
 .profile-image {
   width: 40px;
@@ -169,11 +168,11 @@ button:hover .tooltip {
 }
  
 .left {
-  margin-right: auto; /* Align button to left */
+  margin-right: auto;
 }
  
 .right {
-  margin-left: auto; /* Align button to right */
+  margin-left: auto; 
 }
  
 .button-container-textstyle{
@@ -211,5 +210,58 @@ button:hover .tooltip {
  margin-left: 70px;
  margin-bottom: 14px;
   }
+  
+
+
+
  
- 
+
+
+.rc-menu {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  list-style: none;
+  margin: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.rc-menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border-bottom: 1px solid #ccc; 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+}
+
+.rc-menu-item:last-child {
+  border-bottom: none; 
+}
+
+.rc-menu-item:hover {
+  background-color: #f0f0f0;
+}
+
+.rc-menu-item-icon {
+  margin-right: 8px; 
+}
+
+.rc-menu-item-label {
+  flex-grow: 1; 
+}
+
+.rc-menu-item:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.rc-menu-item:hover .rc-menu-item-label {
+  color: #000; 
+}
+
+.rc-menu-item:hover .rc-menu-item-icon {
+  filter: brightness(0.5); 
+}
