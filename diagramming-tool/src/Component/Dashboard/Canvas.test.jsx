@@ -287,6 +287,12 @@ describe("Canvas Component", () => {
     fireEvent.mouseMove(canvas, { clientX: 150, clientY: 150 });
     fireEvent.mouseUp(canvas, { clientX: 150, clientY: 150 });
   });
+
+
+
+
+
+ 
   it('should set solid border when solid line button is clicked', () => {
     render(<Router><CanvasComponent/></Router>);
     const solidLineButton = screen.getByTitle('Solid Line');
@@ -331,12 +337,7 @@ describe("Canvas Component", () => {
     fireEvent.change(colorPicker, { target: { value: '#ff0000' } });
   });
 
-  // it('should call handleSave when save button is clicked', async () => {
-  //   render(<Router><CanvasComponent/></Router>)
-  //   const saveButton = screen.getByTestId('saveButton');
-  //   fireEvent.click(saveButton);
-  // });
-
+ 
   it('should call handleSave when save button is clicked', async () => {
     const saveCanvasImageToDB = jest.fn();
       render(<Router><CanvasComponent/></Router>)
@@ -364,14 +365,7 @@ describe("Canvas Component", () => {
     render(<Router><CanvasComponent/></Router>);
     const BoldButton = screen.getByTestId('boldButton');
     fireEvent.click(BoldButton);
-    // const boldText = screen.getByTestId('textElement'); // Assuming you have a text element with a test id
-    // expect(boldText).toHaveStyle('font-weight: bold');
- 
-    // // Simulate another click on the bold button to toggle off bold
-    // fireEvent.click(BoldButton);
- 
-    // // Check if the bold style is removed
-    // expect(boldText).not.toHaveStyle('font-weight: bold');
+   
   });
  
   it("Clicks on italic Button", () => {
@@ -488,14 +482,7 @@ describe("Canvas Component", () => {
     render(<Router><CanvasComponent/></Router>);
     const BoldButton = screen.getByTestId('boldButton');
     fireEvent.click(BoldButton);
-    // const boldText = screen.getByTestId('textElement'); // Assuming you have a text element with a test id
-    // expect(boldText).toHaveStyle('font-weight: bold');
-  
-    // // Simulate another click on the bold button to toggle off bold
-    // fireEvent.click(BoldButton);
-  
-    // // Check if the bold style is removed
-    // expect(boldText).not.toHaveStyle('font-weight: bold');
+   
   });
 
   it("Clicks on italic Button", () => {
@@ -585,14 +572,7 @@ describe("Canvas Component", () => {
     render(<Router><CanvasComponent/></Router>);
     const BoldButton = screen.getByTestId('boldButton');
     fireEvent.click(BoldButton);
-    // const boldText = screen.getByTestId('textElement'); // Assuming you have a text element with a test id
-    // expect(boldText).toHaveStyle('font-weight: bold');
-  
-    // // Simulate another click on the bold button to toggle off bold
-    // fireEvent.click(BoldButton);
-  
-    // // Check if the bold style is removed
-    // expect(boldText).not.toHaveStyle('font-weight: bold');
+    
   });
 
   it("Clicks on italic Button", () => {
@@ -651,6 +631,17 @@ describe("Canvas Component", () => {
     render(<Router><CanvasComponent/></Router>);
     const ungroupedButton = screen.getByTestId('ungroupedButton');
     fireEvent.click(ungroupedButton);
+  });
+
+
+  test('displays message box when file type is not supported', () => {
+    render(<YourComponent />); 
+    const fileInput = screen.getByTestId('file-input');
+    const file = new File(['dummy content'], 'dummy.jpg', { type: 'image/jpeg' });
+    userEvent.upload(fileInput, file);
+    const messageBox = screen.getByTestId('message-box');
+    expect(messageBox).toBeInTheDocument();
+    expect(messageBox).toHaveTextContent('Please select a JPG or PNG image.');
   });
 
 });

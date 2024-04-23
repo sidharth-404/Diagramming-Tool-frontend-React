@@ -115,7 +115,7 @@ const CanvasComponent = () => {
   useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
-      width: 800,
+      width: 950,
       height: 600,
       selection: true,
     });
@@ -375,13 +375,25 @@ useEffect(() => {
 }, [canvas]);
 
 
+
+
   const handleColorChange = (e) => {
-    setCurrentColor(e.target.value);
-    if (canvas && canvas.getActiveObject()) {
-      canvas.getActiveObject().set('fill', e.target.value);
+    const newColor = e.target.value;
+    setCurrentColor(newColor);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+        if (obj.type === 'i-text') {
+          obj.set('fill', newColor);
+        } else {
+          obj.set('fill', newColor);
+        //   obj.set('stroke', newColor); // Assuming you also want to change the stroke color
+        }
+      });
       canvas.requestRenderAll();
     }
   };
+  
 
   const addRectangle = () => {
     const rect = new fabric.Rect({
@@ -693,7 +705,8 @@ useEffect(() => {
     if (!file) return;
 
     if (!file.type.includes('image/jpeg') && !file.type.includes('image/png')) {
-      alert('Please select a JPG or PNG image.');
+      setMsg('Please select a JPG or PNG image.');
+      setShowMsgBox(true);
       return;
     }
 
@@ -761,7 +774,7 @@ useEffect(() => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
       console.error('JWT token not found in localStorage.');
-      return;
+     return;
 
     }
 
@@ -846,6 +859,7 @@ useEffect(() => {
   };
 
 
+
   const increaseBorderWidth = () => {
     setCurrentBorderWidth(current => current + 1);
     const activeObjects = canvas.getActiveObjects();
@@ -856,6 +870,10 @@ useEffect(() => {
       canvas.requestRenderAll();
     }
   };
+
+ 
+  
+
   const decreaseBorderWidth = () => {
     if (currentBorderWidth > 1) {
       setCurrentBorderWidth(current => current - 1);
@@ -869,6 +887,7 @@ useEffect(() => {
     }
   };
 
+ 
   const handleBorderColorChange = (e) => {
     const newBorderColor = e.target.value;
     setCurrentBorderColor(newBorderColor);
@@ -1006,11 +1025,12 @@ const setDashedBorder = () => {
               
             </button>          
            
-            <button data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange}><MdFormatColorFill fontSize={30} /></button> 
+            
             <button data-testid="saveStateButton" title="save the current state" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>
             <TfiSave fontSize={30} /></button>
             <button data-testid="groupButton" title="group" onClick={groupObjects}><FaRegObjectGroup fontSize={30} /></button>
             <button data-testid="ungroupedButton" title="ungroup" onClick={ungroupObjects}><FaRegObjectUngroup fontSize={30} /></button>
+            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange}/>
           </div>
 
           <div>
@@ -1038,7 +1058,7 @@ const setDashedBorder = () => {
         <div className="sidbar-right">
           {/* {selectedShape && ( */}
 
-            <> <h1>Shape Border</h1>
+              <> <h1>Shape Border</h1>
               <hr></hr>
              
               
