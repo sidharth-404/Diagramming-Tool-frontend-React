@@ -1,7 +1,7 @@
 
 
 
-////////Registration.jsx
+
 /* eslint-disable testing-library/no-wait-for-multiple-assertions */
 /* eslint-disable testing-library/no-node-access */
 /* eslint-disable no-undef */
