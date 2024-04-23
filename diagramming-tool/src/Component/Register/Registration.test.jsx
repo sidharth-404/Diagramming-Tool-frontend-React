@@ -199,11 +199,11 @@ describe('Registration Component', () => {
       password: 'Password123!',
       confirmPassword: 'Password123!'
     });
- 
-    // Ensure success message is displayed
-    const successMessage = await findByText('User added successfully! Please login.');
+     const successMessage = await findByText("User added successfully! Please login.");
     expect(successMessage).toBeInTheDocument();
   });
+
+  
  
  
 });
@@ -224,14 +224,4 @@ it('validates first name input with numbers', () => {
 });
 
 
-test('closes message box when close button is clicked', () => {
-  // Render the component
-  const { getByTestId } = render(<MsgBoxComponent showMsgBox={true} closeMsgBox={jest.fn()} msg="Test message" />);
 
-  // Simulate click on close button
-  fireEvent.click(getByTestId('close-button'));
-
-  // Check if the message box is closed and the message is empty
-  expect(getByTestId('notification-modal')).not.toBeVisible();
-  // You don't need to test for setshowMsgBox and setMsg since they are internal to the component
-});

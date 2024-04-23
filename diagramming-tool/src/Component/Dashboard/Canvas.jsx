@@ -4,10 +4,13 @@ import React, { useState, useRef, useEffect } from "react";
 import "./Canvas.css";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
 import { MdDeleteForever } from "react-icons/md";
 import { PiRectangle } from "react-icons/pi";
+import { MdFiberNew } from "react-icons/md";
 import { VscCircleLarge } from "react-icons/vsc";
 import { IoIosSquareOutline } from "react-icons/io";
 import { IoTriangleOutline } from "react-icons/io5";
@@ -35,13 +38,18 @@ import { IoMdColorFilter } from "react-icons/io";
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
+import { FaImage } from "react-icons/fa6";
 import jsPDF from "jspdf";
+import { FaRegObjectGroup } from "react-icons/fa";
+import { FaRegObjectUngroup } from "react-icons/fa";
+import { MdOutlineSaveAlt } from "react-icons/md";
+import { MdFormatColorFill } from "react-icons/md";
 
 const CanvasComponent = () => {
-  const [popup, setPopup] = useState(false);
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false);
+  
 
   const [hoveredButton, setHoveredButton] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -61,16 +69,18 @@ const CanvasComponent = () => {
   const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
   const [copiedObjects, setCopiedObjects] = useState([]);
+  const imageInputRef = useRef(null);
+
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  // useEffect(() => {
-  //   if (!Cookies.get('token')) {
-  //     navigation('/');
-  //   }
-  // })
+  useEffect(() => {
+    if (!Cookies.get('token')) {
+      navigation('/');
+    }
+  })
 
 
   useEffect(() => {
@@ -104,6 +114,8 @@ const CanvasComponent = () => {
   };
   window.addEventListener('popstate', handlePreventNavigation);
 
+ 
+
   useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
@@ -130,6 +142,7 @@ const CanvasComponent = () => {
       setSelectedShape(true)
     });
 
+   
     initCanvas.on('selection:cleared', () => {
       setGroup(null);
       setSelectedShape(false);
@@ -154,7 +167,7 @@ const CanvasComponent = () => {
         const arrowheadInstance = new fabric.Triangle({
           width: 10,
           height: 10,
-          stroke: currentBorderColor,
+          fill: currentBorderColor,
           left: pointer.x,
           top: pointer.y,
           angle: angle + 90,
@@ -513,7 +526,7 @@ const CanvasComponent = () => {
     const arrow1 = new fabric.Triangle({
       width: 10,
       height: 10,
-      stroke: currentBorderColor,
+      fill: currentBorderColor,
       left: 50,
       top: 410,
       angle: -90,
@@ -524,7 +537,7 @@ const CanvasComponent = () => {
     const arrow2 = new fabric.Triangle({
       width: 10,
       height: 10,
-      stroke: currentBorderColor,
+      fill: currentBorderColor,
       left: 300,
       top: 410,
       angle: 90,
@@ -543,12 +556,31 @@ const CanvasComponent = () => {
   };
 
   const deleteSelectedObject = () => {
+ 
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
-      canvas.remove(activeObject);
-      canvas.requestRenderAll();
+      confirmAlert({
+        title: 'Confirm deletion',
+        message: 'Are you sure you want to delete this object?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: () => {
+              canvas.remove(activeObject);
+ 
+            }
+          },
+          {
+            label: 'No',
+            onClick: () => {
+ 
+            }
+          }
+        ]
+      });
     }
   };
+
 
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -616,7 +648,32 @@ const CanvasComponent = () => {
     const canvasState = canvas.toJSON();
     localStorage.setItem('canvasState', JSON.stringify(canvasState));
   };
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0]; 
+    if (!file) return;
 
+    if (!file.type.includes('image/jpeg') && !file.type.includes('image/png')) {
+      alert('Please select a JPG or PNG image.');
+      return;
+    }
+
+    const reader = new FileReader(); 
+    reader.onload = () => {
+      const dataUrl = reader.result; 
+      fabric.Image.fromURL(dataUrl, (img) => {
+       
+        img.set({
+          left: 0,
+          top: 0,
+          scaleX: 0.5,
+          scaleY: 0.5,
+        });
+        canvas.add(img); 
+        canvas.renderAll(); 
+      });
+    };
+    reader.readAsDataURL(file); 
+  };
 
   useEffect(() => {
     const loadCanvasState = () => {
@@ -749,52 +806,98 @@ const CanvasComponent = () => {
   };
 
   const handleCreateNewDiagram = () => {
-    setPopup(true);
-  };
+    confirmAlert({
+      title: 'Create New Diagram',
+      message: 'Are you sure you want to create a new diagram?',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => {
+            canvas.clear();
+            toast.success("Canvas cleared successfully!");
 
-  const clearCanvas = () => {
-    if (canvas) {
-      canvas.clear();
-      toast.success("Canvas cleared successfully!");
-    }
-  };
-  const handleOkClick = () => {
-    setPopup(false);
-    clearCanvas();
-  };
-  const handleCancelClick = () => {
-    setPopup(false);
-  };
+          }
+        },
+        {
+          label: 'No',
+          onClick: () => {
 
+          }
+        }
+      ]
+    });
+  };
   const increaseBorderWidth = () => {
-    const increasedWidth = currentBorderWidth + 1;
-    setCurrentBorderWidth(increasedWidth);
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
-      activeObject.set('strokeWidth', increasedWidth);
+    setCurrentBorderWidth(current => current + 1);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+        obj.set('strokeWidth', currentBorderWidth + 1);
+      });
       canvas.requestRenderAll();
     }
   };
-
   const decreaseBorderWidth = () => {
     if (currentBorderWidth > 1) {
-      const decreasedWidth = currentBorderWidth - 1;
-      setCurrentBorderWidth(decreasedWidth);
-      const activeObject = canvas.getActiveObject();
-      if (activeObject) {
-        activeObject.set('strokeWidth', decreasedWidth);
+      setCurrentBorderWidth(current => current - 1);
+      const activeObjects = canvas.getActiveObjects();
+      if (activeObjects && activeObjects.length > 0) {
+        activeObjects.forEach((obj) => {
+          obj.set('strokeWidth', currentBorderWidth - 1);
+        });
         canvas.requestRenderAll();
       }
     }
   };
 
   const handleBorderColorChange = (e) => {
-    setCurrentBorderColor(e.target.value);
-    if (canvas && canvas.getActiveObject()) {
-      canvas.getActiveObject().set('stroke', e.target.value);
+    const newBorderColor = e.target.value;
+    setCurrentBorderColor(newBorderColor);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+        obj.set('stroke', newBorderColor);
+      });
       canvas.requestRenderAll();
     }
   };
+ 
+
+  const setDottedBorder = () => {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+        activeObjects.forEach((obj) => {
+            obj.set('strokeDashArray', [2, 2]); 
+        });
+        canvas.requestRenderAll();
+    }
+};
+
+
+
+
+const setSolidBorder = () => {
+  const activeObjects = canvas.getActiveObjects();
+  if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+          obj.set('strokeDashArray', null); 
+      });
+      canvas.requestRenderAll();
+  }
+};
+const setDashedBorder = () => {
+  const activeObjects = canvas.getActiveObjects();
+  if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+          obj.set('strokeDashArray', [8, 5]); 
+      });
+      canvas.requestRenderAll();
+  }
+};
+
+
+
+  
 
   return (
     <div>
@@ -818,26 +921,26 @@ const CanvasComponent = () => {
             <h2>Shapes</h2>
             <hr></hr>
             <div>
-              <button data-testid="rectangleButton" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
-              <button data-testid="circleButton" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
-              <button data-testid="squareButton" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
+              <button data-testid="rectangleButton" title="Rectangle" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
+              <button data-testid="circleButton" title="Circle" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
+              <button data-testid="squareButton" title="Square" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
             </div>
             <div>
-              <button data-testid="triangleButton" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
-              <button data-testid="diamondButton" onClick={addDiamond}><GoDiamond fontSize={70} /></button>
-              <button data-testid="pentagonButton" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
+              <button data-testid="triangleButton" title="Triangle" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
+              <button data-testid="diamondButton" title="Diamond" onClick={addDiamond}><GoDiamond fontSize={70} /></button>
+              <button data-testid="pentagonButton" title="Pentagon" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
             </div>
             <div>
-              <button data-testid="ellipseButton" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
-              <button data-testid="roundrectButton" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
-              <button data-testid="hexagonButton" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
+              <button data-testid="ellipseButton"title="Ellipse" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
+              <button data-testid="roundrectButton" title="Rounded Rectangle" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
+              <button data-testid="hexagonButton" title="Hexagon" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
             </div>
             <h2>Lines</h2>
             <hr></hr>
             <div>
-              <button data-testid="lineButton" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
-              <button data-testid="arrowButton" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
-              <button data-testid="biarrowdButton" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
+              <button data-testid="lineButton" title="Line" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
+              <button data-testid="arrowButton"title="Directional Connector" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
+              <button data-testid="biarrowdButton" title="Bidirectional Connector" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
             </div>
             <h2>Add Text</h2>
             <hr></hr>
@@ -850,36 +953,51 @@ const CanvasComponent = () => {
           <div className="button-container">
             <button title="Save To Database" data-testid="saveButton"
               onClick={() => setShowSavePopup(true)}
-            >
-              <TfiSave />
+            > 
+             <MdOutlineSaveAlt fontSize={30} />
+             
               {hoveredButton === "save" && <span className="tooltip">Save</span>}
             </button>
             <button title="Undo" data-testid="undoButton"
               onClick={() => canvas.undo()}
             >
-              <IoArrowUndo />
+              <IoArrowUndo fontSize={30} />
               {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
             </button>
             <button title="Redo" data-testid="redoButton"
               onClick={() => canvas.redo()}
             >
-              <IoArrowRedo />
+              <IoArrowRedo fontSize={30} />
               {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
             </button>
             <button title="Delete" data-testid="deleteButton"
               onClick={() => deleteSelectedObject()}
+              onMouseEnter={() => setHoveredButton("delete")}
+              onMouseLeave={() => setHoveredButton(null)}
             >
-              <MdDeleteForever />
+              <MdDeleteForever fontSize={30} />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
               )}
             </button>
-            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
-            <button data-testid="saveStateButton" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
-            <button data-testid="groupButton" onClick={groupObjects}>Group</button>
-            <button data-testid="ungroupedButton" onClick={ungroupObjects}>Ungroup</button>
-            <button data-testid="newdiagram" onClick={handleCreateNewDiagram}>New Diagram</button>
+           
+            <button data-testid="newdiagram" title="new Diagram" onClick={handleCreateNewDiagram}><MdFiberNew fontSize={30} /></button>
+            <input type="file" data-testid="fileUpload" accept="image/*" 
+            onChange={handleImageUpload}
+            style={{ display: "none" }} 
+             ref={imageInputRef} />
+            <button title="Add Image" data-testid="imageInput" onClick={() => imageInputRef.current.click()}>
+            <FaImage fontSize={30} />
+              
+            </button>          
+           
+            <button data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange}><MdFormatColorFill fontSize={30} /></button> 
+            <button data-testid="saveStateButton" title="save the current state" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>
+            <TfiSave fontSize={30} /></button>
+            <button data-testid="groupButton" title="group" onClick={groupObjects}><FaRegObjectGroup fontSize={30}  /></button>
+            <button data-testid="ungroupedButton" title="ungroup" onClick={ungroupObjects}><FaRegObjectUngroup fontSize={30} /></button>
           </div>
+
           <div>
             <h1>Draw Here!!</h1>
             <ContextMenuTrigger id="canvas-context-menu" holdToDisplay={-1}>
@@ -913,9 +1031,12 @@ const CanvasComponent = () => {
               <input className="bc" type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
               <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
               <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-            </div> </>
-
-          <h2>Text</h2>
+              <button  Title='Solid Line'  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setSolidBorder}>____</button>
+              <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line"  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setDottedBorder}>......</button>
+              <button class="dropdown-option" title="Dashed Line"  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setDashedBorder}>_ _ _</button>
+            </div>
+            </>
+          <h1>Text</h1>
           <hr></hr>
           <div className="dropdown-container">
             <FontPicker
@@ -974,15 +1095,10 @@ const CanvasComponent = () => {
           handleClick={() => setShowMsgBox(false)}
         />
       )}
-      {popup && (
-        <div className="toast">
-          <span>Create a new diagram? Are you sure?</span>
-          <button onClick={handleOkClick}>OK</button>
-          <button onClick={handleCancelClick}>Cancel</button>
-        </div>
-      )}
+    
     </div>
   );
 };
+
 
 export default CanvasComponent;

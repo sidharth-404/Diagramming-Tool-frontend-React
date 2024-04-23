@@ -78,7 +78,7 @@ const Registration = () => {
       const response = await registerUser(formData);
       
       if (response.status ===201) {
-        toast.success("Registered successfully! Redirecting to login page.")
+        toast.success("User added successfully! Please login.")
         setTimeout(() => {
           navigateToLogin();
         }, 4000);
