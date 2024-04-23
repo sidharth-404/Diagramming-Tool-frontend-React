@@ -245,6 +245,28 @@ describe("Canvas Component", () => {
     fireEvent.mouseMove(canvas, { clientX: 150, clientY: 150 });
     fireEvent.mouseUp(canvas, { clientX: 150, clientY: 150 });
   });
+
+  it('should increase border width when increase border button is clicked', async () => {
+    render(<Router><CanvasComponent/></Router>);
+    const increaseBorderButton = screen.getByTestId('increaseBorderButton');
+    fireEvent.click(increaseBorderButton);
+});
+
+test('should decrease border width when decrease border button is clicked', async () => {
+  render(<Router><CanvasComponent/></Router>);
+  
+  const decreaseBorderButton = screen.getByTestId('decreaseBorderButton');
+  fireEvent.click(decreaseBorderButton);
+});
+
+test('should call handleBorderColorChange when border color picker is changed', async () => {
+  render(<Router><CanvasComponent/></Router>);
+  const colorpicker = screen.getByTestId('borderColorInput'); // Corrected test ID here
+  fireEvent.change(colorpicker, { target: { value: '#ff0000' } });
+});
+
+
+ 
 });
 
 

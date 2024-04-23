@@ -56,11 +56,11 @@ const CanvasComponent = () => {
   const [selectedShape, setSelectedShape] = useState(false);
   const [copiedObjects, setCopiedObjects] = useState([]);
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
 
   const handlePreventNavigation = (event) => {
     event.preventDefault();
@@ -171,13 +171,31 @@ const CanvasComponent = () => {
 
 
 
+  // const handleColorChange = (e) => {
+  //   setCurrentColor(e.target.value);
+  //   if (canvas && canvas.getActiveObject()) {
+  //     canvas.getActiveObject().set('fill', e.target.value);
+  //     canvas.requestRenderAll();
+  //   }
+  // };
+
   const handleColorChange = (e) => {
-    setCurrentColor(e.target.value);
-    if (canvas && canvas.getActiveObject()) {
-      canvas.getActiveObject().set('fill', e.target.value);
+    const newColor = e.target.value;
+    setCurrentColor(newColor);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+        if (obj.type === 'i-text') {
+          obj.set('fill', newColor);
+        } else {
+          obj.set('fill', newColor);
+        //   obj.set('stroke', newColor); // Assuming you also want to change the stroke color
+        }
+      });
       canvas.requestRenderAll();
     }
   };
+  
 
   const addRectangle = () => {
     const rect = new fabric.Rect({
@@ -574,33 +592,71 @@ const CanvasComponent = () => {
     }
   };
 
+  // const increaseBorderWidth = () => {
+  //   setCurrentBorderWidth(current => current + 1);
+  //   const activeObject = canvas.getActiveObject();
+  //   if (activeObject) {
+  //     activeObject.set('strokeWidth', currentBorderWidth + 1);
+  //     canvas.requestRenderAll();
+  //   }
+  // };
+
+
   const increaseBorderWidth = () => {
     setCurrentBorderWidth(current => current + 1);
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
-      activeObject.set('strokeWidth', currentBorderWidth + 1);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+        obj.set('strokeWidth', currentBorderWidth + 1);
+      });
       canvas.requestRenderAll();
     }
   };
 
+ 
+  
+  // const decreaseBorderWidth = () => {
+  //   if (currentBorderWidth > 1) {
+  //     setCurrentBorderWidth(current => current - 1);
+  //     const activeObject = canvas.getActiveObject();
+  //     if (activeObject) {
+  //       activeObject.set('strokeWidth', currentBorderWidth - 1);
+  //       canvas.requestRenderAll();
+  //     }
+  //   }
+  // };
   const decreaseBorderWidth = () => {
     if (currentBorderWidth > 1) {
       setCurrentBorderWidth(current => current - 1);
-      const activeObject = canvas.getActiveObject();
-      if (activeObject) {
-        activeObject.set('strokeWidth', currentBorderWidth - 1);
+      const activeObjects = canvas.getActiveObjects();
+      if (activeObjects && activeObjects.length > 0) {
+        activeObjects.forEach((obj) => {
+          obj.set('strokeWidth', currentBorderWidth - 1);
+        });
         canvas.requestRenderAll();
       }
     }
   };
 
+  // const handleBorderColorChange = (e) => {
+  //   setCurrentBorderColor(e.target.value);
+  //   if (canvas && canvas.getActiveObject()) {
+  //     canvas.getActiveObject().set('stroke', e.target.value);
+  //     canvas.requestRenderAll();
+  //   }
+  // };
   const handleBorderColorChange = (e) => {
-    setCurrentBorderColor(e.target.value);
-    if (canvas && canvas.getActiveObject()) {
-      canvas.getActiveObject().set('stroke', e.target.value);
+    const newBorderColor = e.target.value;
+    setCurrentBorderColor(newBorderColor);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+        obj.set('stroke', newBorderColor);
+      });
       canvas.requestRenderAll();
     }
   };
+  
 
   return (
     <div>
@@ -692,15 +748,43 @@ const CanvasComponent = () => {
           </div>
         </div>
         <div class="sidbar-right">
-          {selectedShape && (
+          {/* {selectedShape && ( */}
 
-            <> <h1>Shape Border</h1>
+              <> <h1>Shape Border</h1>
               <hr></hr>
-              <input type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
-              <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
-              <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
+              {/* <input type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" /> */}
+              <input
+  type="color"
+  value={currentBorderColor}
+  onChange={handleBorderColorChange}
+  title="border color"
+  data-testid="borderColorInput" // Add data-testid attribute here
+/>
+
+              {/* <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button> */}
+              <button
+    style={{ backgroundColor: "gray", marginLeft: "5px" }}
+    onClick={increaseBorderWidth}
+    title="Increase Border"
+    data-testid="increaseBorderButton" // Add data-testid attribute here
+>
+    +
+</button>
+
+
+
+              {/* <button style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button> */}
+              <button
+    style={{ backgroundColor: "gray", marginLeft: "5px" }}
+    onClick={decreaseBorderWidth}
+    title="Decrease Border"
+    data-testid="decreaseBorderButton" // Add data-testid attribute here
+>
+    -
+</button>
+
             </>
-          )}
+          {/* )} */}
           <h1>Text</h1>
           <hr></hr>
           <div class="dropdown-container">
