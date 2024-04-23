@@ -36,8 +36,12 @@ import { IoMdColorFilter } from "react-icons/io";
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
+import { FaImage } from "react-icons/fa6";
 import jsPDF from "jspdf";
-
+import { FaRegObjectGroup } from "react-icons/fa";
+import { FaRegObjectUngroup } from "react-icons/fa";
+import { MdOutlineSaveAlt } from "react-icons/md";
+import { MdFormatColorFill } from "react-icons/md";
 
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
@@ -60,7 +64,8 @@ const CanvasComponent = () => {
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
   const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
-  const [copiedObjects, setCopiedObjects] = useState([]);
+  const imageInputRef = useRef(null);
+
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [line, setLine] = useState(null);
@@ -104,10 +109,12 @@ const CanvasComponent = () => {
   };
   window.addEventListener('popstate', handlePreventNavigation);
 
+ 
+
   useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
-      width: 800,
+      width: 950,
       height: 600,
       selection: true,
     });
@@ -130,6 +137,7 @@ const CanvasComponent = () => {
       setSelectedShape(true)
     });
 
+   
     initCanvas.on('selection:cleared', () => {
       setGroup(null);
       setSelectedShape(false);
@@ -154,7 +162,7 @@ const CanvasComponent = () => {
         const arrowheadInstance = new fabric.Triangle({
           width: 10,
           height: 10,
-          stroke: currentBorderColor,
+          fill: currentBorderColor,
           left: pointer.x,
           top: pointer.y,
           angle: angle + 90,
@@ -242,80 +250,149 @@ const CanvasComponent = () => {
 
 
 
-  const copySelectedObject = () => {
+  const copiedObjects  = () => {
+    const handleCopyShortcut = (event) => {
+        if (event.ctrlKey && event.key === 'v') {
+            event.preventDefault();
+        }
+    };
+
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
-      activeObject.clone(function (cloned) {
-        canvas.discardActiveObject();
-        cloned.set({
-          left: cloned.left + 10,
-          top: cloned.top + 10,
-          evented: true,
+        activeObject.clone(function (cloned) {
+            canvas.discardActiveObject();
+            cloned.set({
+                left: cloned.left + 10,
+                top: cloned.top + 10,
+                evented: true,
+            });
+            if (cloned.type === 'activeSelection') {
+                cloned.canvas = canvas;
+                cloned.forEachObject(function (obj) {
+                    canvas.add(obj);
+                });
+                cloned.setCoords();
+            } else {
+                canvas.add(cloned); 
+            }
+            canvas.requestRenderAll();
         });
-        if (cloned.type === 'activeSelection') {
-          cloned.canvas = canvas;
-          cloned.forEachObject(function (obj) {
-            canvas.add(obj);
-          });
-          cloned.setCoords();
-        } else {
-          canvas.add(cloned);
-        }
-        canvas.setActiveObject(cloned);
-        canvas.requestRenderAll();
-      });
-      setCopiedObjects([activeObject]);
+        
+
+       
+        document.addEventListener('keydown', handleCopyShortcut);
+    }
+};
+
+useEffect(() => {
+  const handleKeyDown = (event) => {
+
+    if (event.ctrlKey && event.key === 'z') {
+      canvas.undo();
+    } else if (event.ctrlKey && event.key === 'y') {
+      canvas.redo();
+    } else if (event.key === 'Delete') {
+      deleteSelectedObject();
+    } else if (event.ctrlKey && event.key === 'v') {
+      copiedObjects();
+    } 
+  };
+  window.addEventListener('keydown', handleKeyDown);
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown);
+  };
+}, [canvas]);
+
+useEffect(() => {
+  const handleKeyDown = (event) => {
+    const activeObject = canvas?.getActiveObject();
+    if (canvas && activeObject  ) {
+      const resizeAmount = 5; 
+      
+      switch (event.key) {
+        case 'w':
+          activeObject.set('height', activeObject.height + resizeAmount);
+          break;
+        case 's':
+          activeObject.set('height', activeObject.height - resizeAmount);
+          break;
+        case 'a':
+          activeObject.set('width', activeObject.width - resizeAmount);
+          break;
+        case 'd':
+          activeObject.set('width', activeObject.width + resizeAmount);
+          break;
+          
+        default:
+          break;
+      }
+      
+      canvas.renderAll();
+    }
+  };
+  if (canvas) {
+  window.addEventListener('keydown', handleKeyDown);
+  }
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown);
+  };
+}, [canvas]);
+
+
+useEffect(() => {
+  const handleKeyDown = (event) => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+      const moveAmount = 5;
+      
+      switch (event.key) {
+        case 'ArrowUp':
+          activeObject.set('top', activeObject.top - moveAmount);
+          break;
+        case 'ArrowDown':
+          activeObject.set('top', activeObject.top + moveAmount);
+          break;
+        case 'ArrowLeft':
+          activeObject.set('left', activeObject.left - moveAmount);
+          break;
+        case 'ArrowRight':
+          activeObject.set('left', activeObject.left + moveAmount);
+          break;
+        default:
+          break;
+      }
+      
+      canvas.renderAll();
     }
   };
 
-  const pasteSelectedObject = () => {
-    console.log(copiedObjects.length)
-    if (!copiedObjects.length) return;
-    canvas.discardActiveObject();
-    copiedObjects.forEach((obj) => {
-      obj.clone((cloned) => {
-        canvas.add(cloned);
-        cloned.set({
-          left: cloned.left + 10,
-          top: cloned.top + 10,
-          evented: true,
-        });
-        canvas.setActiveObject(cloned);
-      });
-    });
-    canvas.requestRenderAll();
+  window.addEventListener('keydown', handleKeyDown);
+
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown);
   };
+}, [canvas]);
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-
-      if (event.ctrlKey && event.key === 'z') {
-        canvas.undo();
-      } else if (event.ctrlKey && event.key === 'y') {
-        canvas.redo();
-      } else if (event.key === 'Delete') {
-        deleteSelectedObject();
-      } else if (event.ctrlKey && event.key === 'c') {
-        copySelectedObject();
-      } else if (event.ctrlKey && event.key === 'v') {
-        pasteSelectedObject();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [canvas]);
 
 
 
   const handleColorChange = (e) => {
-    setCurrentColor(e.target.value);
-    if (canvas && canvas.getActiveObject()) {
-      canvas.getActiveObject().set('fill', e.target.value);
+    const newColor = e.target.value;
+    setCurrentColor(newColor);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+        if (obj.type === 'i-text') {
+          obj.set('fill', newColor);
+        } else {
+          obj.set('fill', newColor);
+        //   obj.set('stroke', newColor); // Assuming you also want to change the stroke color
+        }
+      });
       canvas.requestRenderAll();
     }
   };
+  
 
   const addRectangle = () => {
     const rect = new fabric.Rect({
@@ -513,7 +590,7 @@ const CanvasComponent = () => {
     const arrow1 = new fabric.Triangle({
       width: 10,
       height: 10,
-      stroke: currentBorderColor,
+      fill: currentBorderColor,
       left: 50,
       top: 410,
       angle: -90,
@@ -524,7 +601,7 @@ const CanvasComponent = () => {
     const arrow2 = new fabric.Triangle({
       width: 10,
       height: 10,
-      stroke: currentBorderColor,
+      fill: currentBorderColor,
       left: 300,
       top: 410,
       angle: 90,
@@ -542,32 +619,6 @@ const CanvasComponent = () => {
     canvas.add(group);
   };
 
-  // const deleteSelectedObject = () => {
-
-  //   const activeObject = canvas.getActiveObject();
-    
-  //   if (activeObject) {
-  //     confirmAlert({
-  //       title: 'Confirm deletion',
-  //       message: 'Are you sure you want to delete this object?',
-  //       buttons: [
-  //         {
-  //           label: 'Yes',
-  //           onClick: () => {
-  //             canvas.remove(activeObject);
- 
-  //           }
-  //         },
-  //         {
-  //           label: 'No',
-  //           onClick: () => {
-
-  //           }
-  //         }
-  //       ]
-  //     });
-  //   }
-  // };
   const deleteSelectedObject = () => {
     const activeObjects = canvas.getActiveObjects();
     if (activeObjects && activeObjects.length > 0) {
@@ -588,7 +639,7 @@ const CanvasComponent = () => {
           {
             label: 'No',
             onClick: () => {
-              // Do nothing or provide feedback to the user
+            
             }
           }
         ]
@@ -611,7 +662,7 @@ const CanvasComponent = () => {
             {
               label: 'No',
               onClick: () => {
-                // Do nothing or provide feedback to the user
+                
               }
             }
           ]
@@ -619,6 +670,8 @@ const CanvasComponent = () => {
       }
     }
   };
+  
+
   
 
   
@@ -690,7 +743,33 @@ const CanvasComponent = () => {
     const canvasState = canvas.toJSON();
     localStorage.setItem('canvasState', JSON.stringify(canvasState));
   };
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0]; 
+    if (!file) return;
 
+    if (!file.type.includes('image/jpeg') && !file.type.includes('image/png')) {
+      setMsg('Please select a JPG or PNG image.');
+      setShowMsgBox(true);
+      return;
+    }
+
+    const reader = new FileReader(); 
+    reader.onload = () => {
+      const dataUrl = reader.result; 
+      fabric.Image.fromURL(dataUrl, (img) => {
+       
+        img.set({
+          left: 0,
+          top: 0,
+          scaleX: 0.5,
+          scaleY: 0.5,
+        });
+        canvas.add(img); 
+        canvas.renderAll(); 
+      });
+    };
+    reader.readAsDataURL(file); 
+  };
 
   useEffect(() => {
     const loadCanvasState = () => {
@@ -738,7 +817,7 @@ const CanvasComponent = () => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
       console.error('JWT token not found in localStorage.');
-      return;
+     return;
 
     }
 
@@ -823,6 +902,7 @@ const CanvasComponent = () => {
   };
 
 
+
   const increaseBorderWidth = () => {
     setCurrentBorderWidth(current => current + 1);
     const activeObjects = canvas.getActiveObjects();
@@ -833,6 +913,10 @@ const CanvasComponent = () => {
       canvas.requestRenderAll();
     }
   };
+
+ 
+  
+
   const decreaseBorderWidth = () => {
     if (currentBorderWidth > 1) {
       setCurrentBorderWidth(current => current - 1);
@@ -846,6 +930,7 @@ const CanvasComponent = () => {
     }
   };
 
+ 
   const handleBorderColorChange = (e) => {
     const newBorderColor = e.target.value;
     setCurrentBorderColor(newBorderColor);
@@ -947,37 +1032,49 @@ const setDashedBorder = () => {
           <div className="button-container">
             <button title="Save To Database" data-testid="saveButton"
               onClick={() => setShowSavePopup(true)}
-            >
-              <TfiSave />
+            > 
+             <MdOutlineSaveAlt fontSize={30} />
+             
               {hoveredButton === "save" && <span className="tooltip">Save</span>}
             </button>
             <button title="Undo" data-testid="undoButton"
               onClick={() => canvas.undo()}
             >
-              <IoArrowUndo />
+              <IoArrowUndo fontSize={30} />
               {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
             </button>
             <button title="Redo" data-testid="redoButton"
               onClick={() => canvas.redo()}
             >
-              <IoArrowRedo />
+              <IoArrowRedo fontSize={30} />
               {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
             </button>
             <button title="Delete" data-testid="deleteButton"
               onClick={() => deleteSelectedObject()}
           
             >
-              <MdDeleteForever />
+              <MdDeleteForever fontSize={30} />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
               )} <ToastContainer />
             </button>
+            <input type="file" data-testid="fileUpload" accept="image/*" 
+            onChange={handleImageUpload}
+            style={{ display: "none" }} 
+             ref={imageInputRef} />
+            <button title="Add Image" data-testid="imageInput" onClick={() => imageInputRef.current.click()}>
+            <FaImage fontSize={30} />
+              
+            </button>          
            
-            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
-            <button data-testid="saveStateButton" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
-            <button data-testid="groupButton" onClick={groupObjects}>Group</button>
-            <button data-testid="ungroupedButton" onClick={ungroupObjects}>Ungroup</button>
+            
+            <button data-testid="saveStateButton" title="save the current state" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>
+            <TfiSave fontSize={30} /></button>
+            <button data-testid="groupButton" title="group" onClick={groupObjects}><FaRegObjectGroup fontSize={30} /></button>
+            <button data-testid="ungroupedButton" title="ungroup" onClick={ungroupObjects}><FaRegObjectUngroup fontSize={30} /></button>
+            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange}/>
           </div>
+
           <div>
             <h1>Draw Here!!</h1>
             <ContextMenuTrigger id="canvas-context-menu" holdToDisplay={-1}>
@@ -991,8 +1088,8 @@ const setDashedBorder = () => {
               ></canvas>
             </ContextMenuTrigger>
             <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
-              <MenuItem className="rc-menu-item" onClick={copySelectedObject}>Copy</MenuItem>
-              <MenuItem className="rc-menu-item" onClick={pasteSelectedObject}>Paste</MenuItem>
+              <MenuItem className="rc-menu-item">Copy</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={copiedObjects}>Paste</MenuItem>
               <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
               <MenuItem className="rc-menu-item" onClick={{}}>Undo</MenuItem>
               <MenuItem className="rc-menu-item" onClick={{}}>Redo</MenuItem>
@@ -1000,10 +1097,10 @@ const setDashedBorder = () => {
 
           </div>
         </div>
-        <div class="sidbar-right">
+        <div className="sidbar-right">
           {/* {selectedShape && ( */}
 
-            <> <h1>Shape Border</h1>
+              <> <h1>Shape Border</h1>
               <hr></hr>
              
               
