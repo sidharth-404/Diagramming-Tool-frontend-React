@@ -36,7 +36,10 @@ import { SketchPicker } from "react-color";
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
 import { FaImage } from "react-icons/fa6";
 import jsPDF from "jspdf";
-
+import { FaRegObjectGroup } from "react-icons/fa";
+import { FaRegObjectUngroup } from "react-icons/fa";
+import { MdOutlineSaveAlt } from "react-icons/md";
+import { MdFormatColorFill } from "react-icons/md";
 
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
@@ -911,20 +914,21 @@ const setDashedBorder = () => {
           <div className="button-container">
             <button title="Save To Database" data-testid="saveButton"
               onClick={() => setShowSavePopup(true)}
-            >
-              <TfiSave />
+            > 
+             <MdOutlineSaveAlt fontSize={30} />
+             
               {hoveredButton === "save" && <span className="tooltip">Save</span>}
             </button>
             <button title="Undo" data-testid="undoButton"
               onClick={() => canvas.undo()}
             >
-              <IoArrowUndo />
+              <IoArrowUndo fontSize={30} />
               {hoveredButton === "undo" && <span className="tooltip">Undo</span>}
             </button>
             <button title="Redo" data-testid="redoButton"
               onClick={() => canvas.redo()}
             >
-              <IoArrowRedo />
+              <IoArrowRedo fontSize={30} />
               {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
             </button>
             <button title="Delete" data-testid="deleteButton"
@@ -932,7 +936,7 @@ const setDashedBorder = () => {
               onMouseEnter={() => setHoveredButton("delete")}
               onMouseLeave={() => setHoveredButton(null)}
             >
-              <MdDeleteForever />
+              <MdDeleteForever fontSize={30} />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
               )}
@@ -942,14 +946,15 @@ const setDashedBorder = () => {
             style={{ display: "none" }} 
              ref={imageInputRef} />
             <button title="Add Image" data-testid="imageInput" onClick={() => imageInputRef.current.click()}>
-            <FaImage />
+            <FaImage fontSize={30} />
               
             </button>          
            
-            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
-            <button data-testid="saveStateButton" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>save the current state</button>
-            <button data-testid="groupButton" onClick={groupObjects}>Group</button>
-            <button data-testid="ungroupedButton" onClick={ungroupObjects}>Ungroup</button>
+            <button data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange}><MdFormatColorFill fontSize={30} /></button> 
+            <button data-testid="saveStateButton" title="save the current state" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>
+            <TfiSave fontSize={30} /></button>
+            <button data-testid="groupButton" title="group" onClick={groupObjects}><FaRegObjectGroup fontSize={30} /></button>
+            <button data-testid="ungroupedButton" title="ungroup" onClick={ungroupObjects}><FaRegObjectUngroup fontSize={30} /></button>
           </div>
 
           <div>
