@@ -36,7 +36,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom --testMatch=**/Component/ChangePassword/ChangePassword.test.jsx --coverage",
+    "test": "react-scripts test --watchAll --coverage --no-threads",
     "eject": "react-scripts eject"
   },
   "resolutions": {
