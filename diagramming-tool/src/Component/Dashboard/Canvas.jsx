@@ -1,7 +1,9 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import "./Canvas.css";
-import { toast } from 'react-toastify';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import { ToastContainer,toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
@@ -45,9 +47,6 @@ const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false);
-  const [showMsgBox1, setShowMsgBox1] = useState(false);
-  
-
   const [hoveredButton, setHoveredButton] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navigation = useNavigate();
@@ -623,13 +622,57 @@ useEffect(() => {
   const deleteSelectedObject = () => {
     const activeObjects = canvas.getActiveObjects();
     if (activeObjects && activeObjects.length > 0) {
-      activeObjects.forEach(obj => {
-        canvas.remove(obj);
+      confirmAlert({
+        title: 'Confirm deletion',
+        message: 'Are you sure you want to delete these objects?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: () => {
+              activeObjects.forEach(obj => {
+                canvas.remove(obj);
+              });
+              canvas.discardActiveObject();
+              canvas.requestRenderAll();
+            }
+          },
+          {
+            label: 'No',
+            onClick: () => {
+            
+            }
+          }
+        ]
       });
-      canvas.discardActiveObject();
-      canvas.requestRenderAll();
+    } else {
+      const activeObject = canvas.getActiveObject();
+      if (activeObject) {
+        confirmAlert({
+          title: 'Confirm deletion',
+          message: 'Are you sure you want to delete this object?',
+          buttons: [
+            {
+              label: 'Yes',
+              onClick: () => {
+                canvas.remove(activeObject);
+                canvas.discardActiveObject();
+                canvas.requestRenderAll();
+              }
+            },
+            {
+              label: 'No',
+              onClick: () => {
+                
+              }
+            }
+          ]
+        });
+      }
     }
   };
+  
+
+  
 
   
 
@@ -1008,13 +1051,12 @@ const setDashedBorder = () => {
             </button>
             <button title="Delete" data-testid="deleteButton"
               onClick={() => deleteSelectedObject()}
-              onMouseEnter={() => setHoveredButton("delete")}
-              onMouseLeave={() => setHoveredButton(null)}
+          
             >
               <MdDeleteForever fontSize={30} />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
-              )}
+              )} <ToastContainer />
             </button>
             <input type="file" data-testid="fileUpload" accept="image/*" 
             onChange={handleImageUpload}

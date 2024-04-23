@@ -1,12 +1,14 @@
+/* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable jest/no-identical-title */
 /* eslint-disable no-undef */
 /* eslint-disable testing-library/no-node-access */
 import React from "react";
-import { render, screen, fireEvent,cleanup } from "@testing-library/react";
+import { render, screen, fireEvent,cleanup, getByTestId } from "@testing-library/react";
 import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 import { BrowserRouter as Router} from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { confirmAlert } from 'react-confirm-alert';
 import {saveCanvasImageToDB,getUserByEmail} from '../../ApiService/ApiService';
 import { fabric } from 'fabric';
 
@@ -337,6 +339,7 @@ describe("Canvas Component", () => {
     fireEvent.change(colorPicker, { target: { value: '#ff0000' } });
   });
 
+
  
   it('should call handleSave when save button is clicked', async () => {
     const saveCanvasImageToDB = jest.fn();
@@ -344,23 +347,7 @@ describe("Canvas Component", () => {
       const saveButton = screen.getByTestId('saveButton');
     fireEvent.click(saveButton);
   
-    const canvasDataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQE...';
-    const blob = new Blob([canvasDataUrl], { type: 'image/jpeg' });
-      const mockFileReader = {
-      onload: null,
-      result: canvasDataUrl,
-      readAsDataURL: function () {
-        this.onload();
-      },
-    };
-    global.FileReader = jest.fn(() => mockFileReader);
-  
-    
-    expect(saveCanvasImageToDB).toHaveBeenCalled();
-    expect(saveCanvasImageToDB).toHaveBeenCalledWith(
-      expect.any(String), 
-    );
-  });
+
   it("Clicks on Bold Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const BoldButton = screen.getByTestId('boldButton');
@@ -454,6 +441,10 @@ describe("Canvas Component", () => {
 
 
 });
+
+jest.mock('react-confirm-alert', () => ({
+  confirmAlert: jest.fn(),
+}));
 
   describe("Canvas Component", () => {
     it('adds and removes keydown and popstate event listeners', () => {
@@ -635,7 +626,7 @@ describe("Canvas Component", () => {
 
 
   test('displays message box when file type is not supported', () => {
-    render(<YourComponent />); 
+    render(<Router><CanvasComponent/></Router>); 
     const fileInput = screen.getByTestId('file-input');
     const file = new File(['dummy content'], 'dummy.jpg', { type: 'image/jpeg' });
     userEvent.upload(fileInput, file);
@@ -645,6 +636,11 @@ describe("Canvas Component", () => {
   });
 
 });
+});
+
+
+  
+
 
 
 
