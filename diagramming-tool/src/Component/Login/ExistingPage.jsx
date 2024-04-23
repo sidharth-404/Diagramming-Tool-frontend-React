@@ -28,40 +28,40 @@ function ExistingPage() {
 
   const handleImageSelect = (imageName) => {
     setSelectedImage(imageName.imageName);
-    localStorage.setItem("selected-image",imageName.imageJson);
+    localStorage.setItem("selected-image", imageName.imageJson);
     navigation('/dashboard');
   };
 
   return (
     <>
-    
-    <div className="dialogue-box">
-      <div className="dialogue-content">
-        <div role="img"  className="image-card-container" >
-          {imageData.length === 0 ? (
-            <p>No saved images</p>
-          ) : (
-            imageData.map((image, index) => (
-              <div
-                key={index}
-                className={`image-card ${selectedImage === image.imageName ? 'selected' : ''}`}
-                onClick={() => handleImageSelect(image)}
-              >
-                {image.imageByte ? (
-                   <img data-testid="Image1"src={`data:image/png;base64,${image.imageByte}`} style={{ width: "250px", height: "250px" }} alt={image.imageName} />
-                  
-                ) : (
-                  <p>Error: No image data found</p>
-                )}
-                <p>{image.imageName}</p>
-              </div>
-              
-            ))
-          )}
-          
+
+      <div className="dialogue-box">
+        <div className="dialogue-content">
+          <div role="img" className="image-card-container" >
+            {imageData.length === 0 ? (
+              <p>No saved images</p>
+            ) : (
+              imageData.map((image, index) => (
+                <div
+                  key={index}
+                  className={`image-card ${selectedImage === image.imageName ? 'selected' : ''}`}
+                  onClick={() => handleImageSelect(image)}
+                >
+                  {image.imageByte ? (
+                    <img data-testid="Image1" src={`data:image/png;base64,${image.imageByte}`} style={{ width: "250px", height: "250px" }} alt={image.imageName} />
+
+                  ) : (
+                    <p>Error: No image data found</p>
+                  )}
+                  <p>{image.imageName}</p>
+                </div>
+
+              ))
+            )}
+
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 }

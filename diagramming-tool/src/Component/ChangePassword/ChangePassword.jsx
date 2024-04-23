@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './ChangePassword.css'; 
+import './ChangePassword.css';
 import { changePasswordApi } from '../../ApiService/ApiService';
 import MsgBoxComponent from '../ConfirmMsg/MsgBoxComponent';
 import { useNavigate } from 'react-router-dom'
@@ -30,7 +30,6 @@ const ChangePassword = () => {
     try {
 
       const response = await changePasswordApi(formData);
-      console.log(response);
       if (typeof response === 'object' && response.hasOwnProperty('userEmail')) {
         setMsg('User added successfully! Please login.');
       } else {

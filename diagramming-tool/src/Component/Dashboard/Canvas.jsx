@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import "./Canvas.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import { ToastContainer,toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
@@ -72,11 +72,11 @@ const CanvasComponent = () => {
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  // useEffect(() => {
-  //   if (!Cookies.get('token')) {
-  //     navigation('/');
-  //   }
-  // })
+  useEffect(() => {
+    if (!Cookies.get('token')) {
+      navigation('/');
+    }
+  })
 
 
   useEffect(() => {
@@ -110,7 +110,7 @@ const CanvasComponent = () => {
   };
   window.addEventListener('popstate', handlePreventNavigation);
 
- 
+
 
   useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
@@ -250,128 +250,128 @@ const CanvasComponent = () => {
 
 
 
-  const copiedObjects  = () => {
+  const copiedObjects = () => {
     const handleCopyShortcut = (event) => {
-        if (event.ctrlKey && event.key === 'v') {
-            event.preventDefault();
-        }
+      if (event.ctrlKey && event.key === 'v') {
+        event.preventDefault();
+      }
     };
 
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
-        activeObject.clone(function (cloned) {
-            canvas.discardActiveObject();
-            cloned.set({
-                left: cloned.left + 10,
-                top: cloned.top + 10,
-                evented: true,
-            });
-            if (cloned.type === 'activeSelection') {
-                cloned.canvas = canvas;
-                cloned.forEachObject(function (obj) {
-                    canvas.add(obj);
-                });
-                cloned.setCoords();
-            } else {
-                canvas.add(cloned); 
-            }
-            canvas.requestRenderAll();
+      activeObject.clone(function (cloned) {
+        canvas.discardActiveObject();
+        cloned.set({
+          left: cloned.left + 10,
+          top: cloned.top + 10,
+          evented: true,
         });
-        
+        if (cloned.type === 'activeSelection') {
+          cloned.canvas = canvas;
+          cloned.forEachObject(function (obj) {
+            canvas.add(obj);
+          });
+          cloned.setCoords();
+        } else {
+          canvas.add(cloned);
+        }
+        canvas.requestRenderAll();
+      });
 
-       
-        document.addEventListener('keydown', handleCopyShortcut);
+
+
+      document.addEventListener('keydown', handleCopyShortcut);
     }
-};
-
-useEffect(() => {
-  const handleKeyDown = (event) => {
-
-    if (event.ctrlKey && event.key === 'z') {
-      canvas.undo();
-    } else if (event.ctrlKey && event.key === 'y') {
-      canvas.redo();
-    } else if (event.key === 'Delete') {
-      deleteSelectedObject();
-    } else if (event.ctrlKey && event.key === 'v') {
-      copiedObjects();
-    } 
   };
-  window.addEventListener('keydown', handleKeyDown);
-  return () => {
-    window.removeEventListener('keydown', handleKeyDown);
-  };
-}, [canvas]);
 
-useEffect(() => {
-  const handleKeyDown = (event) => {
-    const activeObject = canvas?.getActiveObject();
-    if (canvas && activeObject  ) {
-      const resizeAmount = 5; 
-      
-      switch (event.key) {
-        case 'w':
-          activeObject.set('height', activeObject.height + resizeAmount);
-          break;
-        case 's':
-          activeObject.set('height', activeObject.height - resizeAmount);
-          break;
-        case 'a':
-          activeObject.set('width', activeObject.width - resizeAmount);
-          break;
-        case 'd':
-          activeObject.set('width', activeObject.width + resizeAmount);
-          break;
-          
-        default:
-          break;
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+
+      if (event.ctrlKey && event.key === 'z') {
+        canvas.undo();
+      } else if (event.ctrlKey && event.key === 'y') {
+        canvas.redo();
+      } else if (event.key === 'Delete') {
+        deleteSelectedObject();
+      } else if (event.ctrlKey && event.key === 'v') {
+        copiedObjects();
       }
-      
-      canvas.renderAll();
-    }
-  };
-  if (canvas) {
-  window.addEventListener('keydown', handleKeyDown);
-  }
-  return () => {
-    window.removeEventListener('keydown', handleKeyDown);
-  };
-}, [canvas]);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canvas]);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const activeObject = canvas?.getActiveObject();
+      if (canvas && activeObject) {
+        const resizeAmount = 5;
 
-useEffect(() => {
-  const handleKeyDown = (event) => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
-      const moveAmount = 5;
-      
-      switch (event.key) {
-        case 'ArrowUp':
-          activeObject.set('top', activeObject.top - moveAmount);
-          break;
-        case 'ArrowDown':
-          activeObject.set('top', activeObject.top + moveAmount);
-          break;
-        case 'ArrowLeft':
-          activeObject.set('left', activeObject.left - moveAmount);
-          break;
-        case 'ArrowRight':
-          activeObject.set('left', activeObject.left + moveAmount);
-          break;
-        default:
-          break;
+        switch (event.key) {
+          case 'w':
+            activeObject.set('height', activeObject.height + resizeAmount);
+            break;
+          case 's':
+            activeObject.set('height', activeObject.height - resizeAmount);
+            break;
+          case 'a':
+            activeObject.set('width', activeObject.width - resizeAmount);
+            break;
+          case 'd':
+            activeObject.set('width', activeObject.width + resizeAmount);
+            break;
+
+          default:
+            break;
+        }
+
+        canvas.renderAll();
       }
-      
-      canvas.renderAll();
+    };
+    if (canvas) {
+      window.addEventListener('keydown', handleKeyDown);
     }
-  };
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canvas]);
 
-  window.addEventListener('keydown', handleKeyDown);
 
-  return () => {
-    window.removeEventListener('keydown', handleKeyDown);
-  };
-}, [canvas]);
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const activeObject = canvas.getActiveObject();
+      if (activeObject) {
+        const moveAmount = 5;
+
+        switch (event.key) {
+          case 'ArrowUp':
+            activeObject.set('top', activeObject.top - moveAmount);
+            break;
+          case 'ArrowDown':
+            activeObject.set('top', activeObject.top + moveAmount);
+            break;
+          case 'ArrowLeft':
+            activeObject.set('left', activeObject.left - moveAmount);
+            break;
+          case 'ArrowRight':
+            activeObject.set('left', activeObject.left + moveAmount);
+            break;
+          default:
+            break;
+        }
+
+        canvas.renderAll();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canvas]);
 
 
 
@@ -386,13 +386,13 @@ useEffect(() => {
           obj.set('fill', newColor);
         } else {
           obj.set('fill', newColor);
-        //   obj.set('stroke', newColor); // Assuming you also want to change the stroke color
+          //   obj.set('stroke', newColor); // Assuming you also want to change the stroke color
         }
       });
       canvas.requestRenderAll();
     }
   };
-  
+
 
   const addRectangle = () => {
     const rect = new fabric.Rect({
@@ -561,8 +561,8 @@ useEffect(() => {
   const addArrowLine = () => {
     const line = new fabric.Line([50, 380, 300, 380], {
       stroke: currentBorderColor,
-      fill:currentBorderColor,
-      strokeWidth:currentBorderWidth,
+      fill: currentBorderColor,
+      strokeWidth: currentBorderWidth,
       selectable: true
     });
 
@@ -570,8 +570,8 @@ useEffect(() => {
       width: 10,
       height: 10,
       fill: currentBorderColor,
-      stroke:currentBorderColor,
-      strokeWidth:currentBorderWidth,
+      stroke: currentBorderColor,
+      strokeWidth: currentBorderWidth,
       left: 300,
       top: 380,
       angle: 90,
@@ -642,7 +642,7 @@ useEffect(() => {
           {
             label: 'No',
             onClick: () => {
-            
+
             }
           }
         ]
@@ -665,7 +665,7 @@ useEffect(() => {
             {
               label: 'No',
               onClick: () => {
-                
+
               }
             }
           ]
@@ -673,7 +673,7 @@ useEffect(() => {
       }
     }
   };
-  
+
 
 
   const toggleProfileMenu = () => {
@@ -744,7 +744,7 @@ useEffect(() => {
     localStorage.removeItem('selected-image')
   };
   const handleImageUpload = (e) => {
-    const file = e.target.files[0]; 
+    const file = e.target.files[0];
     if (!file) return;
 
     if (!file.type.includes('image/jpeg') && !file.type.includes('image/png')) {
@@ -753,37 +753,37 @@ useEffect(() => {
       return;
     }
 
-    const reader = new FileReader(); 
+    const reader = new FileReader();
     reader.onload = () => {
-      const dataUrl = reader.result; 
+      const dataUrl = reader.result;
       fabric.Image.fromURL(dataUrl, (img) => {
-       
+
         img.set({
           left: 0,
           top: 0,
           scaleX: 0.5,
           scaleY: 0.5,
         });
-        canvas.add(img); 
-        canvas.renderAll(); 
+        canvas.add(img);
+        canvas.renderAll();
       });
     };
-    reader.readAsDataURL(file); 
+    reader.readAsDataURL(file);
   };
 
   useEffect(() => {
     const loadCanvasState = () => {
-     const importImage=localStorage.getItem('selected-image');
-          if(!importImage){
-      const savedCanvasState = localStorage.getItem('canvasState');
-      if (savedCanvasState && canvas) {
-        canvas.loadFromJSON(savedCanvasState, canvas.renderAll.bind(canvas));
+      const importImage = localStorage.getItem('selected-image');
+      if (!importImage) {
+        const savedCanvasState = localStorage.getItem('canvasState');
+        if (savedCanvasState && canvas) {
+          canvas.loadFromJSON(savedCanvasState, canvas.renderAll.bind(canvas));
+        }
       }
-    }
-    else{
-      if(importImage&&canvas)
-      canvas.loadFromJSON(importImage, canvas.renderAll.bind(canvas));
-    }
+      else {
+        if (importImage && canvas)
+          canvas.loadFromJSON(importImage, canvas.renderAll.bind(canvas));
+      }
     };
 
     loadCanvasState();
@@ -816,28 +816,28 @@ useEffect(() => {
   const handleSave = async (fileName, format, saveToDatabase) => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
-    return;
+      return;
     }
- 
+
     try {
       const userResponse = await getUserByEmail(jwtToken);
       const userId = userResponse.userId;
- 
+
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
- 
+
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = canvasElement.width;
       tempCanvas.height = canvasElement.height;
       const tempCtx = tempCanvas.getContext("2d");
- 
+
       if (format === "jpeg") {
         tempCtx.fillStyle = "white";
         tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       }
- 
+
       tempCtx.drawImage(canvasElement, 0, 0)
- 
+
       if (format === "svg") {
         const svgData = new XMLSerializer().serializeToString(canvasElement);
         const blob = new Blob([svgData], { type: "image/svg+xml" });
@@ -856,7 +856,7 @@ useEffect(() => {
         toast.success("Exported successfully!");
         setShowSavePopup(false);
       }
-     else {
+      else {
         tempCanvas.toBlob((blob) => {
           if (!blob) {
             console.error("Failed to convert canvas to blob.");
@@ -867,10 +867,10 @@ useEffect(() => {
             const canvasDataUrl = reader.result;
             if (canvasDataUrl) {
               if (saveToDatabase) {
-        const canvasState = canvas.toJSON();
-        const base64String = canvasDataUrl.split(",")[1];
-        const imageJson = JSON.stringify(canvasState);
-         saveCanvasImageDummyToDB(fileName, imageJson,base64String,userId)
+                const canvasState = canvas.toJSON();
+                const base64String = canvasDataUrl.split(",")[1];
+                const imageJson = JSON.stringify(canvasState);
+                saveCanvasImageDummyToDB(fileName, imageJson, base64String, userId)
                   .then(() => {
                     console.log("Canvas image saved to database.");
                     setShowMsgBox(true);
@@ -900,7 +900,7 @@ useEffect(() => {
     } catch (error) {
       console.error('Error in fetching user data:', error);
     }
-};
+  };
 
 
 
@@ -916,8 +916,8 @@ useEffect(() => {
     }
   };
 
- 
-  
+
+
 
   const decreaseBorderWidth = () => {
     if (currentBorderWidth > 1) {
@@ -932,7 +932,7 @@ useEffect(() => {
     }
   };
 
- 
+
   const handleBorderColorChange = (e) => {
     const newBorderColor = e.target.value;
     setCurrentBorderColor(newBorderColor);
@@ -944,43 +944,43 @@ useEffect(() => {
       canvas.requestRenderAll();
     }
   };
- 
+
 
   const setDottedBorder = () => {
     const activeObjects = canvas.getActiveObjects();
     if (activeObjects && activeObjects.length > 0) {
-        activeObjects.forEach((obj) => {
-            obj.set('strokeDashArray', [2, 2]); 
-        });
-        canvas.requestRenderAll();
+      activeObjects.forEach((obj) => {
+        obj.set('strokeDashArray', [2, 2]);
+      });
+      canvas.requestRenderAll();
     }
-};
+  };
 
 
 
 
-const setSolidBorder = () => {
-  const activeObjects = canvas.getActiveObjects();
-  if (activeObjects && activeObjects.length > 0) {
+  const setSolidBorder = () => {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
       activeObjects.forEach((obj) => {
-          obj.set('strokeDashArray', null); 
+        obj.set('strokeDashArray', null);
       });
       canvas.requestRenderAll();
-  }
-};
-const setDashedBorder = () => {
-  const activeObjects = canvas.getActiveObjects();
-  if (activeObjects && activeObjects.length > 0) {
+    }
+  };
+  const setDashedBorder = () => {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
       activeObjects.forEach((obj) => {
-          obj.set('strokeDashArray', [8, 5]); 
+        obj.set('strokeDashArray', [8, 5]);
       });
       canvas.requestRenderAll();
-  }
-};
+    }
+  };
   return (
     <div>
       <nav className="navbar">
-          <img src={logo} alt="Logo" className="logos" /><h3 style={{color:"black", fontSize:"6rm"}}>LogicDraw</h3>
+        <img src={logo} alt="Logo" className="logos" /><h3 style={{ color: "black", fontSize: "6rm" }}>LogicDraw</h3>
         <img src={profileImage} alt="Profile" className="profile-image" onClick={toggleProfileMenu} />
         {showProfileMenu && (
           <div className="profile-menu">
@@ -1008,7 +1008,7 @@ const setDashedBorder = () => {
               <button data-testid="pentagonButton" title="Pentagon" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
             </div>
             <div>
-              <button data-testid="ellipseButton"title="Ellipse" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
+              <button data-testid="ellipseButton" title="Ellipse" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
               <button data-testid="roundrectButton" title="Rounded Rectangle" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
               <button data-testid="hexagonButton" title="Hexagon" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
             </div>
@@ -1016,7 +1016,7 @@ const setDashedBorder = () => {
             <hr></hr>
             <div>
               <button data-testid="lineButton" title="Line" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
-              <button data-testid="arrowButton"title="Directional Connector" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
+              <button data-testid="arrowButton" title="Directional Connector" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
               <button data-testid="biarrowdButton" title="Bidirectional Connector" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
             </div>
             <h2>Add Text</h2>
@@ -1030,9 +1030,9 @@ const setDashedBorder = () => {
           <div className="button-container">
             <button title="Save To Database" data-testid="saveButton"
               onClick={() => setShowSavePopup(true)}
-            > 
-             <MdOutlineSaveAlt fontSize={30} />
-             
+            >
+              <MdOutlineSaveAlt fontSize={30} />
+
               {hoveredButton === "save" && <span className="tooltip">Save</span>}
             </button>
             <button title="Undo" data-testid="undoButton"
@@ -1049,28 +1049,28 @@ const setDashedBorder = () => {
             </button>
             <button title="Delete" data-testid="deleteButton"
               onClick={() => deleteSelectedObject()}
-          
+
             >
               <MdDeleteForever fontSize={30} />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
               )} <ToastContainer />
             </button>
-            <input type="file" data-testid="fileUpload" accept="image/*" 
-            onChange={handleImageUpload}
-            style={{ display: "none" }} 
-             ref={imageInputRef} />
+            <input type="file" data-testid="fileUpload" accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: "none" }}
+              ref={imageInputRef} />
             <button title="Add Image" data-testid="imageInput" onClick={() => imageInputRef.current.click()}>
-            <FaImage fontSize={30} />
-              
-            </button>          
-           
-            
+              <FaImage fontSize={30} />
+
+            </button>
+
+
             <button data-testid="saveStateButton" title="save the current state" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>
-            <TfiSave fontSize={30} /></button>
+              <TfiSave fontSize={30} /></button>
             <button data-testid="groupButton" title="group" onClick={groupObjects}><FaRegObjectGroup fontSize={30} /></button>
             <button data-testid="ungroupedButton" title="ungroup" onClick={ungroupObjects}><FaRegObjectUngroup fontSize={30} /></button>
-            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange}/>
+            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
           </div>
 
           <div>
@@ -1096,26 +1096,24 @@ const setDashedBorder = () => {
           </div>
         </div>
         <div className="sidbar-right">
-          {/* {selectedShape && ( */}
+          <> <h1>Shape Border</h1>
+            <hr></hr>
 
-              <> <h1>Shape Border</h1>
-              <hr></hr>
-             
-              
-              <input data-testid="colorShapePicker" type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
-              <button data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }}  onClick={increaseBorderWidth} title="Increase Border">+</button>
-              <button  data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-             
-             <div class="border-pattern" >
-               
-                <button class="dropdown-option"  Title='Solid Line'  onClick={setSolidBorder}>____</button>
-                <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line" onClick={setDottedBorder}>......</button>
-                <button class="dropdown-option" title="Dashed Line" onClick={setDashedBorder}>_ _ _</button>
-                
-                </div>
-            
 
-            </> 
+            <input data-testid="colorShapePicker" type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
+            <button data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
+            <button data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
+
+            <div class="border-pattern" >
+
+              <button class="dropdown-option" Title='Solid Line' onClick={setSolidBorder}>____</button>
+              <button data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line" onClick={setDottedBorder}>......</button>
+              <button class="dropdown-option" title="Dashed Line" onClick={setDashedBorder}>_ _ _</button>
+
+            </div>
+
+
+          </>
           {/* )} */}
           <h1>Text</h1>
           <hr></hr>
@@ -1129,7 +1127,7 @@ const setDashedBorder = () => {
                 changeTextFont(nextFont.family);
               }} />
           </div>
-      
+
           <div className="button-container-textstyle">
             <button data-testid="boldButton" className="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
             <button data-testid="italicButton" className="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>

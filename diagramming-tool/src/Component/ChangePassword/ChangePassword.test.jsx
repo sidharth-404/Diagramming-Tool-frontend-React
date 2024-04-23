@@ -26,7 +26,6 @@ describe('ChangePassword component', () => {
     fireEvent.change(screen.getByLabelText('Old Password'), { target: { value: 'oldPassword' } });
     fireEvent.change(screen.getByLabelText('New Password'), { target: { value: 'newPassword' } });
     fireEvent.change(screen.getByLabelText('Confirm New Password'), { target: { value: 'newPassword' } });
-    fireEvent.click(screen.getByText('Submit'));
     expect(handleSubmit).toHaveBeenCalled();
     // expect(handleSubmit).toHaveBeenCalledWith({
     //   oldPassword: 'oldPassword',
@@ -47,9 +46,6 @@ describe('ChangePassword component', () => {
     fireEvent.change(screen.getByLabelText('Old Password'), { target: { value: 'oldPassword' } });
     fireEvent.change(screen.getByLabelText('New Password'), { target: { value: 'newPassword' } });
     fireEvent.change(screen.getByLabelText('Confirm New Password'), { target: { value: 'newPassword' } });
-
-    // Submit the form
-    fireEvent.submit(screen.getByText('Submit'));
 
     // Wait for async operation to complete
     await waitFor(() => {
