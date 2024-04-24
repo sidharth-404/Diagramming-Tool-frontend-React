@@ -19,7 +19,8 @@ function App() {
 
     <Router>
 <div className="App">
-        
+        <header className="App-header"> 
+        </header>
         <Routes>
           <Route exact path="/" element={<HomePage/>} />
           <Route path="/login" element={<LoginPage />} />
