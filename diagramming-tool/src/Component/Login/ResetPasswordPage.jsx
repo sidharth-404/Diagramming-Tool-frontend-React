@@ -110,10 +110,10 @@ const ResetPasswordPage = () => {
       {!otpSent ? (
         <form onSubmit={handleEmailSubmit}>
           <div>
-            <label>Email:</label>
+            <label htmlFor='Email'>Email:</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
-          <button type="submit">Send OTP</button>
+          <button data-testid="sendOtp" type="submit">Send OTP</button>
         </form>
       ) : (
         <div>
@@ -121,11 +121,11 @@ const ResetPasswordPage = () => {
           {showOtpForm && (
             <form onSubmit={handleResetPassword}>
               <div>
-                <label>OTP:</label>
+                <label htmlFor='OTP'>OTP:</label>
                 <input type="text" value={otp} onChange={handleOtpChange} required />
               </div>
               <div>
-                <label>New Password:</label>
+                <label htmlFor='New Password'>New Password:</label>
                 <input
                   type="password"
                   value={newPassword}
@@ -135,7 +135,7 @@ const ResetPasswordPage = () => {
                 {newPasswordError && <div className="error">{newPasswordError}</div>}
               </div>
               <div>
-                <label>Confirm New Password:</label>
+                <label htmlFor='Confirm New Password'>Confirm New Password:</label>
                 <input
                   type="password"
                   value={confirmPassword}
@@ -144,7 +144,7 @@ const ResetPasswordPage = () => {
                 />
                 {confirmPasswordError && <div className="error">{confirmPasswordError}</div>}
               </div>
-              <button type="submit">Reset Password</button>
+              <button  data-testid="resetPwd"  type="submit">Reset Password</button>
             </form>
           )}
         </div>

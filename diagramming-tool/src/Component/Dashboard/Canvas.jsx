@@ -1129,9 +1129,9 @@ const CanvasComponent = () => {
               <input className="bc" type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
               <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
               <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-              <button  Title='Solid Line'  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setSolidBorder}>____</button>
-              <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line"  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setDottedBorder}>......</button>
-              <button class="dropdown-option" title="Dashed Line"  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setDashedBorder}>_ _ _</button>
+              <button  Title='Solid Line'  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setSolidBorder}>____</button>
+              <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDottedBorder}>......</button>
+              <button class="dropdown-option" title="Dashed Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDashedBorder}>_ _ _</button>
             </div>
             </>
           <h1>Text</h1>
