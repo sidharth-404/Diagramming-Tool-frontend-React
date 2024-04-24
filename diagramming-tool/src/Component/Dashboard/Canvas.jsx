@@ -221,8 +221,8 @@ const CanvasComponent = () => {
         cornerStyle: 'square',
       });
       group.set({
-        left: 0,
-        top: canvas.getHeight() - group.height * group.scaleY
+        left: 200,
+        top: 300
       });
       selectedObjects.forEach(obj => {
         canvas.remove(obj);
@@ -245,9 +245,7 @@ const CanvasComponent = () => {
 
       canvas.discardActiveObject();
       canvas.renderAll();
-    } else {
-      console.warn('No group is selected.');
-    }
+    } 
   };
 
 
@@ -564,7 +562,7 @@ const CanvasComponent = () => {
     const line = new fabric.Line([50, 380, 300, 380], {
       stroke: currentBorderColor,
       fill: currentBorderColor,
-      strokeWidth: currentBorderWidth,
+      strokeWidth: 2,
       selectable: true
     });
 
@@ -573,7 +571,6 @@ const CanvasComponent = () => {
       height: 10,
       fill: currentBorderColor,
       stroke: currentBorderColor,
-      strokeWidth: currentBorderWidth,
       left: 300,
       top: 380,
       angle: 90,
@@ -1129,10 +1126,10 @@ const CanvasComponent = () => {
               <input className="bc" type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
               <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
               <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-              <button  Title='Solid Line'  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setSolidBorder}>____</button>
-              <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line"  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setDottedBorder}>......</button>
-              <button class="dropdown-option" title="Dashed Line"  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setDashedBorder}>_ _ _</button>
-            </div>
+              <button  Title='Solid Line'  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setSolidBorder}>____</button>
+              <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDottedBorder}>......</button>
+              <button class="dropdown-option" title="Dashed Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDashedBorder}>_ _ _</button>
+              </div>
             </>
           <h1>Text</h1>
           <hr></hr>
