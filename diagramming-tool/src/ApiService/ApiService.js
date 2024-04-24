@@ -7,7 +7,7 @@ const registerUser = async (formData) => {
     const response = await axios.post(`${API_URL}/addUser`, formData);
     return response;
   } catch (error) {
-    throw error.response ? error.response.data : 'Error adding user. Please try again.';
+  throw error.response ? error.response.data : 'Error adding user. Please try again.';
   }
 };
  

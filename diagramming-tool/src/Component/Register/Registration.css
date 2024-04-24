@@ -40,7 +40,7 @@
     border-radius: 5px;
     box-sizing: border-box;
 }
-.button-save button {
+ button {
     width: auto;
     padding: 10px 20px;
     background-color: #0976eae0; 

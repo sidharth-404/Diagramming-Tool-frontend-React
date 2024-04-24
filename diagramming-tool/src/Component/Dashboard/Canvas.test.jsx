@@ -1,4 +1,5 @@
 /* eslint-disable testing-library/no-wait-for-multiple-assertions */
+/* eslint-disable testing-library/no-wait-for-multiple-assertions */
 /* eslint-disable jest/no-identical-title */
 /* eslint-disable no-undef */
 /* eslint-disable testing-library/no-node-access */

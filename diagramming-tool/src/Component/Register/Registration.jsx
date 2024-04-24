@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Registration.css';
 import { registerUser } from '../../ApiService/ApiService'
@@ -13,19 +13,19 @@ const Registration = () => {
     password: '',
     confirmPassword: ''
   });
- 
-  
+
+
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
- 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
     });
- 
-   
+
+
     if (name === 'firstName') {
       if (!/^[a-zA-Z]*$/.test(value)) {
         setErrors({
@@ -38,14 +38,14 @@ const Registration = () => {
           firstName: value.trim() === '' ? 'First Name is required' : (value.length < 2 || value.length > 20 ? 'First Name must be between 2 and 20 characters' : '')
         });
       }
-     
+
     } else if (name === 'lastName') {
       setErrors({
         ...errors,
         lastName: value.length < 2 || value.length > 20 ? 'Last Name must be between 2 and 20 characters' : ''
       });
-    
- 
+
+
     } else if (name === 'userEmail') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       setErrors({
@@ -66,41 +66,43 @@ const Registration = () => {
       });
     }
   };
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (Object.values(errors).some(error => error !== '')) {
-      toast.error('Please fix the form errors.');
+      toast.error("Please fix the form errors!");
       return;
     }
- 
+
     try {
       const response = await registerUser(formData);
-      toast.success(response);
-     
-      if (response === 'User added successfully! Please login.') {
+      
+      if (response.status ===201) {
+        toast.success("User added successfully! Please login.")
         setTimeout(() => {
           navigateToLogin();
-        }, 3000);
+        }, 4000);
       }
     } catch (error) {
-      toast.error(error);
-    
+      toast.error(error)
     }
   };
- 
+
   const navigateToLogin = () => {
     navigate('/login');
   };
- 
-  
+
+
+
+
+
   return (
     <div className="registration-container">
       <form data-testid ="registration-form" onSubmit={handleSubmit}>
         <div className="form-left">
           <h2 className="registration-heading">Registration</h2>
           <div className="form-group">
-            <label htmlFor="firstName"className="red-asterisk">First Name:</label>
+            <label htmlFor="firstName" className="red-asterisk">First Name:</label>
             <input
               type="text"
               id="firstName"
@@ -112,7 +114,7 @@ const Registration = () => {
             {errors.firstName && <span className="error">{errors.firstName}</span>}
           </div>
           <div className="form-group">
-            <label htmlFor="lastName"className="red-asterisk">Last Name:</label>
+            <label htmlFor="lastName" className="red-asterisk">Last Name:</label>
             <input
               type="text"
               id="lastName"
@@ -136,7 +138,7 @@ const Registration = () => {
             {errors.userEmail && <span className="error">{errors.userEmail}</span>}
           </div>
           <div className="form-group">
-            <label htmlFor="password"className="red-asterisk">Password:</label>
+            <label htmlFor="password" className="red-asterisk">Password:</label>
             <input
               type="password"
               id="password"
@@ -148,7 +150,7 @@ const Registration = () => {
             {errors.password && <span className="error">{errors.password}</span>}
           </div>
           <div className="form-group">
-            <label htmlFor="confirmPassword"className="red-asterisk">Confirm Password:</label>
+            <label htmlFor="confirmPassword" className="red-asterisk">Confirm Password:</label>
             <input
               type="password"
               id="confirmPassword"
@@ -165,10 +167,8 @@ const Registration = () => {
         </div>
       </form>
       <div className="background-right"></div>
- 
-     
     </div>
   );
 };
- 
+
 export default Registration;
