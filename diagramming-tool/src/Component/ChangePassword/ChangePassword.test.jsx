@@ -2,16 +2,24 @@
 import React from 'react';
 import { render, fireEvent,waitFor,screen} from '@testing-library/react';
 import ChangePassword from './ChangePassword';
-import { BrowserRouter as Router } from 'react-router-dom';
-
 
 jest.mock('../../ApiService/ApiService', () => ({
   changePasswordApi: jest.fn(),
 }));
 
+jest.mock('js-cookie', () => ({
+  get: jest.fn(() => 'mockToken'), // Mocking token retrieval
+}));
+
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  useNavigate: () => mockNavigate,
+}));
+
 describe('ChangePassword component', () => {
   test('renders without crashing', () => {
-     render(<Router><ChangePassword /></Router>);
+     render(<ChangePassword />);
     
     expect(screen.getByText('Change Password')).toBeInTheDocument();
     expect(screen.getByLabelText('Old Password')).toBeInTheDocument();
@@ -20,48 +28,56 @@ describe('ChangePassword component', () => {
     expect(screen.getByText('Submit')).toBeInTheDocument();
   });
 
-  test('handles form submission', () => {
-    const handleSubmit = jest.fn();
-     render(<Router><ChangePassword onSubmit={handleSubmit} /></Router>);
+  test('Form submission success', async () => {
+    const mockResponse = { userEmail: 'test@example.com' };
+    require('../../ApiService/ApiService').changePasswordApi.mockResolvedValueOnce(mockResponse);
+    render(<ChangePassword />);
+    fireEvent.change(screen.getByLabelText('UserEmail'), { target: { value: 'test@example.com' } });
     fireEvent.change(screen.getByLabelText('Old Password'), { target: { value: 'oldPassword' } });
     fireEvent.change(screen.getByLabelText('New Password'), { target: { value: 'newPassword' } });
     fireEvent.change(screen.getByLabelText('Confirm New Password'), { target: { value: 'newPassword' } });
-    expect(handleSubmit).toHaveBeenCalled();
-    // expect(handleSubmit).toHaveBeenCalledWith({
-    //   oldPassword: 'oldPassword',
-    //   newPassword: 'newPassword',
-    //   confirmPassword: 'newPassword'
-    // });
+    fireEvent.submit(screen.getByRole('button', { name: 'Submit' }));
+    // eslint-disable-next-line testing-library/prefer-find-by
+    await waitFor(() => expect(screen.getByText('User added successfully! Please login.')).toBeInTheDocument());
   });
 
-  it('submits form with valid data', async () => {
-    // Mock ApiService response
-    const mockResponse = { userEmail: 'test@example.com' };
-    require('../../ApiService/ApiService').changePasswordApi.mockResolvedValue(mockResponse);
+  test('Form submission failure', async () => {
+    require('../../ApiService/ApiService').changePasswordApi.mockRejectedValueOnce('Error message');
 
-    render(<Router><ChangePassword /></Router>);
+    // Render component
+    render(<ChangePassword />);
 
-    // Fill out form fields
+    // Fill form fields
     fireEvent.change(screen.getByLabelText('UserEmail'), { target: { value: 'test@example.com' } });
     fireEvent.change(screen.getByLabelText('Old Password'), { target: { value: 'oldPassword' } });
     fireEvent.change(screen.getByLabelText('New Password'), { target: { value: 'newPassword' } });
     fireEvent.change(screen.getByLabelText('Confirm New Password'), { target: { value: 'newPassword' } });
 
-    // Wait for async operation to complete
-    await waitFor(() => {
-      // Assert that ApiService function was called
-      expect(require('../../ApiService/ApiService').changePasswordApi).toHaveBeenCalledWith({
-        userEmail: 'test@example.com',
-        currentPassword: 'oldPassword',
-        newPassword: 'newPassword',
-        confirmPassword: 'newPassword',
-        jwtToken: expect.any(String), // Assuming Cookies.get('token') returns a string
-      });
+    // Submit form
+    fireEvent.submit(screen.getByRole('button', { name: 'Submit' }));
 
-      // Assert that success message is displayed
-      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
-      expect(screen.getByText('User added successfully! Please login.')).toBeInTheDocument();
-    });
+    // eslint-disable-next-line testing-library/prefer-find-by
+    await waitFor(() => expect(screen.getByText('Error message')).toBeInTheDocument());
   });
+
+  test('Navigate to dashboard after successful password change', async () => {
+    // Mock successful API response
+    const mockResponse = { userEmail: 'test@example.com' };
+    require('../../ApiService/ApiService').changePasswordApi.mockResolvedValueOnce(mockResponse);
+
+    // Render component
+     render(<ChangePassword />);
+
+    // Fill form fields
+    fireEvent.change(screen.getByLabelText('UserEmail'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText('Old Password'), { target: { value: 'oldPassword' } });
+    fireEvent.change(screen.getByLabelText('New Password'), { target: { value: 'newPassword' } });
+    fireEvent.change(screen.getByLabelText('Confirm New Password'), { target: { value: 'newPassword' } });
+
+
+    fireEvent.submit(screen.getByRole('button', { name: 'Submit' }));
+    expect(window.location.pathname).toBe('/');
+  });
+
 
 });

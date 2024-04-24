@@ -48,7 +48,7 @@ function ExistingPage() {
                   onClick={() => handleImageSelect(image)}
                 >
                   {image.imageByte ? (
-                    <img data-testid="Image1" src={`data:image/png;base64,${image.imageByte}`} style={{ width: "250px", height: "250px" }} alt={image.imageName} />
+                    <img data-testid="image1" src={`data:image/png;base64,${image.imageByte}`} style={{ width: "250px", height: "250px" }} alt={image.imageName} />
 
                   ) : (
                     <p>Error: No image data found</p>

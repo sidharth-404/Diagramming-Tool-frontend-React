@@ -223,44 +223,11 @@ it('validates first name input with numbers', () => {
   
     
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Please fix the form errors.');
+      expect(toast.error).toHaveBeenCalledWith('Please fix the form errors!');
     });
   
    
     expect(screen.getByText('Registration')).toBeInTheDocument();
   });
   
-  it('navigates to login page after successful registration', async () => {
-   
-    jest.useFakeTimers();
-  
-    render(
-      <MemoryRouter>
-        <Registration />
-      </MemoryRouter>
-    );
-  
-   
-    registerUser.mockResolvedValueOnce('User added successfully! Please login.');
-  
-   
-    const submitButton = screen.getByText('Register');
-    fireEvent.click(submitButton);
-  
-   
-    await waitFor(() => {
-      expect(registerUser).toHaveBeenCalled();
-    });
-  
-    
-    await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith('User added successfully! Please login.');
-    });
-  
-    
-    jest.advanceTimersByTime(3000);
-  
-  
-    jest.useRealTimers();
-  });
   

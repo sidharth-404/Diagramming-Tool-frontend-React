@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import './ChangePassword.css';
 import { changePasswordApi } from '../../ApiService/ApiService';
-import MsgBoxComponent from '../ConfirmMsg/MsgBoxComponent';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-
+import { confirmAlert } from 'react-confirm-alert'; // Import react-confirm-alert package
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import CSS for react-confirm-alert
+ 
 const ChangePassword = () => {
-  const [showMsgBox, setShowMsgBox] = useState(false);
-  const [msg, setMsg] = useState('');
-  const navi = useNavigate();
   const [formData, setFormData] = useState({
     userEmail: '',
     currentPassword: '',
@@ -16,7 +14,8 @@ const ChangePassword = () => {
     confirmPassword: '',
     jwtToken: Cookies.get('token')
   });
-
+  const navi = useNavigate();
+ 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -24,40 +23,57 @@ const ChangePassword = () => {
       [name]: value
     });
   };
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-
       const response = await changePasswordApi(formData);
       if (typeof response === 'object' && response.hasOwnProperty('userEmail')) {
-        setMsg('User added successfully! Please login.');
+        // Show success message
+        showConfirmAlert('User added successfully! Please login.');
       } else {
-        setMsg(response);
+        // Show success message and navigate to dashboard
+        if (response === 'Password changed successfully') {
+          showConfirmAlert(response, () => {
+            navi('/dashboard');
+          });
+        }
       }
-      setShowMsgBox(true);
     } catch (error) {
-      setMsg(error);
-      setShowMsgBox(true);
+      console.error(error);
+      showerrorAlert(error);
     }
   };
-  const navigateToDAsh = () => {
-    navi('/dashboard')
-
-  }
-
-  const closeMsgBox = () => {
-    setShowMsgBox(false);
-    setMsg('')
-  }
-  const handleOkClick = () => {
-    if (msg === 'Password changed successfully') {
-      navigateToDAsh();
-    }
-    setShowMsgBox(false);
-    setMsg('');
-  }
-
+ 
+  const showConfirmAlert = (message, callback = () => {}) => {
+    confirmAlert({
+      title: 'Success',
+      message: message,
+      buttons: [
+        {
+          label: 'OK',
+          onClick: callback
+        }
+      ]
+    });
+  };
+ 
+ 
+  const showerrorAlert = (message, callback = () => {}) => {
+    confirmAlert({
+      title: 'Error',
+      message: message,
+      buttons: [
+        {
+          label: 'OK',
+          onClick: callback
+        }
+      ]
+    });
+  };
+ 
+ 
+ 
   return (
     <div className="change-password-container">
       <h2>Change Password</h2>
@@ -108,9 +124,8 @@ const ChangePassword = () => {
         </div>
         <button type="submit">Submit</button>
       </form>
-
-      <MsgBoxComponent showMsgBox={showMsgBox} msg={msg} closeMsgBox={closeMsgBox} handleClick={handleOkClick} />
     </div>
   );
 };
+ 
 export default ChangePassword;

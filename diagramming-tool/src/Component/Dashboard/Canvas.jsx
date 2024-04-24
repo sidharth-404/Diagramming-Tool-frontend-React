@@ -72,11 +72,11 @@ const CanvasComponent = () => {
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
 
 
   useEffect(() => {
@@ -219,8 +219,8 @@ const CanvasComponent = () => {
         cornerStyle: 'square',
       });
       group.set({
-        left: 0,
-        top: canvas.getHeight() - group.height * group.scaleY
+        left: 200,
+        top: 300
       });
       selectedObjects.forEach(obj => {
         canvas.remove(obj);
@@ -243,9 +243,7 @@ const CanvasComponent = () => {
 
       canvas.discardActiveObject();
       canvas.renderAll();
-    } else {
-      console.warn('No group is selected.');
-    }
+    } 
   };
 
 
@@ -562,7 +560,7 @@ const CanvasComponent = () => {
     const line = new fabric.Line([50, 380, 300, 380], {
       stroke: currentBorderColor,
       fill: currentBorderColor,
-      strokeWidth: currentBorderWidth,
+      strokeWidth: 2,
       selectable: true
     });
 
@@ -571,7 +569,6 @@ const CanvasComponent = () => {
       height: 10,
       fill: currentBorderColor,
       stroke: currentBorderColor,
-      strokeWidth: currentBorderWidth,
       left: 300,
       top: 380,
       angle: 90,

@@ -94,9 +94,6 @@ const Registration = () => {
   };
  
   
- 
- 
- 
   return (
     <div className="registration-container">
       <form data-testid ="registration-form" onSubmit={handleSubmit}>
@@ -162,7 +159,9 @@ const Registration = () => {
             />
             {errors.confirmPassword && <span className="error">{errors.confirmPassword}</span>}
           </div>
-          <button type="submit">Register</button>
+          <div className='button-save'>
+          <button type="submit" >Register</button>
+          </div>
         </div>
       </form>
       <div className="background-right"></div>
