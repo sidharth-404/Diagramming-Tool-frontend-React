@@ -4,10 +4,12 @@ import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
 import { MdDeleteForever } from "react-icons/md";
 import { PiRectangle } from "react-icons/pi";
+import { MdFiberNew } from "react-icons/md";
 import { VscCircleLarge } from "react-icons/vsc";
 import { IoIosSquareOutline } from "react-icons/io";
 import { IoTriangleOutline } from "react-icons/io5";
@@ -642,7 +644,6 @@ const CanvasComponent = () => {
           {
             label: 'No',
             onClick: () => {
-
             }
           }
         ]
@@ -902,9 +903,28 @@ const CanvasComponent = () => {
     }
   };
 
+  const handleCreateNewDiagram = () => {
+    confirmAlert({
+      title: 'Create New Diagram',
+      message: 'Are you sure you want to create a new diagram?',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => {
+            canvas.clear();
+            toast.success("Canvas cleared successfully!");
 
+          }
+        },
+        {
+          label: 'No',
+          onClick: () => {
 
-
+          }
+        }
+      ]
+    });
+  };
   const increaseBorderWidth = () => {
     setCurrentBorderWidth(current => current + 1);
     const activeObjects = canvas.getActiveObjects();
@@ -1028,6 +1048,8 @@ const CanvasComponent = () => {
         </div>
         <div className="main">
           <div className="button-container">
+          <button data-testid="newdiagram" title="new Diagram" onClick={handleCreateNewDiagram}><MdFiberNew fontSize={30} /></button>
+
             <button title="Save To Database" data-testid="saveButton"
               onClick={() => setShowSavePopup(true)}
             >
@@ -1056,10 +1078,11 @@ const CanvasComponent = () => {
                 <span className="tooltip">Delete</span>
               )} <ToastContainer />
             </button>
-            <input type="file" data-testid="fileUpload" accept="image/*"
-              onChange={handleImageUpload}
-              style={{ display: "none" }}
-              ref={imageInputRef} />
+           
+            <input type="file" data-testid="fileUpload" accept="image/*" 
+            onChange={handleImageUpload}
+            style={{ display: "none" }} 
+             ref={imageInputRef} />
             <button title="Add Image" data-testid="imageInput" onClick={() => imageInputRef.current.click()}>
               <FaImage fontSize={30} />
 
@@ -1086,35 +1109,31 @@ const CanvasComponent = () => {
               ></canvas>
             </ContextMenuTrigger>
             <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
-              <MenuItem className="rc-menu-item">Copy</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={{}}>Copy</MenuItem>
               <MenuItem className="rc-menu-item" onClick={copiedObjects}>Paste</MenuItem>
               <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
-              <MenuItem className="rc-menu-item" onClick={{}}>Undo</MenuItem>
-              <MenuItem className="rc-menu-item" onClick={{}}>Redo</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={() => canvas.undo()}>Undo</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={() => canvas.redo()}>Redo</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={groupObjects}>Groups</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={ungroupObjects}>UnGroup</MenuItem>
             </ContextMenu>
 
           </div>
         </div>
         <div className="sidbar-right">
-          <> <h1>Shape Border</h1>
+
+
+          <> <h2>Border</h2>
             <hr></hr>
-
-
-            <input data-testid="colorShapePicker" type="color" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
-            <button data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
-            <button data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-
-            <div class="border-pattern" >
-
-              <button class="dropdown-option" Title='Solid Line' onClick={setSolidBorder}>____</button>
-              <button data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line" onClick={setDottedBorder}>......</button>
-              <button class="dropdown-option" title="Dashed Line" onClick={setDashedBorder}>_ _ _</button>
-
+            <div className="borderbuttons">
+              <input className="bc" type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
+              <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
+              <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
+              <button  Title='Solid Line'  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setSolidBorder}>____</button>
+              <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line"  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setDottedBorder}>......</button>
+              <button class="dropdown-option" title="Dashed Line"  style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={setDashedBorder}>_ _ _</button>
             </div>
-
-
-          </>
-          {/* )} */}
+            </>
           <h1>Text</h1>
           <hr></hr>
           <div className="dropdown-container">
@@ -1170,6 +1189,7 @@ const CanvasComponent = () => {
           handleClick={() => setShowMsgBox(false)}
         />
       )}
+    
     </div>
   );
 };

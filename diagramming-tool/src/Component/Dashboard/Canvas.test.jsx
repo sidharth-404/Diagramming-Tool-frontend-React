@@ -1,9 +1,9 @@
-/* eslint-disable testing-library/prefer-screen-queries */
+/* eslint-disable testing-library/no-wait-for-multiple-assertions */
 /* eslint-disable jest/no-identical-title */
 /* eslint-disable no-undef */
 /* eslint-disable testing-library/no-node-access */
 import React from "react";
-import { render, screen, fireEvent,cleanup, getByTestId } from "@testing-library/react";
+import { render, screen, fireEvent,cleanup } from "@testing-library/react";
 import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 import { BrowserRouter as Router} from 'react-router-dom';
@@ -549,6 +549,74 @@ jest.mock('react-confirm-alert', () => ({
     const ungroupedButton = screen.getByTestId('ungroupedButton');
     fireEvent.click(ungroupedButton);
   });
+
+
+  test('Context menu shows on right-click', async () => {
+       render(<Router><CanvasComponent/></Router>);
+
+    const canvas =screen.getByTestId('canvas');
+    fireEvent.contextMenu(canvas);
+    await waitFor(() => {
+      expect(screen.getByText('Copy')).toBeInTheDocument();
+      expect(screen.getByText('Paste')).toBeInTheDocument();
+      expect(screen.getByText('Delete')).toBeInTheDocument();
+      expect(screen.getByText('Undo')).toBeInTheDocument();
+      expect(screen.getByText('Redo')).toBeInTheDocument();
+      expect(screen.getByText('Group')).toBeInTheDocument();
+      expect(screen.getByText('UnGroup')).toBeInTheDocument();
+    });
+  });
+
+  test('Copy menu item works', async () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas =screen.getByTestId('canvas');
+    fireEvent.contextMenu(canvas);
+    fireEvent.click(screen.getByText('Copy'));
+  });
+  test('Paste menu item works', async () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas =screen.getByTestId('canvas');
+    fireEvent.contextMenu(canvas);
+    fireEvent.click(screen.getByText('Paste'));
+  });
+
+
+  test('delete menu item works', async () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas =screen.getByTestId('canvas');
+    fireEvent.contextMenu(canvas);
+    fireEvent.click(screen.getByText('Delete'));
+  });
+
+  test('Redo menu item works', async () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas =screen.getByTestId('canvas');
+    fireEvent.contextMenu(canvas);
+    fireEvent.click(screen.getByText('Redo'));
+  });
+
+  test('Undo menu item works', async () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas =screen.getByTestId('canvas');
+    fireEvent.contextMenu(canvas);
+    fireEvent.click(screen.getByText('Undo'));
+  });
+
+  test('Group menu item works', async () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas =screen.getByTestId('canvas');
+    fireEvent.contextMenu(canvas);
+    fireEvent.click(screen.getByText('Groups'));
+  });
+  
+  test('Ungroup menu item works', async () => {
+    render(<Router><CanvasComponent/></Router>);
+    const canvas =screen.getByTestId('canvas');
+    fireEvent.contextMenu(canvas);
+    fireEvent.click(screen.getByText('UnGroup'));
+  });
+  
+
 
 });
 
