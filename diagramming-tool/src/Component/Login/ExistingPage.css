@@ -3,12 +3,41 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
-    border: 1px solid #ccc;
+    background-color: rgb(253, 253, 253);
+    border: 1px solid #180d0d;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 50px;
+    padding:20px;
+    max-height: 50%; 
+    overflow-y: auto; 
+    width:625px;
+    border-radius: 8px;
+    
   }
   
   .dialogue-content {
     text-align: center;
   }
+
+  .image-card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .image-card {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .image-card:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .image-card.selected {
+    background-color: #007bff;
+    color: #fff;
+  }
+  

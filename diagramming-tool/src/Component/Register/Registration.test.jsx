@@ -6,6 +6,7 @@
 /* eslint-disable testing-library/no-node-access */
 /* eslint-disable no-undef */
 /* eslint-disable testing-library/prefer-screen-queries */
+
 import React from 'react';
 import { render, fireEvent, screen,waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -41,7 +42,7 @@ describe('Registration component', () => {
       </MemoryRouter>
     );
   });
- 
+
   it('validates first name input', () => {
     render(
       <MemoryRouter>
@@ -53,7 +54,7 @@ describe('Registration component', () => {
     const errorMessage = screen.getByText('First Name must be between 2 and 20 characters');
     expect(errorMessage).toBeInTheDocument();
   });
- 
+
   it('validates last name input', () => {
     render(
       <MemoryRouter>
@@ -65,7 +66,7 @@ describe('Registration component', () => {
     const errorMessage = screen.getByText('Last Name must be between 2 and 20 characters');
     expect(errorMessage).toBeInTheDocument();
   });
- 
+
   it('validates email input', () => {
     render(
       <MemoryRouter>
@@ -77,7 +78,7 @@ describe('Registration component', () => {
     const errorMessage = screen.getByText('Please enter a valid email address');
     expect(errorMessage).toBeInTheDocument();
   });
- 
+
   it('validates password input', () => {
     render(
       <MemoryRouter>
@@ -89,7 +90,7 @@ describe('Registration component', () => {
     const errorMessage = screen.getByText('Password must contain at least 8 characters including one uppercase letter, one lowercase letter, one number, and one special character');
     expect(errorMessage).toBeInTheDocument();
   });
- 
+
   it('validates not confirm password input', () => {
     render(
       <MemoryRouter>
@@ -103,7 +104,7 @@ describe('Registration component', () => {
     const errorMessage = screen.queryByText('Passwords do not match');
     expect(errorMessage).toBeNull();
   });
- 
+
   it('validates empty form submission', () => {
     render(
       <MemoryRouter>
@@ -113,7 +114,7 @@ describe('Registration component', () => {
     const submitButton = screen.getByText('Register');
     fireEvent.click(submitButton);
   });
- 
+
   it('submits the form successfully', async () => {
     render(
       <MemoryRouter>
@@ -132,7 +133,7 @@ describe('Registration component', () => {
     fireEvent.change(confirmPasswordInput, { target: { value: 'StrongPassword1!' } });
     const submitButton = screen.getByText('Register');
     fireEvent.click(submitButton);
- 
+
   });
  
  
@@ -149,7 +150,7 @@ describe('Registration component', () => {
     const errorMessage = screen.getByText('Passwords do not match');
     expect(errorMessage).toBeInTheDocument();
   });
- 
+
   it('validates minimum length for first name input', () => {
     render(
       <MemoryRouter>
@@ -161,8 +162,8 @@ describe('Registration component', () => {
     const errorMessage = screen.getByText('First Name must be between 2 and 20 characters');
     expect(errorMessage).toBeInTheDocument();
   });
- 
- 
+
+
   it('validates maximum length for first name input', () => {
     render(
       <MemoryRouter>
@@ -174,8 +175,8 @@ describe('Registration component', () => {
     const errorMessage = screen.getByText('First Name must be between 2 and 20 characters');
     expect(errorMessage).toBeInTheDocument();
   });
- 
- 
+
+
   it('displays error message on form submission with errors', async () => {
     render(
       <MemoryRouter>

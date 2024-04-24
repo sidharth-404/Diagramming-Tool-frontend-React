@@ -8,7 +8,6 @@ import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 import { BrowserRouter as Router} from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { confirmAlert } from 'react-confirm-alert';
 import {saveCanvasImageToDB,getUserByEmail} from '../../ApiService/ApiService';
 import { fabric } from 'fabric';
 
@@ -39,6 +38,24 @@ jest.mock('../../ApiService/ApiService', () => ({
   getUserByEmail: jest.fn(),
 }));
 
+  test('increases font size of active text object and updates UI', () => {
+    // Set up canvas with active object
+    mockCanvas.getActiveObject.mockReturnValue(mockActiveObject);
+
+    // Call the function
+    increaseTextSize(mockCanvas);
+
+    // Assertions
+    expect(mockCanvas.getActiveObject).toHaveBeenCalled();
+    expect(mockActiveObject.type).toBe('i-text');
+    expect(mockActiveObject.get).toHaveBeenCalledWith('fontSize');
+    expect(mockActiveObject.set).toHaveBeenCalledWith('fontSize', 15); // Expecting font size to increase by 1
+    expect(mockCanvas.renderAll).toHaveBeenCalled();
+    expect(document.getElementById).toHaveBeenCalledWith('currentSize');
+    expect(document.getElementById('currentSize').textContent).toBe('15'); // Assuming you update the UI with the new font size
+  });
+
+ 
 describe('CanvasComponent', () => {
 
   it("Clicks on Profile Button", () => {
@@ -75,7 +92,7 @@ describe('CanvasComponent', () => {
     expect(passwordButton).toBeInTheDocument();
     fireEvent.click(passwordButton);
   });
-
+ 
   it("Clicks on Signout Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const profileImage = screen.getByAltText('Profile');
@@ -84,8 +101,8 @@ describe('CanvasComponent', () => {
     expect(signoutButton).toBeInTheDocument();
     fireEvent.click(signoutButton);
   });
-
-
+ 
+ 
   it('deleteSelectedObject function removes selected object from canvas', () => {
     const { getByTestId } = render(<Router><CanvasComponent/></Router>);
     const canvas =screen.getByTestId('canvas');
@@ -97,7 +114,7 @@ describe('CanvasComponent', () => {
     expect(canvas.children).toHaveLength(0);
     expect(canvas.contains(addedRectangle)).toBeFalsy();
   });
-
+ 
   it('adds rectangle to canvas when rectangle button is clicked', () => {
     const { getByTestId } = render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId('canvas');
@@ -105,8 +122,8 @@ describe('CanvasComponent', () => {
     fireEvent.click(rectangleButton);
     expect(canvas.children.length).toBe(0);
   });
-
-
+ 
+ 
 });
 describe("Button Working", () => {
   it("Clicks on Save Button", () => {
@@ -114,29 +131,28 @@ describe("Button Working", () => {
     const saveButton = screen.getByTestId(/saveButton/i);
     fireEvent.click(saveButton);
   });
-
-  it("Clicks on Undo Button", () => {
-    render(<Router><CanvasComponent/></Router>);
-    const undoButton = screen.getByTestId(/undoButton/i);
-    fireEvent.click(undoButton);
-  });
-
-  it("Clicks on Redo Button", () => {
+ 
+ 
+  it("Clicks on Redo  and undo Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const redoButton = screen.getByTestId(/redoButton/i);
     fireEvent.click(redoButton);
+    const undoButton = screen.getByTestId(/undoButton/i);
+    fireEvent.click(undoButton);
   });
-
+ 
   it("Clicks on Delete Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const deleteButton = screen.getByTestId(/deleteButton/i);
     fireEvent.click(deleteButton);
   });
+ 
+
 });
-
-
+ 
+ 
 describe("Canvas Component", () => {
-
+ 
   it("handles double-click events", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId('canvas');
@@ -154,8 +170,8 @@ describe("Canvas Component", () => {
     const selectedRectangle = screen.getByTestId("rectangleButton");
     expect(selectedRectangle).toBeInTheDocument();
   });
-
-
+ 
+ 
   it("selects a circle on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -183,7 +199,7 @@ describe("Canvas Component", () => {
     const selectedDiamond = screen.getByTestId("diamondButton");
     expect(selectedDiamond).toBeInTheDocument();
   });
-
+ 
   it("selects a triangle on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -193,7 +209,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("triangleButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a pentagon on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -203,7 +219,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("pentagonButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a ellipse on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -213,7 +229,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("ellipseButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a roundrect on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -223,8 +239,8 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("roundrectButton");
     expect(selected).toBeInTheDocument();
   });
-
-
+ 
+ 
   it("selects a hexagon on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -234,7 +250,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("hexagonButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a line on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -244,7 +260,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("lineButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a arrow on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -254,7 +270,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("arrowButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a biarrowd on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -264,7 +280,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("biarrowdButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a text on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -274,14 +290,14 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("textButton");
     expect(selected).toBeInTheDocument();
   });
-
-
+ 
+ 
   it('changes color of selected object', () => {
     const { getByTestId } = render(<Router><CanvasComponent/></Router>);
     const colorPicker = screen.getByTestId('colorPicker');
     fireEvent.change(colorPicker, { target: { value: '#ff0000' } });
   });
-
+ 
   it("handles drag-and-drop interactions", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId('canvas');
