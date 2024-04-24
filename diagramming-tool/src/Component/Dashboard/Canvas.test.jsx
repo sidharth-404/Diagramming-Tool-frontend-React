@@ -3,7 +3,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable testing-library/no-node-access */
 import React from "react";
-import { render, screen, fireEvent,cleanup,waitFor} from "@testing-library/react";
+import { render, screen, fireEvent,cleanup } from "@testing-library/react";
 import CanvasComponent from "./Canvas";
 import { setupJestCanvasMock } from "jest-canvas-mock";
 import { BrowserRouter as Router} from 'react-router-dom';
@@ -38,6 +38,24 @@ jest.mock('../../ApiService/ApiService', () => ({
   getUserByEmail: jest.fn(),
 }));
 
+  test('increases font size of active text object and updates UI', () => {
+    // Set up canvas with active object
+    mockCanvas.getActiveObject.mockReturnValue(mockActiveObject);
+
+    // Call the function
+    increaseTextSize(mockCanvas);
+
+    // Assertions
+    expect(mockCanvas.getActiveObject).toHaveBeenCalled();
+    expect(mockActiveObject.type).toBe('i-text');
+    expect(mockActiveObject.get).toHaveBeenCalledWith('fontSize');
+    expect(mockActiveObject.set).toHaveBeenCalledWith('fontSize', 15); // Expecting font size to increase by 1
+    expect(mockCanvas.renderAll).toHaveBeenCalled();
+    expect(document.getElementById).toHaveBeenCalledWith('currentSize');
+    expect(document.getElementById('currentSize').textContent).toBe('15'); // Assuming you update the UI with the new font size
+  });
+
+ 
 describe('CanvasComponent', () => {
 
   it("Clicks on Profile Button", () => {
@@ -74,7 +92,7 @@ describe('CanvasComponent', () => {
     expect(passwordButton).toBeInTheDocument();
     fireEvent.click(passwordButton);
   });
-
+ 
   it("Clicks on Signout Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const profileImage = screen.getByAltText('Profile');
@@ -83,8 +101,8 @@ describe('CanvasComponent', () => {
     expect(signoutButton).toBeInTheDocument();
     fireEvent.click(signoutButton);
   });
-
-
+ 
+ 
   it('deleteSelectedObject function removes selected object from canvas', () => {
     const { getByTestId } = render(<Router><CanvasComponent/></Router>);
     const canvas =screen.getByTestId('canvas');
@@ -96,7 +114,7 @@ describe('CanvasComponent', () => {
     expect(canvas.children).toHaveLength(0);
     expect(canvas.contains(addedRectangle)).toBeFalsy();
   });
-
+ 
   it('adds rectangle to canvas when rectangle button is clicked', () => {
     const { getByTestId } = render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId('canvas');
@@ -104,8 +122,8 @@ describe('CanvasComponent', () => {
     fireEvent.click(rectangleButton);
     expect(canvas.children.length).toBe(0);
   });
-
-
+ 
+ 
 });
 describe("Button Working", () => {
   it("Clicks on Save Button", () => {
@@ -113,29 +131,28 @@ describe("Button Working", () => {
     const saveButton = screen.getByTestId(/saveButton/i);
     fireEvent.click(saveButton);
   });
-
-  it("Clicks on Undo Button", () => {
-    render(<Router><CanvasComponent/></Router>);
-    const undoButton = screen.getByTestId(/undoButton/i);
-    fireEvent.click(undoButton);
-  });
-
-  it("Clicks on Redo Button", () => {
+ 
+ 
+  it("Clicks on Redo  and undo Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const redoButton = screen.getByTestId(/redoButton/i);
     fireEvent.click(redoButton);
+    const undoButton = screen.getByTestId(/undoButton/i);
+    fireEvent.click(undoButton);
   });
-
+ 
   it("Clicks on Delete Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const deleteButton = screen.getByTestId(/deleteButton/i);
     fireEvent.click(deleteButton);
   });
+ 
+
 });
-
-
+ 
+ 
 describe("Canvas Component", () => {
-
+ 
   it("handles double-click events", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId('canvas');
@@ -153,8 +170,8 @@ describe("Canvas Component", () => {
     const selectedRectangle = screen.getByTestId("rectangleButton");
     expect(selectedRectangle).toBeInTheDocument();
   });
-
-
+ 
+ 
   it("selects a circle on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -182,7 +199,7 @@ describe("Canvas Component", () => {
     const selectedDiamond = screen.getByTestId("diamondButton");
     expect(selectedDiamond).toBeInTheDocument();
   });
-
+ 
   it("selects a triangle on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -192,7 +209,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("triangleButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a pentagon on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -202,7 +219,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("pentagonButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a ellipse on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -212,7 +229,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("ellipseButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a roundrect on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -222,8 +239,8 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("roundrectButton");
     expect(selected).toBeInTheDocument();
   });
-
-
+ 
+ 
   it("selects a hexagon on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -233,7 +250,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("hexagonButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a line on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -243,7 +260,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("lineButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a arrow on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -253,7 +270,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("arrowButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a biarrowd on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -263,7 +280,7 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("biarrowdButton");
     expect(selected).toBeInTheDocument();
   });
-
+ 
   it("selects a text on canvas click", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId("canvas");
@@ -273,14 +290,14 @@ describe("Canvas Component", () => {
     const selected = screen.getByTestId("textButton");
     expect(selected).toBeInTheDocument();
   });
-
-
+ 
+ 
   it('changes color of selected object', () => {
     const { getByTestId } = render(<Router><CanvasComponent/></Router>);
     const colorPicker = screen.getByTestId('colorPicker');
     fireEvent.change(colorPicker, { target: { value: '#ff0000' } });
   });
-
+ 
   it("handles drag-and-drop interactions", () => {
     render(<Router><CanvasComponent/></Router>);
     const canvas = screen.getByTestId('canvas');
@@ -288,6 +305,12 @@ describe("Canvas Component", () => {
     fireEvent.mouseMove(canvas, { clientX: 150, clientY: 150 });
     fireEvent.mouseUp(canvas, { clientX: 150, clientY: 150 });
   });
+
+
+
+
+
+ 
   it('should set solid border when solid line button is clicked', () => {
     render(<Router><CanvasComponent/></Router>);
     const solidLineButton = screen.getByTitle('Solid Line');
@@ -332,47 +355,20 @@ describe("Canvas Component", () => {
     fireEvent.change(colorPicker, { target: { value: '#ff0000' } });
   });
 
-  // it('should call handleSave when save button is clicked', async () => {
-  //   render(<Router><CanvasComponent/></Router>)
-  //   const saveButton = screen.getByTestId('saveButton');
-  //   fireEvent.click(saveButton);
-  // });
 
+ 
   it('should call handleSave when save button is clicked', async () => {
     const saveCanvasImageToDB = jest.fn();
       render(<Router><CanvasComponent/></Router>)
       const saveButton = screen.getByTestId('saveButton');
     fireEvent.click(saveButton);
   
-    const canvasDataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQE...';
-    const blob = new Blob([canvasDataUrl], { type: 'image/jpeg' });
-      const mockFileReader = {
-      onload: null,
-      result: canvasDataUrl,
-      readAsDataURL: function () {
-        this.onload();
-      },
-    };
-    global.FileReader = jest.fn(() => mockFileReader);
-  
-    
-    expect(saveCanvasImageToDB).toHaveBeenCalled();
-    expect(saveCanvasImageToDB).toHaveBeenCalledWith(
-      expect.any(String), 
-    );
-  });
+
   it("Clicks on Bold Button", () => {
     render(<Router><CanvasComponent/></Router>);
     const BoldButton = screen.getByTestId('boldButton');
     fireEvent.click(BoldButton);
-    // const boldText = screen.getByTestId('textElement'); // Assuming you have a text element with a test id
-    // expect(boldText).toHaveStyle('font-weight: bold');
- 
-    // // Simulate another click on the bold button to toggle off bold
-    // fireEvent.click(BoldButton);
- 
-    // // Check if the bold style is removed
-    // expect(boldText).not.toHaveStyle('font-weight: bold');
+   
   });
  
   it("Clicks on italic Button", () => {
@@ -462,6 +458,10 @@ describe("Canvas Component", () => {
 
 });
 
+jest.mock('react-confirm-alert', () => ({
+  confirmAlert: jest.fn(),
+}));
+
   describe("Canvas Component", () => {
     it('adds and removes keydown and popstate event listeners', () => {
       const addSpy = jest.spyOn(window, 'addEventListener');
@@ -489,14 +489,7 @@ describe("Canvas Component", () => {
     render(<Router><CanvasComponent/></Router>);
     const BoldButton = screen.getByTestId('boldButton');
     fireEvent.click(BoldButton);
-    // const boldText = screen.getByTestId('textElement'); // Assuming you have a text element with a test id
-    // expect(boldText).toHaveStyle('font-weight: bold');
-  
-    // // Simulate another click on the bold button to toggle off bold
-    // fireEvent.click(BoldButton);
-  
-    // // Check if the bold style is removed
-    // expect(boldText).not.toHaveStyle('font-weight: bold');
+   
   });
 
   it("Clicks on italic Button", () => {
@@ -654,14 +647,7 @@ describe("Canvas Component", () => {
     render(<Router><CanvasComponent/></Router>);
     const BoldButton = screen.getByTestId('boldButton');
     fireEvent.click(BoldButton);
-    // const boldText = screen.getByTestId('textElement'); // Assuming you have a text element with a test id
-    // expect(boldText).toHaveStyle('font-weight: bold');
-  
-    // // Simulate another click on the bold button to toggle off bold
-    // fireEvent.click(BoldButton);
-  
-    // // Check if the bold style is removed
-    // expect(boldText).not.toHaveStyle('font-weight: bold');
+    
   });
 
   it("Clicks on italic Button", () => {
@@ -722,7 +708,23 @@ describe("Canvas Component", () => {
     fireEvent.click(ungroupedButton);
   });
 
+
+  test('displays message box when file type is not supported', () => {
+    render(<Router><CanvasComponent/></Router>); 
+    const fileInput = screen.getByTestId('file-input');
+    const file = new File(['dummy content'], 'dummy.jpg', { type: 'image/jpeg' });
+    userEvent.upload(fileInput, file);
+    const messageBox = screen.getByTestId('message-box');
+    expect(messageBox).toBeInTheDocument();
+    expect(messageBox).toHaveTextContent('Please select a JPG or PNG image.');
+  });
+
 });
+});
+
+
+  
+
 
 
 

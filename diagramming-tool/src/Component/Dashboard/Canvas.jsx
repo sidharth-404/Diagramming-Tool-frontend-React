@@ -1,10 +1,9 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-
 import React, { useState, useRef, useEffect } from "react";
 import "./Canvas.css";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { IoArrowUndo, IoArrowRedo } from "react-icons/io5";
@@ -31,15 +30,17 @@ import SavePopup from "../SavePop/SavePop";
 import MsgBoxComponent from "../ConfirmMsg/MsgBoxComponent";
 import { fabric } from "fabric";
 import 'fabric-history';
-import { CiTextAlignCenter, CiTextAlignLeft, CiTextAlignRight } from "react-icons/ci";
 import { PiTextBBold, PiTextItalic } from "react-icons/pi";
 import { LuUnderline } from "react-icons/lu";
 import { IoMdColorFilter } from "react-icons/io";
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
-import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
+import { saveCanvasImageDummyToDB, getUserByEmail } from '../../ApiService/ApiService';
+//import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'
+import jsPDF from 'jspdf';
+import logo from '../../Assets/logo.png';
 import { FaImage } from "react-icons/fa6";
-import jsPDF from "jspdf";
 import { FaRegObjectGroup } from "react-icons/fa";
 import { FaRegObjectUngroup } from "react-icons/fa";
 import { MdOutlineSaveAlt } from "react-icons/md";
@@ -49,8 +50,6 @@ const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [showMsgBox, setShowMsgBox] = useState(false);
-  
-
   const [hoveredButton, setHoveredButton] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navigation = useNavigate();
@@ -68,19 +67,18 @@ const CanvasComponent = () => {
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
   const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
-  const [copiedObjects, setCopiedObjects] = useState([]);
+  //const [copiedObjects, setCopiedObjects] = useState([]);
   const imageInputRef = useRef(null);
-
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  // useEffect(() => {
-  //   if (!Cookies.get('token')) {
-  //     navigation('/');
-  //   }
-  // })
+  useEffect(() => {
+    if (!Cookies.get('token')) {
+      navigation('/');
+    }
+  })
 
 
   useEffect(() => {
@@ -114,12 +112,12 @@ const CanvasComponent = () => {
   };
   window.addEventListener('popstate', handlePreventNavigation);
 
- 
+
 
   useEffect(() => {
     const initCanvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
-      width: 900,
+      width: 950,
       height: 600,
       selection: true,
     });
@@ -142,7 +140,6 @@ const CanvasComponent = () => {
       setSelectedShape(true)
     });
 
-   
     initCanvas.on('selection:cleared', () => {
       setGroup(null);
       setSelectedShape(false);
@@ -255,7 +252,13 @@ const CanvasComponent = () => {
 
 
 
-  const copySelectedObject = () => {
+  const copiedObjects = () => {
+    const handleCopyShortcut = (event) => {
+      if (event.ctrlKey && event.key === 'v') {
+        event.preventDefault();
+      }
+    };
+
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
       activeObject.clone(function (cloned) {
@@ -274,29 +277,13 @@ const CanvasComponent = () => {
         } else {
           canvas.add(cloned);
         }
-        canvas.setActiveObject(cloned);
         canvas.requestRenderAll();
       });
-      setCopiedObjects([activeObject]);
-    }
-  };
 
-  const pasteSelectedObject = () => {
-    console.log(copiedObjects.length)
-    if (!copiedObjects.length) return;
-    canvas.discardActiveObject();
-    copiedObjects.forEach((obj) => {
-      obj.clone((cloned) => {
-        canvas.add(cloned);
-        cloned.set({
-          left: cloned.left + 10,
-          top: cloned.top + 10,
-          evented: true,
-        });
-        canvas.setActiveObject(cloned);
-      });
-    });
-    canvas.requestRenderAll();
+
+
+      document.addEventListener('keydown', handleCopyShortcut);
+    }
   };
 
   useEffect(() => {
@@ -308,10 +295,8 @@ const CanvasComponent = () => {
         canvas.redo();
       } else if (event.key === 'Delete') {
         deleteSelectedObject();
-      } else if (event.ctrlKey && event.key === 'c') {
-        copySelectedObject();
       } else if (event.ctrlKey && event.key === 'v') {
-        pasteSelectedObject();
+        copiedObjects();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -320,15 +305,96 @@ const CanvasComponent = () => {
     };
   }, [canvas]);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const activeObject = canvas?.getActiveObject();
+      if (canvas && activeObject) {
+        const resizeAmount = 5;
+
+        switch (event.key) {
+          case 'w':
+            activeObject.set('height', activeObject.height + resizeAmount);
+            break;
+          case 's':
+            activeObject.set('height', activeObject.height - resizeAmount);
+            break;
+          case 'a':
+            activeObject.set('width', activeObject.width - resizeAmount);
+            break;
+          case 'd':
+            activeObject.set('width', activeObject.width + resizeAmount);
+            break;
+
+          default:
+            break;
+        }
+
+        canvas.renderAll();
+      }
+    };
+    if (canvas) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canvas]);
+
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const activeObject = canvas.getActiveObject();
+      if (activeObject) {
+        const moveAmount = 5;
+
+        switch (event.key) {
+          case 'ArrowUp':
+            activeObject.set('top', activeObject.top - moveAmount);
+            break;
+          case 'ArrowDown':
+            activeObject.set('top', activeObject.top + moveAmount);
+            break;
+          case 'ArrowLeft':
+            activeObject.set('left', activeObject.left - moveAmount);
+            break;
+          case 'ArrowRight':
+            activeObject.set('left', activeObject.left + moveAmount);
+            break;
+          default:
+            break;
+        }
+
+        canvas.renderAll();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canvas]);
+
+
 
 
   const handleColorChange = (e) => {
-    setCurrentColor(e.target.value);
-    if (canvas && canvas.getActiveObject()) {
-      canvas.getActiveObject().set('fill', e.target.value);
+    const newColor = e.target.value;
+    setCurrentColor(newColor);
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
+      activeObjects.forEach((obj) => {
+        if (obj.type === 'i-text') {
+          obj.set('fill', newColor);
+        } else {
+          obj.set('fill', newColor);
+          //   obj.set('stroke', newColor); // Assuming you also want to change the stroke color
+        }
+      });
       canvas.requestRenderAll();
     }
   };
+
 
   const addRectangle = () => {
     const rect = new fabric.Rect({
@@ -497,7 +563,8 @@ const CanvasComponent = () => {
   const addArrowLine = () => {
     const line = new fabric.Line([50, 380, 300, 380], {
       stroke: currentBorderColor,
-      strokeWidth: 2,
+      fill: currentBorderColor,
+      strokeWidth: currentBorderWidth,
       selectable: true
     });
 
@@ -505,6 +572,8 @@ const CanvasComponent = () => {
       width: 10,
       height: 10,
       fill: currentBorderColor,
+      stroke: currentBorderColor,
+      strokeWidth: currentBorderWidth,
       left: 300,
       top: 380,
       angle: 90,
@@ -556,30 +625,56 @@ const CanvasComponent = () => {
   };
 
   const deleteSelectedObject = () => {
- 
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
       confirmAlert({
         title: 'Confirm deletion',
-        message: 'Are you sure you want to delete this object?',
+        message: 'Are you sure you want to delete these objects?',
         buttons: [
           {
             label: 'Yes',
             onClick: () => {
-              canvas.remove(activeObject);
- 
+              activeObjects.forEach(obj => {
+                canvas.remove(obj);
+              });
+              canvas.discardActiveObject();
+              canvas.requestRenderAll();
             }
           },
           {
             label: 'No',
             onClick: () => {
- 
             }
           }
         ]
       });
+    } else {
+      const activeObject = canvas.getActiveObject();
+      if (activeObject) {
+        confirmAlert({
+          title: 'Confirm deletion',
+          message: 'Are you sure you want to delete this object?',
+          buttons: [
+            {
+              label: 'Yes',
+              onClick: () => {
+                canvas.remove(activeObject);
+                canvas.discardActiveObject();
+                canvas.requestRenderAll();
+              }
+            },
+            {
+              label: 'No',
+              onClick: () => {
+
+              }
+            }
+          ]
+        });
+      }
     }
   };
+
 
 
   const toggleProfileMenu = () => {
@@ -647,39 +742,48 @@ const CanvasComponent = () => {
   const saveCanvasState = () => {
     const canvasState = canvas.toJSON();
     localStorage.setItem('canvasState', JSON.stringify(canvasState));
+    localStorage.removeItem('selected-image')
   };
   const handleImageUpload = (e) => {
-    const file = e.target.files[0]; 
+    const file = e.target.files[0];
     if (!file) return;
 
     if (!file.type.includes('image/jpeg') && !file.type.includes('image/png')) {
-      alert('Please select a JPG or PNG image.');
+      setMsg('Please select a JPG or PNG image.');
+      setShowMsgBox(true);
       return;
     }
 
-    const reader = new FileReader(); 
+    const reader = new FileReader();
     reader.onload = () => {
-      const dataUrl = reader.result; 
+      const dataUrl = reader.result;
       fabric.Image.fromURL(dataUrl, (img) => {
-       
+
         img.set({
           left: 0,
           top: 0,
           scaleX: 0.5,
           scaleY: 0.5,
         });
-        canvas.add(img); 
-        canvas.renderAll(); 
+        canvas.add(img);
+        canvas.renderAll();
       });
     };
-    reader.readAsDataURL(file); 
+    reader.readAsDataURL(file);
   };
 
   useEffect(() => {
     const loadCanvasState = () => {
-      const savedCanvasState = localStorage.getItem('canvasState');
-      if (savedCanvasState && canvas) {
-        canvas.loadFromJSON(savedCanvasState, canvas.renderAll.bind(canvas));
+      const importImage = localStorage.getItem('selected-image');
+      if (!importImage) {
+        const savedCanvasState = localStorage.getItem('canvasState');
+        if (savedCanvasState && canvas) {
+          canvas.loadFromJSON(savedCanvasState, canvas.renderAll.bind(canvas));
+        }
+      }
+      else {
+        if (importImage && canvas)
+          canvas.loadFromJSON(importImage, canvas.renderAll.bind(canvas));
       }
     };
 
@@ -708,21 +812,12 @@ const CanvasComponent = () => {
     }
   }
 
-  function alignText() {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === 'i-text') {
-      activeObject.set('right', 0);
-      canvas.renderAll();
-    }
-  };
 
 
   const handleSave = async (fileName, format, saveToDatabase) => {
     const jwtToken = Cookies.get('token');
     if (!jwtToken) {
-      console.error('JWT token not found in localStorage.');
       return;
-
     }
 
     try {
@@ -761,7 +856,8 @@ const CanvasComponent = () => {
         pdf.save(fileName + ".pdf");
         toast.success("Exported successfully!");
         setShowSavePopup(false);
-      } else {
+      }
+      else {
         tempCanvas.toBlob((blob) => {
           if (!blob) {
             console.error("Failed to convert canvas to blob.");
@@ -772,8 +868,10 @@ const CanvasComponent = () => {
             const canvasDataUrl = reader.result;
             if (canvasDataUrl) {
               if (saveToDatabase) {
+                const canvasState = canvas.toJSON();
                 const base64String = canvasDataUrl.split(",")[1];
-                saveCanvasImageToDB(base64String)
+                const imageJson = JSON.stringify(canvasState);
+                saveCanvasImageDummyToDB(fileName, imageJson, base64String, userId)
                   .then(() => {
                     console.log("Canvas image saved to database.");
                     setShowMsgBox(true);
@@ -837,6 +935,10 @@ const CanvasComponent = () => {
       canvas.requestRenderAll();
     }
   };
+
+
+
+
   const decreaseBorderWidth = () => {
     if (currentBorderWidth > 1) {
       setCurrentBorderWidth(current => current - 1);
@@ -850,6 +952,7 @@ const CanvasComponent = () => {
     }
   };
 
+
   const handleBorderColorChange = (e) => {
     const newBorderColor = e.target.value;
     setCurrentBorderColor(newBorderColor);
@@ -861,49 +964,43 @@ const CanvasComponent = () => {
       canvas.requestRenderAll();
     }
   };
- 
+
 
   const setDottedBorder = () => {
     const activeObjects = canvas.getActiveObjects();
     if (activeObjects && activeObjects.length > 0) {
-        activeObjects.forEach((obj) => {
-            obj.set('strokeDashArray', [2, 2]); 
-        });
-        canvas.requestRenderAll();
+      activeObjects.forEach((obj) => {
+        obj.set('strokeDashArray', [2, 2]);
+      });
+      canvas.requestRenderAll();
     }
-};
+  };
 
 
 
 
-const setSolidBorder = () => {
-  const activeObjects = canvas.getActiveObjects();
-  if (activeObjects && activeObjects.length > 0) {
+  const setSolidBorder = () => {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
       activeObjects.forEach((obj) => {
-          obj.set('strokeDashArray', null); 
+        obj.set('strokeDashArray', null);
       });
       canvas.requestRenderAll();
-  }
-};
-const setDashedBorder = () => {
-  const activeObjects = canvas.getActiveObjects();
-  if (activeObjects && activeObjects.length > 0) {
+    }
+  };
+  const setDashedBorder = () => {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects && activeObjects.length > 0) {
       activeObjects.forEach((obj) => {
-          obj.set('strokeDashArray', [8, 5]); 
+        obj.set('strokeDashArray', [8, 5]);
       });
       canvas.requestRenderAll();
-  }
-};
-
-
-
-  
-
+    }
+  };
   return (
     <div>
       <nav className="navbar">
-
-
+        <img src={logo} alt="Logo" className="logos" /><h3 style={{ color: "black", fontSize: "6rm" }}>LogicDraw</h3>
         <img src={profileImage} alt="Profile" className="profile-image" onClick={toggleProfileMenu} />
         {showProfileMenu && (
           <div className="profile-menu">
@@ -931,7 +1028,7 @@ const setDashedBorder = () => {
               <button data-testid="pentagonButton" title="Pentagon" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
             </div>
             <div>
-              <button data-testid="ellipseButton"title="Ellipse" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
+              <button data-testid="ellipseButton" title="Ellipse" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
               <button data-testid="roundrectButton" title="Rounded Rectangle" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
               <button data-testid="hexagonButton" title="Hexagon" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
             </div>
@@ -939,7 +1036,7 @@ const setDashedBorder = () => {
             <hr></hr>
             <div>
               <button data-testid="lineButton" title="Line" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
-              <button data-testid="arrowButton"title="Directional Connector" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
+              <button data-testid="arrowButton" title="Directional Connector" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
               <button data-testid="biarrowdButton" title="Bidirectional Connector" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
             </div>
             <h2>Add Text</h2>
@@ -951,11 +1048,13 @@ const setDashedBorder = () => {
         </div>
         <div className="main">
           <div className="button-container">
+          <button data-testid="newdiagram" title="new Diagram" onClick={handleCreateNewDiagram}><MdFiberNew fontSize={30} /></button>
+
             <button title="Save To Database" data-testid="saveButton"
               onClick={() => setShowSavePopup(true)}
-            > 
-             <MdOutlineSaveAlt fontSize={30} />
-             
+            >
+              <MdOutlineSaveAlt fontSize={30} />
+
               {hoveredButton === "save" && <span className="tooltip">Save</span>}
             </button>
             <button title="Undo" data-testid="undoButton"
@@ -972,30 +1071,29 @@ const setDashedBorder = () => {
             </button>
             <button title="Delete" data-testid="deleteButton"
               onClick={() => deleteSelectedObject()}
-              onMouseEnter={() => setHoveredButton("delete")}
-              onMouseLeave={() => setHoveredButton(null)}
+
             >
               <MdDeleteForever fontSize={30} />
               {hoveredButton === "delete" && (
                 <span className="tooltip">Delete</span>
-              )}
+              )} <ToastContainer />
             </button>
            
-            <button data-testid="newdiagram" title="new Diagram" onClick={handleCreateNewDiagram}><MdFiberNew fontSize={30} /></button>
             <input type="file" data-testid="fileUpload" accept="image/*" 
             onChange={handleImageUpload}
             style={{ display: "none" }} 
              ref={imageInputRef} />
             <button title="Add Image" data-testid="imageInput" onClick={() => imageInputRef.current.click()}>
-            <FaImage fontSize={30} />
-              
-            </button>          
-           
-            <button data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange}><MdFormatColorFill fontSize={30} /></button> 
+              <FaImage fontSize={30} />
+
+            </button>
+
+
             <button data-testid="saveStateButton" title="save the current state" style={{ marginLeft: '10px' }} onClick={saveCanvasState}>
-            <TfiSave fontSize={30} /></button>
-            <button data-testid="groupButton" title="group" onClick={groupObjects}><FaRegObjectGroup fontSize={30}  /></button>
+              <TfiSave fontSize={30} /></button>
+            <button data-testid="groupButton" title="group" onClick={groupObjects}><FaRegObjectGroup fontSize={30} /></button>
             <button data-testid="ungroupedButton" title="ungroup" onClick={ungroupObjects}><FaRegObjectUngroup fontSize={30} /></button>
+            <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
           </div>
 
           <div>
@@ -1012,7 +1110,7 @@ const setDashedBorder = () => {
             </ContextMenuTrigger>
             <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
               <MenuItem className="rc-menu-item" onClick={{}}>Copy</MenuItem>
-              <MenuItem className="rc-menu-item" onClick={copySelectedObject}>Paste</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={copiedObjects}>Paste</MenuItem>
               <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
               <MenuItem className="rc-menu-item" onClick={() => canvas.undo()}>Undo</MenuItem>
               <MenuItem className="rc-menu-item" onClick={() => canvas.redo()}>Redo</MenuItem>
@@ -1048,11 +1146,7 @@ const setDashedBorder = () => {
                 changeTextFont(nextFont.family);
               }} />
           </div>
-          <div className="button-container-textalign">
-            <button data-testid="leftButton" className="left" onClick={alignText}><CiTextAlignLeft /></button>
-            <button data-testid="centerButton" className="center"><CiTextAlignCenter /></button>
-            <button data-testid="rightButton" className="right"><CiTextAlignRight /></button>
-          </div>
+
           <div className="button-container-textstyle">
             <button data-testid="boldButton" className="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
             <button data-testid="italicButton" className="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>

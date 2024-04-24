@@ -60,3 +60,48 @@ export const getUserByEmail = async (jwtToken) => {
     throw error;
   }
 };
+
+
+export const saveCanvasImageDummyToDB = async (imageName,imageDataJson,imageByte, userId) => {
+  try {
+    const response = await axios.post(`${API_URL}/saveDummyImage`, {
+      imageName:imageName,
+      imageJson: imageDataJson,
+      imageByte:imageByte,
+      user: {
+        userId:userId
+      }
+    });
+    return response.data;
+  } catch (error) {
+   
+    throw error;
+  }
+};
+
+export const importSavedImageFromDb = async (userId) => {
+  try {
+    const response = await axios.get(`${API_URL}/getimages/${userId}`);
+        return response.data;
+  } catch (error) {
+   
+    throw error;
+  }
+};
+
+export const changePasswordApi = async (formData) => {
+  try{
+  const url = `${API_URL}/changePassword`;
+  const response = await axios.patch(url, {
+    userEmail: formData.userEmail,
+    currentPassword: formData.currentPassword,
+    newPassword: formData.newPassword,
+    confirmPassword: formData.confirmPassword,
+    jwtToken:formData.jwtToken
+  });
+  return response.data; 
+}
+catch (error) {
+  throw error.response ? error.response.data : 'Error changing password.';
+}
+};

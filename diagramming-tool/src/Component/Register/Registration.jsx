@@ -4,7 +4,7 @@ import './Registration.css';
 import { registerUser } from '../../ApiService/ApiService'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+ 
 const Registration = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -98,7 +98,7 @@ const Registration = () => {
 
   return (
     <div className="registration-container">
-      <form onSubmit={handleSubmit}>
+      <form data-testid ="registration-form" onSubmit={handleSubmit}>
         <div className="form-left">
           <h2 className="registration-heading">Registration</h2>
           <div className="form-group">
