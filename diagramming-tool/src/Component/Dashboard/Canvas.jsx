@@ -731,7 +731,7 @@ const CanvasComponent = () => {
 
   const toggleUnderline = () => {
     setIsUnderline(!isUnderline);
-    changeTextStyle('underline', !isUnderline ? 'underline' : 'none');
+    changeTextStyle('underline', !isUnderline ? 'underline' : false);
   };
 
  
