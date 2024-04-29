@@ -36,7 +36,6 @@ import { IoMdColorFilter } from "react-icons/io";
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
 import { saveCanvasImageDummyToDB, getUserByEmail } from '../../ApiService/ApiService';
-//import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import jsPDF from 'jspdf';
 import logo from '../../Assets/logo.png';
@@ -77,11 +76,11 @@ const CanvasComponent = () => {
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  // useEffect(() => {
-  //   if (!Cookies.get('token')) {
-  //     navigation('/');
-  //   }
-  // })
+  useEffect(() => {
+    if (!Cookies.get('token')) {
+      navigation('/');
+    }
+  })
 
 
   useEffect(() => {
