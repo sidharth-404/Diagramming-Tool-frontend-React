@@ -64,6 +64,9 @@ const CanvasComponent = () => {
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
+  const [isBoldSelected, setIsBoldSelected] = useState(false);
+  const [isItalicSelected, setIsItalicSelected] = useState(false);
+  const [isUnderlineSelected, setIsUnderlineSelected] = useState(false);
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
   const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
@@ -74,11 +77,11 @@ const CanvasComponent = () => {
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
 
 
   useEffect(() => {
@@ -386,7 +389,7 @@ const CanvasComponent = () => {
           obj.set('fill', newColor);
         } else {
           obj.set('fill', newColor);
-          //   obj.set('stroke', newColor); // Assuming you also want to change the stroke color
+          
         }
       });
       canvas.requestRenderAll();
@@ -547,6 +550,9 @@ const CanvasComponent = () => {
       }
       canvas.requestRenderAll();
     });
+    setIsBold(false);
+    setIsItalic(false);
+    setIsUnderline(false);
   };
   const addLine = () => {
     const line = new fabric.Line([50, 100, 300, 100], {
@@ -728,6 +734,7 @@ const CanvasComponent = () => {
     changeTextStyle('underline', !isUnderline ? 'underline' : 'none');
   };
 
+ 
   const changeTextStyle = (property, value) => {
     const activeObject = canvas.getActiveObject();
     if (activeObject && activeObject.type === 'i-text') {
@@ -1145,9 +1152,9 @@ const CanvasComponent = () => {
           </div>
 
           <div className="button-container-textstyle">
-            <button data-testid="boldButton" className="left" title="Bold" onClick={toggleBold}><PiTextBBold /></button>
-            <button data-testid="italicButton" className="center" title="italic" onClick={toggleItalic}><PiTextItalic /></button>
-            <button data-testid="underButton" className="right" title="under line" onClick={toggleUnderline}><LuUnderline /></button>
+            <button data-testid="boldButton" className={`left ${isBold ? 'active' : ''}`} title="Bold" onClick={toggleBold}><PiTextBBold /></button>
+            <button data-testid="italicButton" className={`center ${isItalic ? 'active' : ''}`} title="italic" onClick={toggleItalic}><PiTextItalic /></button>
+            <button data-testid="underButton"  className={`right ${isUnderline ? 'active' : ''}`} title="under line" onClick={toggleUnderline}><LuUnderline /></button>
           </div>
           <div className="button-container-color">
             <div className="text-color">Text color</div>
