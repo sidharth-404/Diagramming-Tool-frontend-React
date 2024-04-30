@@ -76,11 +76,11 @@ const Registration = () => {
     }
 
     try {
-      // const hashedPassword = bcrypt.hashSync(formData.password, 10); 
-      // const userData = {
-      //   ...formData,
-      //   password: hashedPassword 
-      // };
+      const hashedPassword = bcrypt.hashSync(formData.password, 10); 
+      const userData = {
+        ...formData,
+        password: hashedPassword 
+      };
       const response = await registerUser(formData);
       
       if (response.status ===201) {
