@@ -87,23 +87,24 @@ export const importSavedImageFromDb = async (jwtToken) => {
   }
 };
 
-export const changePasswordApi = async (formData) => {
-  try {
-    const url = `${API_URL}/changePassword`;
-    const response = await axios.patch(url, {
-      userEmail: formData.userEmail,
-      currentPassword: formData.currentPassword,
-      newPassword: formData.newPassword,
-      confirmPassword: formData.confirmPassword,
-      jwtToken: formData.jwtToken
-    });
-    
-    return response.data;
-  } catch (error) {
-    if (error.response) {
-      throw new Error(error.response.data);
-    } else {
-      throw new Error('Error changing password. Please try again.');
+export const changePasswordApi = async (formData,jwtToken) => {
+  try{
+  const url = `${API_URL_USER}/changePassword`;
+  const response = await axios.patch(url, {
+    userEmail: formData.userEmail,
+    newPassword: formData.newPassword,
+    currentPassword: formData.currentPassword,
+    confirmPassword: formData.confirmPassword,
+  },{
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${jwtToken}`
     }
-  }
+
+  });
+  return response.data; 
+}
+catch (error) {
+  throw error.response ? error.response.data : 'Error changing password.';
+}
 };

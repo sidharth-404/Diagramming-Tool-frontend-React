@@ -1032,7 +1032,7 @@ const CanvasComponent = () => {
         {showProfileMenu && (
           <div className="profile-menu">
             <ul>
-              <li data-testid="profileButton" onClick={() => handleProfileOptionClick('profile')}>Your Profile</li>
+              {/* <li data-testid="profileButton" onClick={() => handleProfileOptionClick('profile')}>Your Profile</li> */}
               <li data-testid="passwordButton" onClick={() => handleProfileOptionClick('password')}>Change Password</li>
               <li data-testid="SignoutButton" onClick={() => handleProfileOptionClick('Signout')}>Sign Out</li>
             </ul>

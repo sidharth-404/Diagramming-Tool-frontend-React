@@ -38,7 +38,7 @@ const ChangePassword = () => {
       }
     } catch (error) {
       console.error(error);
-      showerrorAlert(error.description);
+      showerrorAlert(error);
     }
   };
  
