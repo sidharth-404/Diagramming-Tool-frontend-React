@@ -3,7 +3,7 @@ import { registerUser, getUserByEmail, sendResetPasswordEmail, verifyResetPasswo
 import MockAdapter from 'axios-mock-adapter';
 
 const mock = new MockAdapter(axios);
-const API_URL = 'http://localhost:8080/api/diagrammingtool';
+const API_URL = 'http://localhost:8080/api';
 
 describe('API Functions', () => {
   afterEach(() => {

@@ -840,8 +840,7 @@ const CanvasComponent = () => {
     }
 
     try {
-      // const userResponse = await getUserByEmail(jwtToken);
-      // const userId = userResponse.userId;
+    
 
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
