@@ -29,10 +29,8 @@ const ChangePassword = () => {
     try {
       const response = await changePasswordApi(formData);
       if (typeof response === 'object' && response.hasOwnProperty('userEmail')) {
-        // Show success message
         showConfirmAlert('User added successfully! Please login.');
       } else {
-        // Show success message and navigate to dashboard
         if (response === 'Password changed successfully') {
           showConfirmAlert(response, () => {
             navi('/dashboard');

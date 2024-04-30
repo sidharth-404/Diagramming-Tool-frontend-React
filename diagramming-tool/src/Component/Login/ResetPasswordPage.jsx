@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { sendResetPasswordEmail, verifyResetPasswordOTP } from '../../ApiService/ApiService'; 
 import MsgBoxComponent from '../ConfirmMsg/MsgBoxComponent'; 
 import './ResetPasswordPage.css';
+import { confirmAlert } from 'react-confirm-alert'; // Import react-confirm-alert package
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import CSS for react-confirm-alert
 
 const ResetPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -16,6 +18,7 @@ const ResetPasswordPage = () => {
   const [responseMessage, setResponseMessage] = useState('');
   const [showResponseBox, setShowResponseBox] = useState(false);
   const [showOtpForm, setShowOtpForm] = useState(false); 
+  const [loading, setLoading] = useState(false); // New state for loading
   const history = useNavigate();
 
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
@@ -50,18 +53,17 @@ const ResetPasswordPage = () => {
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading
+
     try {
       await sendResetPasswordEmail(email);
-    
-        setOtpSent(true);
-        setResponseMessage('OTP sent to your email.');
-        setShowResponseBox(true);
-      
-    } catch (error) {
-      console.error(error);
-      alert(error);
-      setResponseMessage(error);
+      setOtpSent(true);
+      setResponseMessage('OTP sent to your email.');
       setShowResponseBox(true);
+    } catch (error) {
+      showerrorAlert(error.message);
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -94,7 +96,7 @@ const ResetPasswordPage = () => {
     } else if (responseMessage === 'OTP sent to your email.') {
       setShowOtpForm(true);
     } else if (responseMessage === 'User not found') {
-     console.log("resetting",otpVerified)
+      console.log("resetting",otpVerified)
     }
     setResponseMessage('');
   };
@@ -103,7 +105,18 @@ const ResetPasswordPage = () => {
     setShowResponseBox(false);
     setResponseMessage('');
   };
-
+  const showerrorAlert = (message, callback = () => {}) => {
+    confirmAlert({
+      title: 'Error',
+      message: message,
+      buttons: [
+        {
+          label: 'OK',
+          onClick: callback
+        }
+      ]
+    });
+  };
   return (
     <div className="reset-password-container">
       <h2>Reset Password</h2>
@@ -113,7 +126,9 @@ const ResetPasswordPage = () => {
             <label htmlFor='Email'>Email:</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
-          <button data-testid="sendOtp" type="submit">Send OTP</button>
+          <button data-testid="sendOtp" type="submit" disabled={loading}>
+            {loading ? 'Sending...' : 'Send OTP'}
+          </button>
         </form>
       ) : (
         <div>
@@ -144,7 +159,9 @@ const ResetPasswordPage = () => {
                 />
                 {confirmPasswordError && <div className="error">{confirmPasswordError}</div>}
               </div>
-              <button  data-testid="resetPwd"  type="submit">Reset Password</button>
+              <button data-testid="resetPwd" type="submit" disabled={loading}>
+                {loading ? 'Resetting...' : 'Reset Password'}
+              </button>
             </form>
           )}
         </div>

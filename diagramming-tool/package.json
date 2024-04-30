@@ -20,6 +20,8 @@
     "mdb-react-ui-kit": "^7.2.0",
     "npm": "^10.5.0",
     "react": "^18.2.0",
+    "react-alert": "^7.0.3",
+    "react-alert-template-basic": "^1.0.2",
     "react-color": "^2.19.3",
     "react-confirm-alert": "^3.0.6",
     "react-contextmenu": "^2.14.0",
