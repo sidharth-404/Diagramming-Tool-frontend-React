@@ -302,3 +302,8 @@ button:hover .tooltip {
   background-color: #0056b3;
 }
 
+button.active {
+  background-color: #554949; 
+  
+}
+
