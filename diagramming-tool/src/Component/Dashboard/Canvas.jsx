@@ -43,7 +43,6 @@ import { FaImage } from "react-icons/fa6";
 import { FaRegObjectGroup } from "react-icons/fa";
 import { FaRegObjectUngroup } from "react-icons/fa";
 import { MdOutlineSaveAlt } from "react-icons/md";
-import { MdFormatColorFill } from "react-icons/md";
 
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
@@ -75,11 +74,11 @@ const CanvasComponent = () => {
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
 
 
   useEffect(() => {
