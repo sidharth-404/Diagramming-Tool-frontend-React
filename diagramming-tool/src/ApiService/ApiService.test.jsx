@@ -54,32 +54,7 @@ describe('API Functions', () => {
     await expect(registerUser(formData)).rejects.toThrowError('Request failed with status code 400');
   });
   
-  // it('should save canvas image to DB', async () => {
-  //   const imageData = 'base64ImageData';
-  //   const userId = 28;
-
-  //   const mockedResponse = {
-  //     id: 1,
-  //     imageData: 'base64ImageData',
-  //     user: { userId: 28 }
-  //   };
-  //   mock.onPost(`${API_URL}/images`).reply(201, mockedResponse); 
-
-  //   const response = await saveCanvasImageToDB(imageData, userId);
-
-  //   expect(response).toEqual(mockedResponse);
-  // });
-
-  // it('should handle error while saving canvas image to DB', async () => {
-  //   const imageData = 'base64ImageData';
-  //   const userId = 28;
-
-  //   const mockedError = { message: 'Request failed with status code 500' };
-  //   mock.onPost(`${API_URL}/images`).reply(500, mockedError); 
-  //   await expect(async () => {
-  //     await saveCanvasImageToDB(imageData, userId);
-  //   }).rejects.toThrowError('Request failed with status code 500');
-  // });
+ 
 });
 
 

@@ -46,17 +46,5 @@ describe('ExistingPage Component', () => {
       expect(localStorage.getItem('selected-image')).toBe('{}');
     });
   });
-
-  // test('navigates to dashboard after selecting an image card', async () => {
-  //   const navigateMock = jest.fn();
-  //   jest.mock('react-router-dom', () => ({
-  //     ...jest.requireActual('react-router-dom'),
-  //     useNavigate: () => navigateMock,
-  //   }));
-  //   const { getByTestId } = render(<Router><ExistingPage /></Router>);
-  //   await waitFor(() => {
-  //     fireEvent.click(screen.getByTestId('image1'));
-  //     expect(navigateMock).toHaveBeenCalledWith('/dashboard');
-  //   });
-  // });
+  
 });
