@@ -10,11 +10,11 @@ function ExistingPage() {
   const navigation = useNavigate();
 
   const handleGetImage = async () => {
-    const jwtToken = Cookies.get('token');
+  const jwtToken = Cookies.get('token');
     try {
-      const userResponse = await getUserByEmail(jwtToken);
-      const userId = userResponse.userId;
-      importSavedImageFromDb(userId).then((data) => {
+      // const userResponse = await getUserByEmail(jwtToken);
+      // const userId = userResponse.userId;
+      importSavedImageFromDb(jwtToken).then((data) => {
         setImageData(data);
       });
     } catch (error) {

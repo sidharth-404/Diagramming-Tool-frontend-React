@@ -82,12 +82,23 @@ const CanvasComponent = () => {
     }
   })
 
+  const textColorPickerStyle = {
+    backgroundColor: selectedTextColor,
+    borderColor: "black",
+    borderWidth: "6px",
+    width: "60px"
+  };
+
+  useEffect(() => {
+    setShowTextColorPicker(false);
+  }, [selectedTextColor])
+
+
 
   useEffect(() => {
     const handleOutsideClick = () => {
       setShowContextMenu(false);
     };
-
     const canvasElement = canvasRef.current;
     if (canvasElement) {
       canvasElement.addEventListener('click', handleOutsideClick);
@@ -99,6 +110,9 @@ const CanvasComponent = () => {
       }
     };
   }, [canvasRef]);
+
+
+
 
   const handleContextMenu = (event) => {
     event.preventDefault();
@@ -137,9 +151,14 @@ const CanvasComponent = () => {
     });
 
     initCanvas.on('selection:created', (e) => {
-
       setGroup(true);
       setSelectedShape(true)
+      if (e.selected[0].type !== 'i-text') setCurrentColor(e.selected[0].fill);
+      if (e.selected[0].type === 'i-text') {
+        setSelectedTextColor(e.selected[0].fill)
+        setShowTextColorPicker((prev) => !prev);
+      }
+      console.log("selection created", e.selected[0].type)
     });
 
     initCanvas.on('selection:cleared', () => {
@@ -247,7 +266,7 @@ const CanvasComponent = () => {
 
       canvas.discardActiveObject();
       canvas.renderAll();
-    } 
+    }
   };
 
 
@@ -400,7 +419,7 @@ const CanvasComponent = () => {
     const rect = new fabric.Rect({
       left: 50,
       top: 50,
-      fill: currentColor,
+      fill: '#ffffff',
       stroke: currentBorderColor,
       strokeWidth: 2,
       width: 150,
@@ -411,7 +430,7 @@ const CanvasComponent = () => {
   const addCircle = () => {
     const circle = new fabric.Circle({
       radius: 50,
-      fill: currentColor,
+      fill: '#ffffff',
       stroke: currentBorderColor,
       strokeWidth: 2,
       top: 50,
@@ -424,7 +443,7 @@ const CanvasComponent = () => {
     const square = new fabric.Rect({
       left: 300,
       top: 50,
-      fill: currentColor,
+      fill:'#ffffff',
       stroke: currentBorderColor,
       strokeWidth: 2,
       width: 100,
@@ -437,7 +456,7 @@ const CanvasComponent = () => {
     const triangle = new fabric.Triangle({
       width: 100,
       height: 100,
-      fill: currentColor,
+      fill: '#ffffff',
       stroke: currentBorderColor,
       strokeWidth: 2,
       left: 400,
@@ -455,7 +474,7 @@ const CanvasComponent = () => {
     ], {
       left: 500,
       top: 50,
-      fill: currentColor,
+      fill: '#ffffff',
       stroke: currentBorderColor,
       strokeWidth: 2,
     });
@@ -466,7 +485,7 @@ const CanvasComponent = () => {
     const roundedRect = new fabric.Rect({
       left: 200,
       top: 200,
-      fill: currentColor,
+      fill: '#ffffff',
       width: 150,
       height: 100,
       rx: 20,
@@ -488,7 +507,7 @@ const CanvasComponent = () => {
     ], {
       left: 400,
       top: 200,
-      fill: currentColor,
+      fill: '#ffffff',
       stroke: currentBorderColor,
       strokeWidth: 2,
     });
@@ -508,7 +527,7 @@ const CanvasComponent = () => {
       top: 200,
       stroke: currentBorderColor,
       strokeWidth: 2,
-      fill: currentColor,
+      fill: '#ffffff',
       selectable: true
     });
     canvas.add(hexagon);
@@ -518,7 +537,7 @@ const CanvasComponent = () => {
     const ellipse = new fabric.Ellipse({
       rx: 75,
       ry: 50,
-      fill: currentColor,
+      fill: '#ffffff',
       stroke: currentBorderColor,
       strokeWidth: 2,
       top: 200,
@@ -528,13 +547,14 @@ const CanvasComponent = () => {
   };
 
   const addText = (selectedFontFamil) => {
-    const text = new fabric.IText('New Text', {
+    const text = new fabric.IText('', {
       left: 20,
       top: 50,
       fontSize: 20,
       fontFamily: selectedFontFamily,
       editable: true
     });
+    text.set({ text: 'Typehere...' });
     canvas.add(text);
     document.getElementById('currentSize').textContent = text.fontSize;
     canvas.setActiveObject(text);
@@ -694,6 +714,7 @@ const CanvasComponent = () => {
       case 'Signout':
         Cookies.remove('token');
         localStorage.removeItem('canvasState');
+        localStorage.removeItem('selected-image');
         navigation('/');
         break;
       default:
@@ -824,8 +845,8 @@ const CanvasComponent = () => {
     }
 
     try {
-      const userResponse = await getUserByEmail(jwtToken);
-      const userId = userResponse.userId;
+      // const userResponse = await getUserByEmail(jwtToken);
+      // const userId = userResponse.userId;
 
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
@@ -874,7 +895,7 @@ const CanvasComponent = () => {
                 const canvasState = canvas.toJSON();
                 const base64String = canvasDataUrl.split(",")[1];
                 const imageJson = JSON.stringify(canvasState);
-                saveCanvasImageDummyToDB(fileName, imageJson, base64String, userId)
+                saveCanvasImageDummyToDB(fileName, imageJson, base64String, jwtToken)
                   .then(() => {
                     console.log("Canvas image saved to database.");
                     setShowMsgBox(true);
@@ -932,9 +953,11 @@ const CanvasComponent = () => {
     setCurrentBorderWidth(current => current + 1);
     const activeObjects = canvas.getActiveObjects();
     if (activeObjects && activeObjects.length > 0) {
-      activeObjects.forEach((obj) => {
+
+      activeObjects.filter((obj) => obj.type !== 'i-text').forEach((obj) => {
         obj.set('strokeWidth', currentBorderWidth + 1);
       });
+
       canvas.requestRenderAll();
     }
   };
@@ -947,9 +970,10 @@ const CanvasComponent = () => {
       setCurrentBorderWidth(current => current - 1);
       const activeObjects = canvas.getActiveObjects();
       if (activeObjects && activeObjects.length > 0) {
-        activeObjects.forEach((obj) => {
-          obj.set('strokeWidth', currentBorderWidth - 1);
+        activeObjects.filter((obj) => obj.type !== 'i-text').forEach((obj) => {
+          obj.set('strokeWidth', currentBorderWidth + 1);
         });
+
         canvas.requestRenderAll();
       }
     }
@@ -1051,7 +1075,7 @@ const CanvasComponent = () => {
         </div>
         <div className="main">
           <div className="button-container">
-          <button data-testid="newdiagram" title="new Diagram" onClick={handleCreateNewDiagram}><MdFiberNew fontSize={30} /></button>
+            <button data-testid="newdiagram" title="new Diagram" onClick={handleCreateNewDiagram}><MdFiberNew fontSize={30} /></button>
 
             <button title="Save To Database" data-testid="saveButton"
               onClick={() => setShowSavePopup(true)}
@@ -1081,11 +1105,11 @@ const CanvasComponent = () => {
                 <span className="tooltip">Delete</span>
               )} <ToastContainer />
             </button>
-           
-            <input type="file" data-testid="fileUpload" accept="image/*" 
-            onChange={handleImageUpload}
-            style={{ display: "none" }} 
-             ref={imageInputRef} />
+
+            <input type="file" data-testid="fileUpload" accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: "none" }}
+              ref={imageInputRef} />
             <button title="Add Image" data-testid="imageInput" onClick={() => imageInputRef.current.click()}>
               <FaImage fontSize={30} />
 
@@ -1096,6 +1120,7 @@ const CanvasComponent = () => {
               <TfiSave fontSize={30} /></button>
             <button data-testid="groupButton" title="group" onClick={groupObjects}><FaRegObjectGroup fontSize={30} /></button>
             <button data-testid="ungroupedButton" title="ungroup" onClick={ungroupObjects}><FaRegObjectUngroup fontSize={30} /></button>
+
             <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
           </div>
 
@@ -1132,12 +1157,12 @@ const CanvasComponent = () => {
               <input className="bc" type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
               <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
               <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-              <button  Title='Solid Line'  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setSolidBorder}>____</button>
-              <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDottedBorder}>......</button>
-              <button class="dropdown-option" title="Dashed Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDashedBorder}>_ _ _</button>
-              </div>
-            </>
-          <h1>Text</h1>
+              <button Title='Solid Line' style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setSolidBorder}>____</button>
+              <button data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDottedBorder}>......</button>
+              <button class="dropdown-option" title="Dashed Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDashedBorder}>_ _ _</button>
+            </div>
+          </>
+          <h2>Text</h2>
           <hr></hr>
           <div className="dropdown-container">
             <FontPicker
@@ -1157,7 +1182,8 @@ const CanvasComponent = () => {
           </div>
           <div className="button-container-color">
             <div className="text-color">Text color</div>
-            <button data-testid="textcolorButton" className="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
+            {/* selectedTextColor */}
+            <button data-testid="textcolorButton" className="color-button" style={textColorPickerStyle} onClick={() => setShowTextColorPicker(!showTextColorPicker)} ></button>
           </div>
           <div>
             <button data-testid="plusButton" style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={increaseTextSize}>+</button>
@@ -1192,7 +1218,7 @@ const CanvasComponent = () => {
           handleClick={() => setShowMsgBox(false)}
         />
       )}
-    
+
     </div>
   );
 };
