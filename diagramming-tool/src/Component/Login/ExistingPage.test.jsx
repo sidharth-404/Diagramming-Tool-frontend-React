@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable testing-library/no-wait-for-side-effects */
 /* eslint-disable testing-library/no-wait-for-multiple-assertions */
 import React from 'react';
@@ -10,6 +11,10 @@ import { importSavedImageFromDb, getUserByEmail } from '../../ApiService/ApiServ
 jest.mock('../../ApiService/ApiService', () => ({
   importSavedImageFromDb: jest.fn(),
   getUserByEmail: jest.fn(),
+}));
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: jest.fn(),
 }));
 
 describe('ExistingPage Component', () => {
@@ -46,5 +51,22 @@ describe('ExistingPage Component', () => {
       expect(localStorage.getItem('selected-image')).toBe('{}');
     });
   });
+
+
+  test('selects an image and navigates to dashboard', async () => {
+    const imageData = [{ imageName: 'image1.png', imageByte: 'image1base64' }];
+    importSavedImageFromDb.mockResolvedValueOnce(imageData);
+    const navigateMock = jest.fn();
+    useNavigate.mockReturnValue(navigateMock);
+    render(
+      <Router>
+        <ExistingPage />
+      </Router>
+    );
+    fireEvent.click(await screen.findByTestId('image1'));
+    expect(navigateMock).toHaveBeenCalledWith('/dashboard');
+    expect(localStorage.setItem).toHaveBeenCalledWith('selected-image', '{"imageName":"image1.png","imageByte":"image1base64"}');
+  });
+
   
 });

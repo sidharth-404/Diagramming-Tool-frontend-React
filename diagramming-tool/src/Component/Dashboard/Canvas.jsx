@@ -893,7 +893,6 @@ const CanvasComponent = () => {
                 const imageJson = JSON.stringify(canvasState);
                 saveCanvasImageDummyToDB(fileName, imageJson, base64String, jwtToken)
                   .then(() => {
-                    console.log("Canvas image saved to database.");
                     setShowMsgBox(true);
                     setMsg("Image saved successfully!");
                     setShowSavePopup(false);
@@ -931,7 +930,12 @@ const CanvasComponent = () => {
         {
           label: 'Yes',
           onClick: () => {
-            canvas.clear();
+           canvas.clear();
+
+            localStorage.removeItem('selected-image');
+            localStorage.removeItem('canvasState');
+
+            
             toast.success("Canvas cleared successfully!");
 
           }
