@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { confirmAlert } from 'react-confirm-alert'; // Import react-confirm-alert package
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import CSS for react-confirm-alert
-
+ 
 const ChangePassword = () => {
   const [formData, setFormData] = useState({
     userEmail: '',
@@ -15,7 +15,7 @@ const ChangePassword = () => {
     jwtToken: Cookies.get('token')
   });
   const navi = useNavigate();
-
+ 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -23,7 +23,7 @@ const ChangePassword = () => {
       [name]: value
     });
   };
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -44,7 +44,7 @@ const ChangePassword = () => {
       showerrorAlert(error);
     }
   };
-
+ 
   const showConfirmAlert = (message, callback = () => {}) => {
     confirmAlert({
       title: 'Success',
@@ -57,8 +57,8 @@ const ChangePassword = () => {
       ]
     });
   };
-  
-
+ 
+ 
   const showerrorAlert = (message, callback = () => {}) => {
     confirmAlert({
       title: 'Error',
@@ -71,9 +71,9 @@ const ChangePassword = () => {
       ]
     });
   };
-
-  
-
+ 
+ 
+ 
   return (
     <div className="change-password-container">
       <h2>Change Password</h2>
@@ -127,5 +127,5 @@ const ChangePassword = () => {
     </div>
   );
 };
-
+ 
 export default ChangePassword;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import bcrypt from 'bcryptjs';
 import { useNavigate } from 'react-router-dom';
 import './Registration.css';
 import { registerUser } from '../../ApiService/ApiService'
@@ -75,6 +76,11 @@ const Registration = () => {
     }
 
     try {
+      // const hashedPassword = bcrypt.hashSync(formData.password, 10); 
+      // const userData = {
+      //   ...formData,
+      //   password: hashedPassword 
+      // };
       const response = await registerUser(formData);
       
       if (response.status ===201) {
@@ -161,7 +167,9 @@ const Registration = () => {
             />
             {errors.confirmPassword && <span className="error">{errors.confirmPassword}</span>}
           </div>
-          <button type="submit">Register</button>
+          <div className='button-save'>
+          <button type="submit" >Register</button>
+          </div>
         </div>
       </form>
       <div className="background-right"></div>

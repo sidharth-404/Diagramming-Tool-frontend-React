@@ -3,6 +3,9 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CanvasComponent from './Canvas';
+import { BrowserRouter as Router } from 'react-router-dom';
+
+
 
 
 jest.mock('react-router-dom', () => ({
@@ -12,14 +15,14 @@ jest.mock('react-router-dom', () => ({
 
   describe('undo and redo actions using keyboard shortcuts', () => {
     it('undoes action when Ctrl+Z is pressed', () => {
-      const { getByTestId } = render(<CanvasComponent />);
+      const { getByTestId } = render(<Router><CanvasComponent /></Router>);
       const canvas = getByTestId('canvas');
   
       userEvent.type(canvas, '{ctrlKey}{z}');
     });
   
     it('redoes action when Ctrl+Y is pressed', () => {
-      const { getByTestId } = render(<CanvasComponent />);
+      const { getByTestId } = render(<Router><CanvasComponent /></Router>);
       const canvas = getByTestId('canvas');
   
       userEvent.type(canvas, '{ctrlKey}{y}');
@@ -28,7 +31,7 @@ jest.mock('react-router-dom', () => ({
 
   describe('delete action using keyboard shortcut', () => {
     it('deletes selected shapes when Delete key is pressed', () => {
-      const { getByTestId } = render(<CanvasComponent />);
+      const { getByTestId } = render(<Router><CanvasComponent /></Router>);
       const canvas = getByTestId('canvas');
   
       userEvent.type(canvas, '{del}');
@@ -37,7 +40,7 @@ jest.mock('react-router-dom', () => ({
 
   describe('copy and paste actions using keyboard shortcuts', () => {
     it('copies selected shapes when Ctrl+C is pressed and pastes them when Ctrl+V is pressed', () => {
-      const { getByTestId } = render(<CanvasComponent />);
+      const { getByTestId } = render(<Router><CanvasComponent /></Router>);
       const canvas = getByTestId('canvas');
   
     
