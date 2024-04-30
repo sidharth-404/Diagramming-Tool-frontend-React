@@ -151,12 +151,14 @@ const CanvasComponent = () => {
     initCanvas.on('selection:created', (e) => {
       setGroup(true);
       setSelectedShape(true)
-      if (e.selected[0].type !== 'i-text') setCurrentColor(e.selected[0].fill);
+      if (e.selected[0].type !== 'i-text') {
+        setCurrentColor(e.selected[0].fill);
+        setCurrentBorderColor(e.selected[0].stroke)
+      }
       if (e.selected[0].type === 'i-text') {
         setSelectedTextColor(e.selected[0].fill)
         setShowTextColorPicker((prev) => !prev);
       }
-      console.log("selection created", e.selected[0].type)
     });
 
     initCanvas.on('selection:cleared', () => {
@@ -415,7 +417,7 @@ const CanvasComponent = () => {
       left: 50,
       top: 50,
       fill: '#ffffff',
-      stroke: currentBorderColor,
+      stroke: 'black',
       strokeWidth: 2,
       width: 150,
       height: 100
@@ -426,7 +428,7 @@ const CanvasComponent = () => {
     const circle = new fabric.Circle({
       radius: 50,
       fill: '#ffffff',
-      stroke: currentBorderColor,
+      stroke: 'black',
       strokeWidth: 2,
       top: 50,
       left: 200
@@ -439,7 +441,7 @@ const CanvasComponent = () => {
       left: 300,
       top: 50,
       fill:'#ffffff',
-      stroke: currentBorderColor,
+      stroke: 'black',
       strokeWidth: 2,
       width: 100,
       height: 100
@@ -452,7 +454,7 @@ const CanvasComponent = () => {
       width: 100,
       height: 100,
       fill: '#ffffff',
-      stroke: currentBorderColor,
+      stroke: 'black',
       strokeWidth: 2,
       left: 400,
       top: 50
@@ -470,7 +472,7 @@ const CanvasComponent = () => {
       left: 500,
       top: 50,
       fill: '#ffffff',
-      stroke: currentBorderColor,
+      stroke: 'black',
       strokeWidth: 2,
     });
     canvas.add(diamond);
@@ -485,7 +487,7 @@ const CanvasComponent = () => {
       height: 100,
       rx: 20,
       ry: 20,
-      stroke: currentBorderColor,
+      stroke: 'black',
       strokeWidth: 2
     });
 
@@ -503,7 +505,7 @@ const CanvasComponent = () => {
       left: 400,
       top: 200,
       fill: '#ffffff',
-      stroke: currentBorderColor,
+      stroke: 'black',
       strokeWidth: 2,
     });
     canvas.add(polygon);
@@ -520,7 +522,7 @@ const CanvasComponent = () => {
     ], {
       left: 600,
       top: 200,
-      stroke: currentBorderColor,
+      stroke: 'black',
       strokeWidth: 2,
       fill: '#ffffff',
       selectable: true
@@ -533,7 +535,7 @@ const CanvasComponent = () => {
       rx: 75,
       ry: 50,
       fill: '#ffffff',
-      stroke: currentBorderColor,
+      stroke: 'black',
       strokeWidth: 2,
       top: 200,
       left: 50
