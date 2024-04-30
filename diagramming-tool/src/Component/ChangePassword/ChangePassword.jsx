@@ -30,8 +30,7 @@ const ChangePassword = () => {
       if (typeof response === 'object' && response.hasOwnProperty('userEmail')) {
         showConfirmAlert('User added successfully! Please login.');
       } else {
-        // Show success message and navigate to dashboard
-        if (response === 'updated successfully') {
+        if (response === 'Password changed successfully') {
           showConfirmAlert(response, () => {
             navi('/dashboard');
           });
