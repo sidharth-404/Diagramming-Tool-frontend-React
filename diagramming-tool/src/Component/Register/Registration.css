@@ -13,10 +13,11 @@
   
   .form-left {
     width: 500px; 
-    padding: 20px;
+    padding: 40px;
+    border-radius: 30px;
    
     background-color: white; 
-    max-height: 600px;
+    max-height: 700px;
     overflow-y: auto;
   }
   
@@ -35,7 +36,7 @@
 .form-left input[type="email"],
 .form-left input[type="password"] {
     width: calc(100% - 24px);
-    padding: 8px;
+    padding: 10px;
     border: 2px solid black;
     border-radius: 5px;
     box-sizing: border-box;

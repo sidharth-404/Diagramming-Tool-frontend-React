@@ -5,6 +5,8 @@ import './Registration.css';
 import { registerUser } from '../../ApiService/ApiService'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { confirmAlert } from 'react-confirm-alert'; 
+import 'react-confirm-alert/src/react-confirm-alert.css'; 
  
 const Registration = () => {
   const [formData, setFormData] = useState({
@@ -84,22 +86,43 @@ const Registration = () => {
       const response = await registerUser(formData);
       
       if (response.status ===201) {
-        toast.success("User added successfully! Please login.")
-        setTimeout(() => {
-          navigateToLogin();
-        }, 4000);
+        showConfirmAlert("User added successfully! Please login.", () => {
+          navigate('/login');
+        });
       }
     } catch (error) {
-      toast.error(error)
+      showerrorAlert(error);
     }
   };
 
-  const navigateToLogin = () => {
-    navigate('/login');
+
+
+  const showConfirmAlert = (message, callback = () => {}) => {
+    confirmAlert({
+      title: 'Success',
+      message: message,
+      buttons: [
+        {
+          label: 'OK',
+          onClick: callback
+        }
+      ]
+    });
   };
-
-
-
+ 
+ 
+  const showerrorAlert = (message, callback = () => {}) => {
+    confirmAlert({
+      title: 'Error',
+      message: message,
+      buttons: [
+        {
+          label: 'OK',
+          onClick: callback
+        }
+      ]
+    });
+  };
 
 
   return (
@@ -168,7 +191,7 @@ const Registration = () => {
             {errors.confirmPassword && <span className="error">{errors.confirmPassword}</span>}
           </div>
           <div className='button-save'>
-          <button type="submit" >Register</button>
+          <button type="submit" className='btn-primary' >Register</button>
           </div>
         </div>
       </form>

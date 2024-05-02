@@ -3,8 +3,8 @@ import './ChangePassword.css';
 import { changePasswordApi } from '../../ApiService/ApiService';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { confirmAlert } from 'react-confirm-alert'; // Import react-confirm-alert package
-import 'react-confirm-alert/src/react-confirm-alert.css'; // Import CSS for react-confirm-alert
+import { confirmAlert } from 'react-confirm-alert'; 
+import 'react-confirm-alert/src/react-confirm-alert.css'; 
  
 const ChangePassword = () => {
   const [formData, setFormData] = useState({
@@ -30,7 +30,7 @@ const ChangePassword = () => {
       if (typeof response === 'object' && response.hasOwnProperty('userEmail')) {
         showConfirmAlert('User added successfully! Please login.');
       } else {
-        if (response === 'Password changed successfully') {
+        if (response === 'updated successfully') {
           showConfirmAlert(response, () => {
             navi('/dashboard');
           });
