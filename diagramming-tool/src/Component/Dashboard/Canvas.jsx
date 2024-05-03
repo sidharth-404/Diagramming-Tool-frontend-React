@@ -32,10 +32,9 @@ import { fabric } from "fabric";
 import 'fabric-history';
 import { PiTextBBold, PiTextItalic } from "react-icons/pi";
 import { LuUnderline } from "react-icons/lu";
-import { IoMdColorFilter } from "react-icons/io";
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
-import { saveCanvasImageDummyToDB, getUserByEmail } from '../../ApiService/ApiService';
+import { saveCanvasImageDummyToDB } from '../../ApiService/ApiService';
 import 'react-toastify/dist/ReactToastify.css'
 import jsPDF from 'jspdf';
 import logo from '../../Assets/logo.png';
@@ -43,6 +42,11 @@ import { FaImage } from "react-icons/fa6";
 import { FaRegObjectGroup } from "react-icons/fa";
 import { FaRegObjectUngroup } from "react-icons/fa";
 import { MdOutlineSaveAlt } from "react-icons/md";
+import {
+  addRectangleShape, addCircleShape, addSquareShape, addRoundedRectangleShape,
+  addTriangleShape, addDiamondShape, addPolygonShape, addHexagonShape, addEllipseShape, addLine,
+  addArrowLine, addBidirectionalArrowLine
+} from "./shapes";
 
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
@@ -62,9 +66,6 @@ const CanvasComponent = () => {
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
-  const [isBoldSelected, setIsBoldSelected] = useState(false);
-  const [isItalicSelected, setIsItalicSelected] = useState(false);
-  const [isUnderlineSelected, setIsUnderlineSelected] = useState(false);
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
   const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
@@ -90,8 +91,6 @@ const CanvasComponent = () => {
   useEffect(() => {
     setShowTextColorPicker(false);
   }, [selectedTextColor])
-
-
 
   useEffect(() => {
     const handleOutsideClick = () => {
@@ -268,7 +267,7 @@ const CanvasComponent = () => {
       canvas.renderAll();
     }
   };
- const copiedObjects = () => {
+  const copiedObjects = () => {
     const handleCopyShortcut = (event) => {
       if (event.ctrlKey && event.key === 'v') {
         event.preventDefault();
@@ -391,9 +390,6 @@ const CanvasComponent = () => {
     };
   }, [canvas]);
 
-
-
-
   const handleColorChange = (e) => {
     const newColor = e.target.value;
     setCurrentColor(newColor);
@@ -404,7 +400,7 @@ const CanvasComponent = () => {
           obj.set('fill', newColor);
         } else {
           obj.set('fill', newColor);
-          
+
         }
       });
       canvas.requestRenderAll();
@@ -412,138 +408,7 @@ const CanvasComponent = () => {
   };
 
 
-  const addRectangle = () => {
-    const rect = new fabric.Rect({
-      left: 50,
-      top: 50,
-      fill: '#ffffff',
-      stroke: 'black',
-      strokeWidth: 2,
-      width: 150,
-      height: 100
-    });
-    canvas.add(rect);
-  };
-  const addCircle = () => {
-    const circle = new fabric.Circle({
-      radius: 50,
-      fill: '#ffffff',
-      stroke: 'black',
-      strokeWidth: 2,
-      top: 50,
-      left: 200
-    });
-    canvas.add(circle);
-  };
-
-  const addSquare = () => {
-    const square = new fabric.Rect({
-      left: 300,
-      top: 50,
-      fill:'#ffffff',
-      stroke: 'black',
-      strokeWidth: 2,
-      width: 100,
-      height: 100
-    });
-    canvas.add(square);
-  };
-
-  const addTriangle = () => {
-    const triangle = new fabric.Triangle({
-      width: 100,
-      height: 100,
-      fill: '#ffffff',
-      stroke: 'black',
-      strokeWidth: 2,
-      left: 400,
-      top: 50
-    });
-    canvas.add(triangle);
-  };
-
-  const addDiamond = () => {
-    const diamond = new fabric.Polygon([
-      { x: 75, y: 0 },
-      { x: 150, y: 50 },
-      { x: 75, y: 100 },
-      { x: 0, y: 50 }
-    ], {
-      left: 500,
-      top: 50,
-      fill: '#ffffff',
-      stroke: 'black',
-      strokeWidth: 2,
-    });
-    canvas.add(diamond);
-  };
-
-  const addRoundedRectangle = () => {
-    const roundedRect = new fabric.Rect({
-      left: 200,
-      top: 200,
-      fill: '#ffffff',
-      width: 150,
-      height: 100,
-      rx: 20,
-      ry: 20,
-      stroke: 'black',
-      strokeWidth: 2
-    });
-
-    canvas.add(roundedRect);
-  };
-
-  const addPolygon = () => {
-    const polygon = new fabric.Polygon([
-      { x: 200, y: 0 },
-      { x: 250, y: 50 },
-      { x: 250, y: 100 },
-      { x: 150, y: 100 },
-      { x: 150, y: 50 }
-    ], {
-      left: 400,
-      top: 200,
-      fill: '#ffffff',
-      stroke: 'black',
-      strokeWidth: 2,
-    });
-    canvas.add(polygon);
-  };
-
-  const addHexagon = () => {
-    const hexagon = new fabric.Polygon([
-      { x: 50, y: 25 },
-      { x: 100, y: 25 },
-      { x: 125, y: 75 },
-      { x: 100, y: 125 },
-      { x: 50, y: 125 },
-      { x: 25, y: 75 }
-    ], {
-      left: 600,
-      top: 200,
-      stroke: 'black',
-      strokeWidth: 2,
-      fill: '#ffffff',
-      selectable: true
-    });
-    canvas.add(hexagon);
-  };
-
-  const addEllipse = () => {
-    const ellipse = new fabric.Ellipse({
-      rx: 75,
-      ry: 50,
-      fill: '#ffffff',
-      stroke: 'black',
-      strokeWidth: 2,
-      top: 200,
-      left: 50
-    });
-    canvas.add(ellipse);
-  };
-
-  const addText = (selectedFontFamil) => {
+  const addText = () => {
     const text = new fabric.IText('', {
       left: 20,
       top: 50,
@@ -570,78 +435,8 @@ const CanvasComponent = () => {
     setIsItalic(false);
     setIsUnderline(false);
   };
-  const addLine = () => {
-    const line = new fabric.Line([50, 100, 300, 100], {
-      left: 50,
-      top: 350,
-      strokeWidth: 2,
-      stroke: currentBorderColor,
-    });
-    canvas.add(line);
-  };
-
-  const addArrowLine = () => {
-    const line = new fabric.Line([50, 380, 300, 380], {
-      stroke: currentBorderColor,
-      fill: currentBorderColor,
-      strokeWidth: 2,
-      selectable: true
-    });
-
-    const arrow = new fabric.Triangle({
-      width: 10,
-      height: 10,
-      fill: currentBorderColor,
-      stroke: currentBorderColor,
-      left: 300,
-      top: 380,
-      angle: 90,
-      originX: 'center',
-      originY: 'center'
-    });
-    const group = new fabric.Group([line, arrow], {});
-
-    canvas.add(group);
-  };
-
-  const addBidirectionalArrowLine = () => {
-    const line = new fabric.Line([50, 410, 300, 410], {
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-      selectable: true
-    });
-
-    const arrow1 = new fabric.Triangle({
-      width: 10,
-      height: 10,
-      fill: currentBorderColor,
-      left: 50,
-      top: 410,
-      angle: -90,
-      originX: 'center',
-      originY: 'center'
-    });
-
-    const arrow2 = new fabric.Triangle({
-      width: 10,
-      height: 10,
-      fill: currentBorderColor,
-      left: 300,
-      top: 410,
-      angle: 90,
-      originX: 'center',
-      originY: 'center'
-    });
-    const group = new fabric.Group([line, arrow1, arrow2], {});
 
 
-    group.set({
-      stroke: currentBorderColor,
-      strokeWidth: currentBorderWidth,
-    });
-
-    canvas.add(group);
-  };
 
   const deleteSelectedObject = () => {
     const activeObjects = canvas.getActiveObjects();
@@ -751,7 +546,7 @@ const CanvasComponent = () => {
     changeTextStyle('underline', !isUnderline ? 'underline' : false);
   };
 
- 
+
   const changeTextStyle = (property, value) => {
     const activeObject = canvas.getActiveObject();
     if (activeObject && activeObject.type === 'i-text') {
@@ -842,7 +637,6 @@ const CanvasComponent = () => {
     }
 
     try {
-    
 
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
@@ -930,12 +724,12 @@ const CanvasComponent = () => {
         {
           label: 'Yes',
           onClick: () => {
-           canvas.clear();
+            canvas.clear();
 
             localStorage.removeItem('selected-image');
             localStorage.removeItem('canvasState');
 
-            
+
             toast.success("Canvas cleared successfully!");
 
           }
@@ -961,9 +755,6 @@ const CanvasComponent = () => {
       canvas.requestRenderAll();
     }
   };
-
-
-
 
   const decreaseBorderWidth = () => {
     if (currentBorderWidth > 1) {
@@ -1044,33 +835,33 @@ const CanvasComponent = () => {
           <div className="shapebutton-container">
             <h2>Shapes</h2>
             <hr></hr>
-            <div>
-              <button data-testid="rectangleButton" title="Rectangle" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
-              <button data-testid="circleButton" title="Circle" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
-              <button data-testid="squareButton" title="Square" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
-            </div>
-            <div>
-              <button data-testid="triangleButton" title="Triangle" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
-              <button data-testid="diamondButton" title="Diamond" onClick={addDiamond}><GoDiamond fontSize={70} /></button>
-              <button data-testid="pentagonButton" title="Pentagon" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
-            </div>
-            <div>
-              <button data-testid="ellipseButton" title="Ellipse" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
-              <button data-testid="roundrectButton" title="Rounded Rectangle" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
-              <button data-testid="hexagonButton" title="Hexagon" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
-            </div>
+            <>
+              <button data-testid="rectangleButton" title="Rectangle" onClick={() => { addRectangleShape(canvas) }}><PiRectangle fontSize={70} /></button>
+              <button data-testid="circleButton" title="Circle" onClick={() => { addCircleShape(canvas) }}><VscCircleLarge fontSize={70} /></button>
+              <button data-testid="squareButton" title="Square" onClick={() => addSquareShape(canvas)}><IoIosSquareOutline fontSize={70} /></button>
+            </>
+            <>
+              <button data-testid="triangleButton" title="Triangle" onClick={() => addTriangleShape(canvas)}><IoTriangleOutline fontSize={70} /></button>
+              <button data-testid="diamondButton" title="Diamond" onClick={() => addDiamondShape(canvas)}><GoDiamond fontSize={70} /></button>
+              <button data-testid="pentagonButton" title="Pentagon" onClick={() => addPolygonShape(canvas)}><BsPentagon fontSize={70} /></button>
+            </>
+            <>
+              <button data-testid="ellipseButton" title="Ellipse" onClick={() => addEllipseShape(canvas)}><TbOvalVertical fontSize={70} /></button>
+              <button data-testid="roundrectButton" title="Rounded Rectangle" onClick={() => addRoundedRectangleShape(canvas)}><LuRectangleHorizontal fontSize={70} /></button>
+              <button data-testid="hexagonButton" title="Hexagon" onClick={() => addHexagonShape(canvas)}><BsHexagon fontSize={70} /></button>
+            </>
             <h2>Lines</h2>
             <hr></hr>
-            <div>
-              <button data-testid="lineButton" title="Line" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
-              <button data-testid="arrowButton" title="Directional Connector" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
-              <button data-testid="biarrowdButton" title="Bidirectional Connector" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
-            </div>
+            <>
+              <button data-testid="lineButton" title="Line" onClick={() => addLine({ canvas, currentBorderColor })}><IoRemoveOutline fontSize={65} /></button>
+              <button data-testid="arrowButton" title="Directional Connector" onClick={() => addArrowLine({ canvas, currentBorderColor })}><HiOutlineArrowLongRight fontSize={65} /></button>
+              <button data-testid="biarrowdButton" title="Bidirectional Connector" onClick={() => addBidirectionalArrowLine({ canvas, currentBorderColor, currentBorderWidth })}><BsArrows fontSize={65} /></button>
+            </>
             <h2>Add Text</h2>
             <hr></hr>
-            <div>
+            <>
               <button data-testid="textButton" onClick={addText}><PiTextT fontSize={65} /></button>
-            </div>
+            </>
           </div>
         </div>
         <div className="main">
@@ -1124,7 +915,7 @@ const CanvasComponent = () => {
             <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
           </div>
 
-          <div>
+          <>
             <h1>Draw Here!!</h1>
             <ContextMenuTrigger id="canvas-context-menu" holdToDisplay={-1}>
               <canvas
@@ -1142,10 +933,10 @@ const CanvasComponent = () => {
               <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
               <MenuItem className="rc-menu-item" onClick={() => canvas.undo()}>Undo</MenuItem>
               <MenuItem className="rc-menu-item" onClick={() => canvas.redo()}>Redo</MenuItem>
-             
+
             </ContextMenu>
 
-          </div>
+          </>
         </div>
         <div className="sidbar-right">
 
@@ -1156,9 +947,9 @@ const CanvasComponent = () => {
               <input className="bc" type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
               <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
               <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-              <button Title='Solid Line' style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setSolidBorder}>____</button>
-              <button data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDottedBorder}>......</button>
-              <button class="dropdown-option" title="Dashed Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDashedBorder}>_ _ _</button>
+              <button title='Solid Line' style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setSolidBorder}>____</button>
+              <button data-testid="set-dotted-border-button" className="dropdown-option" title="Dotted Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDottedBorder}>......</button>
+              <button className="dropdown-option" title="Dashed Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDashedBorder}>_ _ _</button>
             </div>
           </>
           <h2>Text</h2>
@@ -1177,18 +968,18 @@ const CanvasComponent = () => {
           <div className="button-container-textstyle">
             <button data-testid="boldButton" className={`left ${isBold ? 'active' : ''}`} title="Bold" onClick={toggleBold}><PiTextBBold /></button>
             <button data-testid="italicButton" className={`center ${isItalic ? 'active' : ''}`} title="italic" onClick={toggleItalic}><PiTextItalic /></button>
-            <button data-testid="underButton"  className={`right ${isUnderline ? 'active' : ''}`} title="under line" onClick={toggleUnderline}><LuUnderline /></button>
+            <button data-testid="underButton" className={`right ${isUnderline ? 'active' : ''}`} title="under line" onClick={toggleUnderline}><LuUnderline /></button>
           </div>
           <div className="button-container-color">
             <div className="text-color">Text color</div>
             {/* selectedTextColor */}
             <button data-testid="textcolorButton" className="color-button" style={textColorPickerStyle} onClick={() => setShowTextColorPicker(!showTextColorPicker)} ></button>
           </div>
-          <div>
+          <>
             <button data-testid="plusButton" style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={increaseTextSize}>+</button>
             <button data-testid="minusButton" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
             <span style={{ marginLeft: "25px" }} id="currentSize"></span>
-          </div>
+          </>
           {showTextColorPicker && (
             <SketchPicker
               data-testid="sketch-picker"
@@ -1221,6 +1012,4 @@ const CanvasComponent = () => {
     </div>
   );
 };
-
-
 export default CanvasComponent;
