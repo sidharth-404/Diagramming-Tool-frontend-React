@@ -32,10 +32,9 @@ import { fabric } from "fabric";
 import 'fabric-history';
 import { PiTextBBold, PiTextItalic } from "react-icons/pi";
 import { LuUnderline } from "react-icons/lu";
-import { IoMdColorFilter } from "react-icons/io";
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
-import { saveCanvasImageDummyToDB, getUserByEmail } from '../../ApiService/ApiService';
+import { saveCanvasImageDummyToDB } from '../../ApiService/ApiService';
 import 'react-toastify/dist/ReactToastify.css'
 import jsPDF from 'jspdf';
 import logo from '../../Assets/logo.png';
@@ -45,6 +44,11 @@ import { FaRegObjectUngroup } from "react-icons/fa";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { MdFormatColorFill } from "react-icons/md";
 import useCanvas from './borderUtils';
+import {
+  addRectangleShape, addCircleShape, addSquareShape, addRoundedRectangleShape,
+  addTriangleShape, addDiamondShape, addPolygonShape, addHexagonShape, addEllipseShape, addLine,
+  addArrowLine, addBidirectionalArrowLine
+} from "./shapes";
 
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
@@ -73,22 +77,31 @@ const CanvasComponent = () => {
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  const {setDottedBorder, setSolidBorder, setDashedBorder,increaseBorderWidth,decreaseBorderWidth,
-    handleBorderColorChange,increaseTextSize,decreaseTextSize,deleteSelectedObject,groupObjects,ungroupObjects,
-    changeTextColor,changeTextFont } = useCanvas(canvas);
+  const { setDottedBorder, setSolidBorder, setDashedBorder, increaseBorderWidth, decreaseBorderWidth,
+    handleBorderColorChange, increaseTextSize, decreaseTextSize, deleteSelectedObject, groupObjects, ungroupObjects,
+    changeTextColor, changeTextFont } = useCanvas(canvas);
 
-  // useEffect(() => {
-  //   if (!Cookies.get('token')) {
-  //     navigation('/');
-  //   }
-  // })
+  useEffect(() => {
+    if (!Cookies.get('token')) {
+      navigation('/');
+    }
+  })
 
+  const textColorPickerStyle = {
+    backgroundColor: selectedTextColor,
+    borderColor: "black",
+    borderWidth: "6px",
+    width: "60px"
+  };
+
+  useEffect(() => {
+    setShowTextColorPicker(false);
+  }, [selectedTextColor])
 
   useEffect(() => {
     const handleOutsideClick = () => {
       setShowContextMenu(false);
     };
-
     const canvasElement = canvasRef.current;
     if (canvasElement) {
       canvasElement.addEventListener('click', handleOutsideClick);
@@ -100,6 +113,9 @@ const CanvasComponent = () => {
       }
     };
   }, [canvasRef]);
+
+
+
 
   const handleContextMenu = (event) => {
     event.preventDefault();
@@ -138,9 +154,16 @@ const CanvasComponent = () => {
     });
 
     initCanvas.on('selection:created', (e) => {
-
       setGroup(true);
       setSelectedShape(true)
+      if (e.selected[0].type !== 'i-text') {
+        setCurrentColor(e.selected[0].fill);
+        setCurrentBorderColor(e.selected[0].stroke)
+      }
+      if (e.selected[0].type === 'i-text') {
+        setSelectedTextColor(e.selected[0].fill)
+        setShowTextColorPicker((prev) => !prev);
+      }
     });
 
     initCanvas.on('selection:cleared', () => {
@@ -209,7 +232,6 @@ const CanvasComponent = () => {
     return () => initCanvas.dispose();
 
   }, []);
-
 
   const copiedObjects = () => {
     const handleCopyShortcut = (event) => {
@@ -334,9 +356,6 @@ const CanvasComponent = () => {
     };
   }, [canvas]);
 
-
-
-
   const handleColorChange = (e) => {
     const newColor = e.target.value;
     setCurrentColor(newColor);
@@ -347,7 +366,7 @@ const CanvasComponent = () => {
           obj.set('fill', newColor);
         } else {
           obj.set('fill', newColor);
-          
+
         }
       });
       canvas.requestRenderAll();
@@ -355,145 +374,15 @@ const CanvasComponent = () => {
   };
 
 
-  const addRectangle = () => {
-    const rect = new fabric.Rect({
-      left: 50,
-      top: 50,
-      fill: currentColor,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-      width: 150,
-      height: 100
-    });
-    canvas.add(rect);
-  };
-  const addCircle = () => {
-    const circle = new fabric.Circle({
-      radius: 50,
-      fill: currentColor,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-      top: 50,
-      left: 200
-    });
-    canvas.add(circle);
-  };
-
-  const addSquare = () => {
-    const square = new fabric.Rect({
-      left: 300,
-      top: 50,
-      fill: currentColor,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-      width: 100,
-      height: 100
-    });
-    canvas.add(square);
-  };
-
-  const addTriangle = () => {
-    const triangle = new fabric.Triangle({
-      width: 100,
-      height: 100,
-      fill: currentColor,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-      left: 400,
-      top: 50
-    });
-    canvas.add(triangle);
-  };
-
-  const addDiamond = () => {
-    const diamond = new fabric.Polygon([
-      { x: 75, y: 0 },
-      { x: 150, y: 50 },
-      { x: 75, y: 100 },
-      { x: 0, y: 50 }
-    ], {
-      left: 500,
-      top: 50,
-      fill: currentColor,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-    });
-    canvas.add(diamond);
-  };
-
-  const addRoundedRectangle = () => {
-    const roundedRect = new fabric.Rect({
-      left: 200,
-      top: 200,
-      fill: currentColor,
-      width: 150,
-      height: 100,
-      rx: 20,
-      ry: 20,
-      stroke: currentBorderColor,
-      strokeWidth: 2
-    });
-
-    canvas.add(roundedRect);
-  };
-
-  const addPolygon = () => {
-    const polygon = new fabric.Polygon([
-      { x: 200, y: 0 },
-      { x: 250, y: 50 },
-      { x: 250, y: 100 },
-      { x: 150, y: 100 },
-      { x: 150, y: 50 }
-    ], {
-      left: 400,
-      top: 200,
-      fill: currentColor,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-    });
-    canvas.add(polygon);
-  };
-
-  const addHexagon = () => {
-    const hexagon = new fabric.Polygon([
-      { x: 50, y: 25 },
-      { x: 100, y: 25 },
-      { x: 125, y: 75 },
-      { x: 100, y: 125 },
-      { x: 50, y: 125 },
-      { x: 25, y: 75 }
-    ], {
-      left: 600,
-      top: 200,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-      fill: currentColor,
-      selectable: true
-    });
-    canvas.add(hexagon);
-  };
-
-  const addEllipse = () => {
-    const ellipse = new fabric.Ellipse({
-      rx: 75,
-      ry: 50,
-      fill: currentColor,
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-      top: 200,
-      left: 50
-    });
-    canvas.add(ellipse);
-  };
-
-  const addText = (selectedFontFamil) => {
-    const text = new fabric.IText('New Text', {
+  const addText = () => {
+    const text = new fabric.IText('', {
       left: 20,
       top: 50,
       fontSize: 20,
       fontFamily: selectedFontFamily,
       editable: true
     });
+    text.set({ text: 'Typehere...' });
     canvas.add(text);
     document.getElementById('currentSize').textContent = text.fontSize;
     canvas.setActiveObject(text);
@@ -512,78 +401,8 @@ const CanvasComponent = () => {
     setIsItalic(false);
     setIsUnderline(false);
   };
-  const addLine = () => {
-    const line = new fabric.Line([50, 100, 300, 100], {
-      left: 50,
-      top: 350,
-      strokeWidth: 2,
-      stroke: currentBorderColor,
-    });
-    canvas.add(line);
-  };
-
-  const addArrowLine = () => {
-    const line = new fabric.Line([50, 380, 300, 380], {
-      stroke: currentBorderColor,
-      fill: currentBorderColor,
-      strokeWidth: 2,
-      selectable: true
-    });
-
-    const arrow = new fabric.Triangle({
-      width: 10,
-      height: 10,
-      fill: currentBorderColor,
-      stroke: currentBorderColor,
-      left: 300,
-      top: 380,
-      angle: 90,
-      originX: 'center',
-      originY: 'center'
-    });
-    const group = new fabric.Group([line, arrow], {});
-
-    canvas.add(group);
-  };
-
-  const addBidirectionalArrowLine = () => {
-    const line = new fabric.Line([50, 410, 300, 410], {
-      stroke: currentBorderColor,
-      strokeWidth: 2,
-      selectable: true
-    });
-
-    const arrow1 = new fabric.Triangle({
-      width: 10,
-      height: 10,
-      fill: currentBorderColor,
-      left: 50,
-      top: 410,
-      angle: -90,
-      originX: 'center',
-      originY: 'center'
-    });
-
-    const arrow2 = new fabric.Triangle({
-      width: 10,
-      height: 10,
-      fill: currentBorderColor,
-      left: 300,
-      top: 410,
-      angle: 90,
-      originX: 'center',
-      originY: 'center'
-    });
-    const group = new fabric.Group([line, arrow1, arrow2], {});
 
 
-    group.set({
-      stroke: currentBorderColor,
-      strokeWidth: currentBorderWidth,
-    });
-
-    canvas.add(group);
-  };
 
   const handleDelete = () => {
     deleteSelectedObject(canvas);
@@ -606,6 +425,7 @@ const CanvasComponent = () => {
       case 'Signout':
         Cookies.remove('token');
         localStorage.removeItem('canvasState');
+        localStorage.removeItem('selected-image');
         navigation('/');
         break;
       default:
@@ -673,8 +493,6 @@ const CanvasComponent = () => {
     }
 
     try {
-      const userResponse = await getUserByEmail(jwtToken);
-      const userId = userResponse.userId;
 
       const canvasElement = canvasRef.current;
       if (!canvasElement) return;
@@ -723,9 +541,8 @@ const CanvasComponent = () => {
                 const canvasState = canvas.toJSON();
                 const base64String = canvasDataUrl.split(",")[1];
                 const imageJson = JSON.stringify(canvasState);
-                saveCanvasImageDummyToDB(fileName, imageJson, base64String, userId)
+                saveCanvasImageDummyToDB(fileName, imageJson, base64String, jwtToken)
                   .then(() => {
-                    console.log("Canvas image saved to database.");
                     setShowMsgBox(true);
                     setMsg("Image saved successfully!");
                     setShowSavePopup(false);
@@ -764,6 +581,11 @@ const CanvasComponent = () => {
           label: 'Yes',
           onClick: () => {
             canvas.clear();
+
+            localStorage.removeItem('selected-image');
+            localStorage.removeItem('canvasState');
+
+
             toast.success("Canvas cleared successfully!");
 
           }
@@ -801,7 +623,7 @@ const CanvasComponent = () => {
       canvas.requestRenderAll();
     }
   };
-  
+
 
   return (
     <div>
@@ -823,38 +645,38 @@ const CanvasComponent = () => {
           <div className="shapebutton-container">
             <h2>Shapes</h2>
             <hr></hr>
-            <div>
-              <button data-testid="rectangleButton" title="Rectangle" onClick={addRectangle}><PiRectangle fontSize={70} /></button>
-              <button data-testid="circleButton" title="Circle" onClick={addCircle}><VscCircleLarge fontSize={70} /></button>
-              <button data-testid="squareButton" title="Square" onClick={addSquare}><IoIosSquareOutline fontSize={70} /></button>
-            </div>
-            <div>
-              <button data-testid="triangleButton" title="Triangle" onClick={addTriangle}><IoTriangleOutline fontSize={70} /></button>
-              <button data-testid="diamondButton" title="Diamond" onClick={addDiamond}><GoDiamond fontSize={70} /></button>
-              <button data-testid="pentagonButton" title="Pentagon" onClick={addPolygon}><BsPentagon fontSize={70} /></button>
-            </div>
-            <div>
-              <button data-testid="ellipseButton" title="Ellipse" onClick={addEllipse}><TbOvalVertical fontSize={70} /></button>
-              <button data-testid="roundrectButton" title="Rounded Rectangle" onClick={addRoundedRectangle}><LuRectangleHorizontal fontSize={70} /></button>
-              <button data-testid="hexagonButton" title="Hexagon" onClick={addHexagon}><BsHexagon fontSize={70} /></button>
-            </div>
+            <>
+              <button data-testid="rectangleButton" title="Rectangle" onClick={() => { addRectangleShape(canvas) }}><PiRectangle fontSize={70} /></button>
+              <button data-testid="circleButton" title="Circle" onClick={() => { addCircleShape(canvas) }}><VscCircleLarge fontSize={70} /></button>
+              <button data-testid="squareButton" title="Square" onClick={() => addSquareShape(canvas)}><IoIosSquareOutline fontSize={70} /></button>
+            </>
+            <>
+              <button data-testid="triangleButton" title="Triangle" onClick={() => addTriangleShape(canvas)}><IoTriangleOutline fontSize={70} /></button>
+              <button data-testid="diamondButton" title="Diamond" onClick={() => addDiamondShape(canvas)}><GoDiamond fontSize={70} /></button>
+              <button data-testid="pentagonButton" title="Pentagon" onClick={() => addPolygonShape(canvas)}><BsPentagon fontSize={70} /></button>
+            </>
+            <>
+              <button data-testid="ellipseButton" title="Ellipse" onClick={() => addEllipseShape(canvas)}><TbOvalVertical fontSize={70} /></button>
+              <button data-testid="roundrectButton" title="Rounded Rectangle" onClick={() => addRoundedRectangleShape(canvas)}><LuRectangleHorizontal fontSize={70} /></button>
+              <button data-testid="hexagonButton" title="Hexagon" onClick={() => addHexagonShape(canvas)}><BsHexagon fontSize={70} /></button>
+            </>
             <h2>Lines</h2>
             <hr></hr>
-            <div>
-              <button data-testid="lineButton" title="Line" onClick={addLine}><IoRemoveOutline fontSize={65} /></button>
-              <button data-testid="arrowButton" title="Directional Connector" onClick={addArrowLine}><HiOutlineArrowLongRight fontSize={65} /></button>
-              <button data-testid="biarrowdButton" title="Bidirectional Connector" onClick={addBidirectionalArrowLine}><BsArrows fontSize={65} /></button>
-            </div>
+            <>
+              <button data-testid="lineButton" title="Line" onClick={() => addLine({ canvas, currentBorderColor })}><IoRemoveOutline fontSize={65} /></button>
+              <button data-testid="arrowButton" title="Directional Connector" onClick={() => addArrowLine({ canvas, currentBorderColor })}><HiOutlineArrowLongRight fontSize={65} /></button>
+              <button data-testid="biarrowdButton" title="Bidirectional Connector" onClick={() => addBidirectionalArrowLine({ canvas, currentBorderColor, currentBorderWidth })}><BsArrows fontSize={65} /></button>
+            </>
             <h2>Add Text</h2>
             <hr></hr>
-            <div>
+            <>
               <button data-testid="textButton" onClick={addText}><PiTextT fontSize={65} /></button>
-            </div>
+            </>
           </div>
         </div>
         <div className="main">
           <div className="button-container">
-          <button data-testid="newdiagram" title="new Diagram" onClick={handleCreateNewDiagram}><MdFiberNew fontSize={30} /></button>
+            <button data-testid="newdiagram" title="new Diagram" onClick={handleCreateNewDiagram}><MdFiberNew fontSize={30} /></button>
 
             <button title="Save To Database" data-testid="saveButton"
               onClick={() => setShowSavePopup(true)}
@@ -884,11 +706,11 @@ const CanvasComponent = () => {
                 <span className="tooltip">Delete</span>
               )} <ToastContainer />
             </button>
-           
-            <input type="file" data-testid="fileUpload" accept="image/*" 
-            onChange={handleImageUpload}
-            style={{ display: "none" }} 
-             ref={imageInputRef} />
+
+            <input type="file" data-testid="fileUpload" accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: "none" }}
+              ref={imageInputRef} />
             <button title="Add Image" data-testid="imageInput" onClick={() => imageInputRef.current.click()}>
               <FaImage fontSize={30} />
 
@@ -899,10 +721,11 @@ const CanvasComponent = () => {
               <TfiSave fontSize={30} /></button>
             <button data-testid="groupButton" title="group" onClick={groupObjects}><FaRegObjectGroup fontSize={30} /></button>
             <button data-testid="ungroupedButton" title="ungroup" onClick={ungroupObjects}><FaRegObjectUngroup fontSize={30} /></button>
+
             <input data-testid="colorPicker" type="color" title="Fill Colour" value={currentColor} onChange={handleColorChange} />
           </div>
 
-          <div>
+          <>
             <h1>Draw Here!!</h1>
             <ContextMenuTrigger id="canvas-context-menu" holdToDisplay={-1}>
               <canvas
@@ -921,10 +744,10 @@ const CanvasComponent = () => {
               <MenuItem className="rc-menu-item" onClick={() => canvas.undo()}>Undo</MenuItem>
               <MenuItem className="rc-menu-item" onClick={() => canvas.redo()}>Redo</MenuItem>
               <MenuItem className="rc-menu-item" onClick={() => groupObjects(canvas)}>Groups</MenuItem>
-              <MenuItem className="rc-menu-item"  onClick={() => ungroupObjects(canvas)}>UnGroup</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={() => ungroupObjects(canvas)}>UnGroup</MenuItem>
             </ContextMenu>
 
-          </div>
+          </>
         </div>
         <div className="sidbar-right">
 
@@ -933,13 +756,13 @@ const CanvasComponent = () => {
             <hr></hr>
             <div className="borderbuttons">
               <input className="bc" type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
-              <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={()=>increaseBorderWidth(canvas)} title="Increase Border">+</button>
-              <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={()=>decreaseBorderWidth(canvas)} title="Decrease Border">-</button>
-              <button  Title='Solid Line'  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={()=>setSolidBorder(canvas)}>____</button>
-              <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={()=>setDottedBorder(canvas)}>......</button>
-              <button class="dropdown-option" title="Dashed Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={()=>setDashedBorder(canvas)}>_ _ _</button>
-              </div>
-            </>
+              <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={() => increaseBorderWidth(canvas)} title="Increase Border">+</button>
+              <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={() => decreaseBorderWidth(canvas)} title="Decrease Border">-</button>
+              <button Title='Solid Line' style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={() => setSolidBorder(canvas)}>____</button>
+              <button data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={() => setDottedBorder(canvas)}>......</button>
+              <button class="dropdown-option" title="Dashed Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={() => setDashedBorder(canvas)}>_ _ _</button>
+            </div>
+          </>
           <h1>Text</h1>
           <hr></hr>
           <div className="dropdown-container">
@@ -954,19 +777,20 @@ const CanvasComponent = () => {
           </div>
 
           <div className="button-container-textstyle">
-            <button data-testid="boldButton" className={`left ${isBold ? 'active' : ''}`} title="Bold" onClick={()=>toggleBold(canvas)}><PiTextBBold /></button>
-            <button data-testid="italicButton" className={`center ${isItalic ? 'active' : ''}`} title="italic" onClick={()=>toggleItalic(canvas)}><PiTextItalic /></button>
-            <button data-testid="underButton"  className={`right ${isUnderline ? 'active' : ''}`} title="under line" onClick={()=>toggleUnderline(canvas)}><LuUnderline /></button>
+            <button data-testid="boldButton" className={`left ${isBold ? 'active' : ''}`} title="Bold" onClick={() => toggleBold(canvas)}><PiTextBBold /></button>
+            <button data-testid="italicButton" className={`center ${isItalic ? 'active' : ''}`} title="italic" onClick={() => toggleItalic(canvas)}><PiTextItalic /></button>
+            <button data-testid="underButton" className={`right ${isUnderline ? 'active' : ''}`} title="under line" onClick={() => toggleUnderline(canvas)}><LuUnderline /></button>
           </div>
           <div className="button-container-color">
             <div className="text-color">Text color</div>
-            <button data-testid="textcolorButton" className="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
+            {/* selectedTextColor */}
+            <button data-testid="textcolorButton" className="color-button" style={textColorPickerStyle} onClick={() => setShowTextColorPicker(!showTextColorPicker)} ></button>
           </div>
-          <div>
-            <button data-testid="plusButton" style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={()=>increaseTextSize(canvas)}>+</button>
-            <button data-testid="minusButton" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={()=>decreaseTextSize(canvas)}> - </button>
+          <>
+            <button data-testid="plusButton" style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={() => increaseTextSize(canvas)}>+</button>
+            <button data-testid="minusButton" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={() => decreaseTextSize(canvas)}> - </button>
             <span style={{ marginLeft: "25px" }} id="currentSize"></span>
-          </div>
+          </>
           {showTextColorPicker && (
             <SketchPicker
               data-testid="sketch-picker"
@@ -995,9 +819,8 @@ const CanvasComponent = () => {
           handleClick={() => setShowMsgBox(false)}
         />
       )}
-    
+
     </div>
   );
 };
-
 export default CanvasComponent;

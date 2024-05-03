@@ -9,10 +9,9 @@ import 'react-confirm-alert/src/react-confirm-alert.css'; // Import CSS for reac
 const ChangePassword = () => {
   const [formData, setFormData] = useState({
     userEmail: '',
-    currentPassword: '',
     newPassword: '',
-    confirmPassword: '',
-    jwtToken: Cookies.get('token')
+    currentPassword: '',
+    confirmPassword: ''
   });
   const navi = useNavigate();
  
@@ -27,12 +26,10 @@ const ChangePassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await changePasswordApi(formData);
+      const response = await changePasswordApi(formData,Cookies.get('token'))
       if (typeof response === 'object' && response.hasOwnProperty('userEmail')) {
-        // Show success message
         showConfirmAlert('User added successfully! Please login.');
       } else {
-        // Show success message and navigate to dashboard
         if (response === 'Password changed successfully') {
           showConfirmAlert(response, () => {
             navi('/dashboard');
@@ -41,7 +38,7 @@ const ChangePassword = () => {
       }
     } catch (error) {
       console.error(error);
-      showerrorAlert(error);
+      showerrorAlert(error.description);
     }
   };
  

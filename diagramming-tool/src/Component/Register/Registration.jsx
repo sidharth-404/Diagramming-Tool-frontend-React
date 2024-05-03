@@ -75,6 +75,7 @@ const Registration = () => {
     }
 
     try {
+     
       const response = await registerUser(formData);
       
       if (response.status ===201) {

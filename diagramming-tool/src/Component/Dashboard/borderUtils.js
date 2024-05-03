@@ -5,7 +5,7 @@ import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const useCanvas = (canvas) => {
-  const [ setBorderType] = useState('solid');
+  const [ borderType,setBorderType] = useState('solid');
   const [currentBorderWidth, setCurrentBorderWidth] = useState(1);
   const [currentBorderColor, setCurrentBorderColor] = useState('black');
 
