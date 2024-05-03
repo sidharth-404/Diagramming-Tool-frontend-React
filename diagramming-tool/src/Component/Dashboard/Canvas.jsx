@@ -546,7 +546,7 @@ const CanvasComponent = () => {
     canvas.add(ellipse);
   };
 
-  const addText = (selectedFontFamil) => {
+  const addText = () => {
     const text = new fabric.IText('', {
       left: 20,
       top: 50,
@@ -845,10 +845,8 @@ const CanvasComponent = () => {
     }
 
     try {
-      // const userResponse = await getUserByEmail(jwtToken);
-      // const userId = userResponse.userId;
-
-      const canvasElement = canvasRef.current;
+      
+     const canvasElement = canvasRef.current;
       if (!canvasElement) return;
 
       const tempCanvas = document.createElement("canvas");
