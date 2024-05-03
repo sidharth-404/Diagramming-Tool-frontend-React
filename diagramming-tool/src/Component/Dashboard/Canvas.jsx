@@ -44,6 +44,7 @@ import { FaRegObjectGroup } from "react-icons/fa";
 import { FaRegObjectUngroup } from "react-icons/fa";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { MdFormatColorFill } from "react-icons/md";
+import useCanvas from './borderUtils';
 
 const CanvasComponent = () => {
   const [msg, setMsg] = useState("");
@@ -63,24 +64,24 @@ const CanvasComponent = () => {
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
-  const [isBoldSelected, setIsBoldSelected] = useState(false);
-  const [isItalicSelected, setIsItalicSelected] = useState(false);
-  const [isUnderlineSelected, setIsUnderlineSelected] = useState(false);
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
   const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
-  //const [copiedObjects, setCopiedObjects] = useState([]);
   const imageInputRef = useRef(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [line, setLine] = useState(null);
   const [arrowhead, setArrowhead] = useState(null);
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  const {setDottedBorder, setSolidBorder, setDashedBorder,increaseBorderWidth,decreaseBorderWidth,
+    handleBorderColorChange,increaseTextSize,decreaseTextSize,deleteSelectedObject,groupObjects,ungroupObjects,
+    changeTextColor,changeTextFont } = useCanvas(canvas);
+
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
 
 
   useEffect(() => {
@@ -209,48 +210,6 @@ const CanvasComponent = () => {
 
   }, []);
 
-  const groupObjects = () => {
-    const selectedObjects = canvas.getActiveObjects();
-    if (selectedObjects.length > 1) {
-      const group = new fabric.Group(selectedObjects, {
-        originX: 'left',
-        originY: 'bottom',
-        selectable: true,
-        cornerColor: 'yellow',
-        borderColor: 'black',
-        cornerSize: 6,
-        padding: 5,
-        cornerStyle: 'square',
-      });
-      group.set({
-        left: 200,
-        top: 300
-      });
-      selectedObjects.forEach(obj => {
-        canvas.remove(obj);
-      });
-      canvas.add(group);
-      canvas.renderAll();
-    }
-  };
-
-  const ungroupObjects = () => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === 'group') {
-
-      const items = activeObject._objects;
-      activeObject._restoreObjectsState();
-      canvas.remove(activeObject);
-      items.forEach((obj) => {
-        canvas.add(obj);
-      });
-
-      canvas.discardActiveObject();
-      canvas.renderAll();
-    } 
-  };
-
-
 
   const copiedObjects = () => {
     const handleCopyShortcut = (event) => {
@@ -294,7 +253,7 @@ const CanvasComponent = () => {
       } else if (event.ctrlKey && event.key === 'y') {
         canvas.redo();
       } else if (event.key === 'Delete') {
-        deleteSelectedObject();
+        handleDelete();
       } else if (event.ctrlKey && event.key === 'v') {
         copiedObjects();
       }
@@ -626,55 +585,8 @@ const CanvasComponent = () => {
     canvas.add(group);
   };
 
-  const deleteSelectedObject = () => {
-    const activeObjects = canvas.getActiveObjects();
-    if (activeObjects && activeObjects.length > 0) {
-      confirmAlert({
-        title: 'Confirm deletion',
-        message: 'Are you sure you want to delete these objects?',
-        buttons: [
-          {
-            label: 'Yes',
-            onClick: () => {
-              activeObjects.forEach(obj => {
-                canvas.remove(obj);
-              });
-              canvas.discardActiveObject();
-              canvas.requestRenderAll();
-            }
-          },
-          {
-            label: 'No',
-            onClick: () => {
-            }
-          }
-        ]
-      });
-    } else {
-      const activeObject = canvas.getActiveObject();
-      if (activeObject) {
-        confirmAlert({
-          title: 'Confirm deletion',
-          message: 'Are you sure you want to delete this object?',
-          buttons: [
-            {
-              label: 'Yes',
-              onClick: () => {
-                canvas.remove(activeObject);
-                canvas.discardActiveObject();
-                canvas.requestRenderAll();
-              }
-            },
-            {
-              label: 'No',
-              onClick: () => {
-
-              }
-            }
-          ]
-        });
-      }
-    }
+  const handleDelete = () => {
+    deleteSelectedObject(canvas);
   };
 
 
@@ -702,45 +614,6 @@ const CanvasComponent = () => {
     setShowProfileMenu(false);
   };
 
-  const changeTextFont = (fontFamily) => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === 'i-text') {
-      activeObject.set('fontFamily', fontFamily);
-      canvas.requestRenderAll();
-    }
-  };
-  const changeTextColor = (color) => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === 'i-text') {
-      activeObject.set('fill', color);
-      canvas.requestRenderAll();
-    }
-  };
-
-  const toggleBold = () => {
-    setIsBold(!isBold);
-    changeTextStyle('fontWeight', !isBold ? 'bold' : 'normal');
-  };
-
-
-  const toggleItalic = () => {
-    setIsItalic(!isItalic);
-    changeTextStyle('fontStyle', !isItalic ? 'italic' : 'normal');
-  };
-
-  const toggleUnderline = () => {
-    setIsUnderline(!isUnderline);
-    changeTextStyle('underline', !isUnderline ? 'underline' : false);
-  };
-
- 
-  const changeTextStyle = (property, value) => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === 'i-text') {
-      activeObject.set(property, value);
-      canvas.requestRenderAll();
-    }
-  }
 
   const saveCanvasState = () => {
     const canvasState = canvas.toJSON();
@@ -792,30 +665,6 @@ const CanvasComponent = () => {
 
     loadCanvasState();
   }, [canvas]);
-
-  function increaseTextSize() {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === 'i-text') {
-      const currentFontSize = activeObject.get('fontSize');
-      const newSize = currentFontSize + 1;
-      activeObject.set('fontSize', newSize);
-      canvas.renderAll();
-      document.getElementById('currentSize').textContent = newSize;
-    }
-  }
-
-  function decreaseTextSize() {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === 'i-text') {
-      const currentFontSize = activeObject.get('fontSize');
-      const newSize = currentFontSize - 1;
-      activeObject.set('fontSize', newSize);
-      canvas.renderAll();
-      document.getElementById('currentSize').textContent = newSize;
-    }
-  }
-
-
 
   const handleSave = async (fileName, format, saveToDatabase) => {
     const jwtToken = Cookies.get('token');
@@ -928,78 +777,32 @@ const CanvasComponent = () => {
       ]
     });
   };
-  const increaseBorderWidth = () => {
-    setCurrentBorderWidth(current => current + 1);
-    const activeObjects = canvas.getActiveObjects();
-    if (activeObjects && activeObjects.length > 0) {
-      activeObjects.forEach((obj) => {
-        obj.set('strokeWidth', currentBorderWidth + 1);
-      });
+
+
+  const toggleBold = () => {
+    setIsBold(!isBold);
+    changeTextStyle('fontWeight', !isBold ? 'bold' : 'normal');
+  };
+
+  const toggleItalic = () => {
+    setIsItalic(!isItalic);
+    changeTextStyle('fontStyle', !isItalic ? 'italic' : 'normal');
+  };
+
+  const toggleUnderline = () => {
+    setIsUnderline(!isUnderline);
+    changeTextStyle('underline', !isUnderline ? 'underline' : false);
+  };
+
+  const changeTextStyle = (property, value) => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+      activeObject.set(property, value);
       canvas.requestRenderAll();
     }
   };
+  
 
-
-
-
-  const decreaseBorderWidth = () => {
-    if (currentBorderWidth > 1) {
-      setCurrentBorderWidth(current => current - 1);
-      const activeObjects = canvas.getActiveObjects();
-      if (activeObjects && activeObjects.length > 0) {
-        activeObjects.forEach((obj) => {
-          obj.set('strokeWidth', currentBorderWidth - 1);
-        });
-        canvas.requestRenderAll();
-      }
-    }
-  };
-
-
-  const handleBorderColorChange = (e) => {
-    const newBorderColor = e.target.value;
-    setCurrentBorderColor(newBorderColor);
-    const activeObjects = canvas.getActiveObjects();
-    if (activeObjects && activeObjects.length > 0) {
-      activeObjects.forEach((obj) => {
-        obj.set('stroke', newBorderColor);
-      });
-      canvas.requestRenderAll();
-    }
-  };
-
-
-  const setDottedBorder = () => {
-    const activeObjects = canvas.getActiveObjects();
-    if (activeObjects && activeObjects.length > 0) {
-      activeObjects.forEach((obj) => {
-        obj.set('strokeDashArray', [2, 2]);
-      });
-      canvas.requestRenderAll();
-    }
-  };
-
-
-
-
-  const setSolidBorder = () => {
-    const activeObjects = canvas.getActiveObjects();
-    if (activeObjects && activeObjects.length > 0) {
-      activeObjects.forEach((obj) => {
-        obj.set('strokeDashArray', null);
-      });
-      canvas.requestRenderAll();
-    }
-  };
-  const setDashedBorder = () => {
-    const activeObjects = canvas.getActiveObjects();
-    if (activeObjects && activeObjects.length > 0) {
-      activeObjects.forEach((obj) => {
-        obj.set('strokeDashArray', [8, 5]);
-      });
-      canvas.requestRenderAll();
-    }
-  };
   return (
     <div>
       <nav className="navbar">
@@ -1073,7 +876,7 @@ const CanvasComponent = () => {
               {hoveredButton === "redo" && <span className="tooltip">Redo</span>}
             </button>
             <button title="Delete" data-testid="deleteButton"
-              onClick={() => deleteSelectedObject()}
+              onClick={() => handleDelete()}
 
             >
               <MdDeleteForever fontSize={30} />
@@ -1114,11 +917,11 @@ const CanvasComponent = () => {
             <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
               <MenuItem className="rc-menu-item" onClick={{}}>Copy</MenuItem>
               <MenuItem className="rc-menu-item" onClick={copiedObjects}>Paste</MenuItem>
-              <MenuItem className="rc-menu-item" onClick={deleteSelectedObject}>Delete</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={handleDelete}>Delete</MenuItem>
               <MenuItem className="rc-menu-item" onClick={() => canvas.undo()}>Undo</MenuItem>
               <MenuItem className="rc-menu-item" onClick={() => canvas.redo()}>Redo</MenuItem>
-              <MenuItem className="rc-menu-item" onClick={groupObjects}>Groups</MenuItem>
-              <MenuItem className="rc-menu-item" onClick={ungroupObjects}>UnGroup</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={() => groupObjects(canvas)}>Groups</MenuItem>
+              <MenuItem className="rc-menu-item"  onClick={() => ungroupObjects(canvas)}>UnGroup</MenuItem>
             </ContextMenu>
 
           </div>
@@ -1130,11 +933,11 @@ const CanvasComponent = () => {
             <hr></hr>
             <div className="borderbuttons">
               <input className="bc" type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
-              <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={increaseBorderWidth} title="Increase Border">+</button>
-              <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseBorderWidth} title="Decrease Border">-</button>
-              <button  Title='Solid Line'  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setSolidBorder}>____</button>
-              <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDottedBorder}>......</button>
-              <button class="dropdown-option" title="Dashed Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={setDashedBorder}>_ _ _</button>
+              <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={()=>increaseBorderWidth(canvas)} title="Increase Border">+</button>
+              <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={()=>decreaseBorderWidth(canvas)} title="Decrease Border">-</button>
+              <button  Title='Solid Line'  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={()=>setSolidBorder(canvas)}>____</button>
+              <button  data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={()=>setDottedBorder(canvas)}>......</button>
+              <button class="dropdown-option" title="Dashed Line"  style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={()=>setDashedBorder(canvas)}>_ _ _</button>
               </div>
             </>
           <h1>Text</h1>
@@ -1151,17 +954,17 @@ const CanvasComponent = () => {
           </div>
 
           <div className="button-container-textstyle">
-            <button data-testid="boldButton" className={`left ${isBold ? 'active' : ''}`} title="Bold" onClick={toggleBold}><PiTextBBold /></button>
-            <button data-testid="italicButton" className={`center ${isItalic ? 'active' : ''}`} title="italic" onClick={toggleItalic}><PiTextItalic /></button>
-            <button data-testid="underButton"  className={`right ${isUnderline ? 'active' : ''}`} title="under line" onClick={toggleUnderline}><LuUnderline /></button>
+            <button data-testid="boldButton" className={`left ${isBold ? 'active' : ''}`} title="Bold" onClick={()=>toggleBold(canvas)}><PiTextBBold /></button>
+            <button data-testid="italicButton" className={`center ${isItalic ? 'active' : ''}`} title="italic" onClick={()=>toggleItalic(canvas)}><PiTextItalic /></button>
+            <button data-testid="underButton"  className={`right ${isUnderline ? 'active' : ''}`} title="under line" onClick={()=>toggleUnderline(canvas)}><LuUnderline /></button>
           </div>
           <div className="button-container-color">
             <div className="text-color">Text color</div>
             <button data-testid="textcolorButton" className="color-button" onClick={() => setShowTextColorPicker(!showTextColorPicker)} ><IoMdColorFilter /></button>
           </div>
           <div>
-            <button data-testid="plusButton" style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={increaseTextSize}>+</button>
-            <button data-testid="minusButton" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={decreaseTextSize}> - </button>
+            <button data-testid="plusButton" style={{ backgroundColor: "gray" }} className="textsize-increase" onClick={()=>increaseTextSize(canvas)}>+</button>
+            <button data-testid="minusButton" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={()=>decreaseTextSize(canvas)}> - </button>
             <span style={{ marginLeft: "25px" }} id="currentSize"></span>
           </div>
           {showTextColorPicker && (
@@ -1196,6 +999,5 @@ const CanvasComponent = () => {
     </div>
   );
 };
-
 
 export default CanvasComponent;
