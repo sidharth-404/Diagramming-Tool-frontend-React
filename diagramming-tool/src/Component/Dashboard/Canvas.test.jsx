@@ -466,14 +466,14 @@ describe("Button Working", () => {
     render(<Router><CanvasComponent /></Router>);
     const canvas = screen.getByTestId('canvas');
     fireEvent.contextMenu(canvas);
-    fireEvent.click(screen.getByText('Groups'));
+    fireEvent.click(screen.getByTestId('groupButton'));
   });
  
   test('Ungroup menu item works', async () => {
     render(<Router><CanvasComponent /></Router>);
     const canvas = screen.getByTestId('canvas');
     fireEvent.contextMenu(canvas);
-    fireEvent.click(screen.getByText('UnGroup'));
+    fireEvent.click(screen.getByTestId('ungroupedButton'));
   });
  
 });
