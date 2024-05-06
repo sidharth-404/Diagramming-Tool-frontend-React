@@ -32,10 +32,10 @@ import { fabric } from "fabric";
 import 'fabric-history';
 import { PiTextBBold, PiTextItalic } from "react-icons/pi";
 import { LuUnderline } from "react-icons/lu";
-import { IoMdColorFilter } from "react-icons/io";
+import 'react-confirm-alert/src/react-confirm-alert.css';
 import FontPicker from "font-picker-react";
 import { SketchPicker } from "react-color";
-import { saveCanvasImageDummyToDB, getUserByEmail } from '../../ApiService/ApiService';
+import { saveCanvasImageDummyToDB} from '../../ApiService/ApiService';
 import 'react-toastify/dist/ReactToastify.css'
 import jsPDF from 'jspdf';
 import logo from '../../Assets/logo.png';
@@ -62,9 +62,6 @@ const CanvasComponent = () => {
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
-  const [isBoldSelected, setIsBoldSelected] = useState(false);
-  const [isItalicSelected, setIsItalicSelected] = useState(false);
-  const [isUnderlineSelected, setIsUnderlineSelected] = useState(false);
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
   const [currentBorderColor, setCurrentBorderColor] = useState('black');
   const [selectedShape, setSelectedShape] = useState(false);
@@ -709,10 +706,25 @@ const CanvasComponent = () => {
         navigation('/changepassword');
         break;
       case 'Signout':
-        Cookies.remove('token');
-        localStorage.removeItem('canvasState');
-        localStorage.removeItem('selected-image');
-        navigation('/');
+        confirmAlert({
+          title: 'Confirm Sign Out',
+          message: 'Are you sure you want to sign out?',
+          buttons: [
+            {
+              label: 'Yes',
+              onClick: () => {
+                Cookies.remove('token');
+                localStorage.removeItem('canvasState');
+                localStorage.removeItem('selected-image');
+                navigation('/');
+              }
+            },
+            {
+              label: 'No',
+              onClick: () => {}
+            }
+          ]
+        });
         break;
       default:
         break;
@@ -1032,7 +1044,7 @@ const CanvasComponent = () => {
         {showProfileMenu && (
           <div className="profile-menu">
             <ul>
-              {/* <li data-testid="profileButton" onClick={() => handleProfileOptionClick('profile')}>Your Profile</li> */}
+              <li data-testid="profileButton" onClick={() => handleProfileOptionClick('profile')}>Your Profile</li>
               <li data-testid="passwordButton" onClick={() => handleProfileOptionClick('password')}>Change Password</li>
               <li data-testid="SignoutButton" onClick={() => handleProfileOptionClick('Signout')}>Sign Out</li>
             </ul>

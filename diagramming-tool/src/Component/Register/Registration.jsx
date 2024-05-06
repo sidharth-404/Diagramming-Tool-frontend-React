@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import bcrypt from 'bcryptjs';
 import { useNavigate } from 'react-router-dom';
 import './Registration.css';
 import { registerUser } from '../../ApiService/ApiService'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { confirmAlert } from 'react-confirm-alert'; 
-import 'react-confirm-alert/src/react-confirm-alert.css'; 
- 
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+
 const Registration = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -76,16 +75,9 @@ const Registration = () => {
       toast.error("Please fix the form errors!");
       return;
     }
-
-    try {
-      const hashedPassword = bcrypt.hashSync(formData.password, 10); 
-      const userData = {
-        ...formData,
-        password: hashedPassword 
-      };
-      const response = await registerUser(formData);
-      
-      if (response.status ===201) {
+     try {
+        const response = await registerUser(formData);
+       if (response.status === 201) {
         showConfirmAlert("User added successfully! Please login.", () => {
           navigate('/login');
         });
@@ -97,7 +89,7 @@ const Registration = () => {
 
 
 
-  const showConfirmAlert = (message, callback = () => {}) => {
+  const showConfirmAlert = (message, callback = () => { }) => {
     confirmAlert({
       title: 'Success',
       message: message,
@@ -109,9 +101,9 @@ const Registration = () => {
       ]
     });
   };
- 
- 
-  const showerrorAlert = (message, callback = () => {}) => {
+
+
+  const showerrorAlert = (message, callback = () => { }) => {
     confirmAlert({
       title: 'Error',
       message: message,
@@ -127,7 +119,7 @@ const Registration = () => {
 
   return (
     <div className="registration-container">
-      <form data-testid ="registration-form" onSubmit={handleSubmit}>
+      <form data-testid="registration-form" onSubmit={handleSubmit}>
         <div className="form-left">
           <h2 className="registration-heading">Registration</h2>
           <div className="form-group">
@@ -191,7 +183,7 @@ const Registration = () => {
             {errors.confirmPassword && <span className="error">{errors.confirmPassword}</span>}
           </div>
           <div className='button-save'>
-          <button type="submit" className='btn-primary' >Register</button>
+            <button type="submit" className='btn-primary' >Register</button>
           </div>
         </div>
       </form>

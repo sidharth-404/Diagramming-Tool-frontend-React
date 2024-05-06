@@ -72,6 +72,9 @@ const ChangePassword = () => {
  
  
   return (
+    <div className='re'>
+
+   
     <div className="change-password-container">
       <h2>Change Password</h2>
       <form onSubmit={handleSubmit}>
@@ -119,8 +122,9 @@ const ChangePassword = () => {
             required
           />
         </div>
-        <button type="submit">Submit</button>
+        <button type="submit" className='btn btn-primary'>Submit</button>
       </form>
+    </div>
     </div>
   );
 };
