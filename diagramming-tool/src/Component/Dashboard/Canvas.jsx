@@ -64,12 +64,12 @@ const CanvasComponent = () => {
   const [activeFontFamily, setActiveFontFamily] = useState("Open Sans");
   const [showTextColorPicker, setShowTextColorPicker] = useState(false);
   const [selectedFontFamily, setSelectedFontFamily] = useState('');
-  const [selectedTextColor, setSelectedTextColor] = useState('#000000');
+  const [selectedTextColor, setSelectedTextColor] = useState("#000000");
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [currentBorderWidth, setCurrentBorderWidth] = useState(2);
-  const [currentBorderColor, setCurrentBorderColor] = useState('black');
+  const [currentBorderColor, setCurrentBorderColor] = useState("#000000");
   const [selectedShape, setSelectedShape] = useState(false);
   const imageInputRef = useRef(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
@@ -81,15 +81,15 @@ const CanvasComponent = () => {
     handleBorderColorChange, increaseTextSize, decreaseTextSize, deleteSelectedObject, groupObjects, ungroupObjects,
     changeTextColor, changeTextFont } = useCanvas(canvas);
 
-  useEffect(() => {
-    if (!Cookies.get('token')) {
-      navigation('/');
-    }
-  })
+  // useEffect(() => {
+  //   if (!Cookies.get('token')) {
+  //     navigation('/');
+  //   }
+  // })
 
   const textColorPickerStyle = {
     backgroundColor: selectedTextColor,
-    borderColor: "black",
+    borderColor: " #000000",
     borderWidth: "6px",
     width: "60px"
   };
@@ -628,7 +628,7 @@ const CanvasComponent = () => {
   return (
     <div>
       <nav className="navbar">
-        <img src={logo} alt="Logo" className="logos" /><h3 style={{ color: "black", fontSize: "6rm" }}>LogicDraw</h3>
+        <img src={logo} alt="Logo" className="logos" /><h3 style={{ color: "#000000", fontSize: "6rm" }}>LogicDraw</h3>
         <img src={profileImage} alt="Profile" className="profile-image" onClick={toggleProfileMenu} />
         {showProfileMenu && (
           <div className="profile-menu">
@@ -733,12 +733,12 @@ const CanvasComponent = () => {
                 data-testid="canvas"
                 ref={canvasRef}
                 aria-label="Canvas"
-                style={{ border: "1px solid black", position: "relative", width: "800px" }}
+                style={{ border: "1px solid  #000000", position: "relative", width: "800px" }}
                 onContextMenu={handleContextMenu}
               ></canvas>
             </ContextMenuTrigger>
             <ContextMenu id="canvas-context-menu" className="rc-menu" onHide={() => setShowContextMenu(false)}>
-              <MenuItem className="rc-menu-item" onClick={{}}>Copy</MenuItem>
+              <MenuItem className="rc-menu-item" onClick={() => {}}>Copy</MenuItem>
               <MenuItem className="rc-menu-item" onClick={copiedObjects}>Paste</MenuItem>
               <MenuItem className="rc-menu-item" onClick={handleDelete}>Delete</MenuItem>
               <MenuItem className="rc-menu-item" onClick={() => canvas.undo()}>Undo</MenuItem>
@@ -758,9 +758,9 @@ const CanvasComponent = () => {
               <input className="bc" type="color" data-testid="colorShapePicker" value={currentBorderColor} onChange={handleBorderColorChange} title="border color" />
               <button className="bc" data-testid="increaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={() => increaseBorderWidth(canvas)} title="Increase Border">+</button>
               <button className="bc" data-testid="decreaseBorder" style={{ backgroundColor: "gray", marginLeft: "5px" }} onClick={() => decreaseBorderWidth(canvas)} title="Decrease Border">-</button>
-              <button Title='Solid Line' style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={() => setSolidBorder(canvas)}>____</button>
-              <button data-testid="set-dotted-border-button" class="dropdown-option" title="Dotted Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={() => setDottedBorder(canvas)}>......</button>
-              <button class="dropdown-option" title="Dashed Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={() => setDashedBorder(canvas)}>_ _ _</button>
+              <button title='Solid Line' style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={() => setSolidBorder(canvas)}>____</button>
+              <button data-testid="set-dotted-border-button" className="dropdown-option" title="Dotted Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={() => setDottedBorder(canvas)}>......</button>
+              <button className="dropdown-option" title="Dashed Line" style={{ backgroundColor: "white", marginLeft: "5px" }} onClick={() => setDashedBorder(canvas)}>_ _ _</button>
             </div>
           </>
           <h1>Text</h1>
@@ -806,7 +806,7 @@ const CanvasComponent = () => {
 
       {showSavePopup && (
         <SavePopup
-          onSave={handleSave}
+          onSave={handleSave}q
           onCancel={() => setShowSavePopup(false)}
         />
       )}

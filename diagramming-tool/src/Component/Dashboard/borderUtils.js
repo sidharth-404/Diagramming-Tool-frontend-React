@@ -5,7 +5,7 @@ import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const useCanvas = (canvas) => {
-  const [ borderType,setBorderType] = useState('solid');
+  const [borderType, setBorderType] = useState('solid');
   const [currentBorderWidth, setCurrentBorderWidth] = useState(1);
   const [currentBorderColor, setCurrentBorderColor] = useState('black');
 
@@ -29,7 +29,7 @@ const useCanvas = (canvas) => {
           {
             label: 'No',
             onClick: () => {
-                
+
             }
           }
         ]
@@ -104,10 +104,7 @@ const useCanvas = (canvas) => {
     }
   };
 
-
-
-
-  const decreaseBorderWidth = () => {
+ const decreaseBorderWidth = () => {
     if (currentBorderWidth > 1) {
       setCurrentBorderWidth(current => current - 1);
       const activeObjects = canvas.getActiveObjects();
@@ -210,8 +207,8 @@ const useCanvas = (canvas) => {
 
 
   return {
-    setDottedBorder,setSolidBorder,setDashedBorder,increaseBorderWidth,decreaseBorderWidth,handleBorderColorChange,increaseTextSize,
-    decreaseTextSize, changeTextFont,changeTextColor,deleteSelectedObject,    groupObjects,
+    setDottedBorder, setSolidBorder, setDashedBorder, increaseBorderWidth, decreaseBorderWidth, handleBorderColorChange, increaseTextSize,
+    decreaseTextSize, changeTextFont, changeTextColor, deleteSelectedObject, groupObjects,
     ungroupObjects
   };
 };

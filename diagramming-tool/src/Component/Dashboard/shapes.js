@@ -5,7 +5,7 @@ export const addRectangleShape = (canvas) => {
         left: 50,
         top: 50,
         fill: '#ffffff',
-        stroke: 'black',
+        stroke: ' #rrggbb',
         strokeWidth: 2,
         width: 150,
         height: 100
@@ -17,7 +17,7 @@ export const addCircleShape = (canvas) => {
     const cir = new fabric.Circle({
         radius: 50,
         fill: '#ffffff',
-        stroke: 'black',
+        stroke: ' #rrggbb',
         strokeWidth: 2,
         top: 50,
         left: 200
@@ -30,7 +30,7 @@ export const addSquareShape = (canvas) => {
         left: 300,
         top: 50,
         fill: '#ffffff',
-        stroke: 'black',
+        stroke: ' #rrggbb',
         strokeWidth: 2,
         width: 100,
         height: 100
@@ -43,7 +43,7 @@ export const addTriangleShape = (canvas) => {
         width: 100,
         height: 100,
         fill: '#ffffff',
-        stroke: 'black',
+        stroke: '#rrggbb',
         strokeWidth: 2,
         left: 400,
         top: 50
@@ -61,7 +61,7 @@ export const addDiamondShape = (canvas) => {
         left: 500,
         top: 50,
         fill: '#ffffff',
-        stroke: 'black',
+        stroke: ' #rrggbb',
         strokeWidth: 2,
     });
     canvas.add(diamond);
@@ -76,7 +76,7 @@ export const addRoundedRectangleShape = (canvas) => {
         height: 100,
         rx: 20,
         ry: 20,
-        stroke: 'black',
+        stroke: ' #rrggbb',
         strokeWidth: 2
     });
 
@@ -94,7 +94,7 @@ export const addPolygonShape = (canvas) => {
         left: 400,
         top: 200,
         fill: '#ffffff',
-        stroke: 'black',
+        stroke: ' #rrggbb',
         strokeWidth: 2,
     });
     canvas.add(polygon);
@@ -111,7 +111,7 @@ export const addHexagonShape = (canvas) => {
     ], {
         left: 600,
         top: 200,
-        stroke: 'black',
+        stroke: ' #rrggbb',
         strokeWidth: 2,
         fill: '#ffffff',
     });
@@ -123,7 +123,7 @@ export const addEllipseShape = (canvas) => {
         rx: 75,
         ry: 50,
         fill: '#ffffff',
-        stroke: 'black',
+        stroke: ' #rrggbb',
         strokeWidth: 2,
         top: 200,
         left: 50

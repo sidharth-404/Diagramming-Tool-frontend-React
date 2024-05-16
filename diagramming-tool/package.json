@@ -82,7 +82,8 @@
   },
   "jest": {
     "transformIgnorePatterns": [
-      "node_modules/(?!my-library-dir)/"
+      "node_modules/(?!my-library-dir)/",
+      "/src/index.js"
     ]
   }
 }

@@ -12,6 +12,8 @@ import Cookies from 'js-cookie';
 import { saveCanvasImageToDB, getUserByEmail } from '../../ApiService/ApiService';
 import { fabric } from 'fabric';
  
+
+
  
 jest.mock('fabric', () => ({
   ...jest.requireActual('fabric'),
@@ -27,8 +29,7 @@ jest.mock('fabric', () => ({
   },
 }));
  
- 
-let canvas;
+ let canvas;
 beforeEach(() => {
   jest.resetAllMocks();
   setupJestCanvasMock();
@@ -91,7 +92,7 @@ describe('CanvasComponent', () => {
  
  
   it('deleteSelectedObject function removes selected object from canvas', () => {
-    const { getByTestId } = render(<Router><CanvasComponent /></Router>);
+    render(<Router><CanvasComponent /></Router>);
     const canvas = screen.getByTestId('canvas');
     const rectangleButton = screen.getByTestId('rectangleButton');
     fireEvent.click(rectangleButton);
@@ -103,7 +104,7 @@ describe('CanvasComponent', () => {
   });
  
   it('adds rectangle to canvas when rectangle button is clicked', () => {
-    const { getByTestId } = render(<Router><CanvasComponent /></Router>);
+     render(<Router><CanvasComponent /></Router>);
     const canvas = screen.getByTestId('canvas');
     const rectangleButton = screen.getByTestId('rectangleButton');
     fireEvent.click(rectangleButton);
@@ -344,6 +345,8 @@ describe("Button Working", () => {
     render(<Router><CanvasComponent /></Router>);
     const italicButton = screen.getByTestId('italicButton');
     fireEvent.click(italicButton);
+    expect(italicButton).toHaveClass('active');
+    
   });
  
   it("Clicks on underline Button", () => {
@@ -396,12 +399,14 @@ describe("Button Working", () => {
     render(<Router><CanvasComponent /></Router>);
     const italicButton = screen.getByTestId('italicButton');
     fireEvent.click(italicButton);
+
   });
  
   it("Clicks on underline Button", () => {
     render(<Router><CanvasComponent /></Router>);
     const underButton = screen.getByTestId('underButton');
     fireEvent.click(underButton);
+  
   });
   it("Clicks on textcolor Button", () => {
     render(<Router><CanvasComponent /></Router>);
@@ -475,5 +480,26 @@ describe("Button Working", () => {
     fireEvent.contextMenu(canvas);
     fireEvent.click(screen.getByTestId('ungroupedButton'));
   });
+
+   it("check current save working properly", () => {
+    render(<Router><CanvasComponent /></Router>);
+    const saveButton = screen.getByTestId('saveStateButton');
+    fireEvent.click(saveButton);
+    const savedCanvasState = JSON.parse(localStorage.getItem('canvasState'));
+    expect(savedCanvasState).toBeDefined();
+    const dbSavedCanvasState=JSON.parse(localStorage.getItem('selected-image'));
+    expect(dbSavedCanvasState).toBeNull();
+
+   })
+
+   test("handleSave function",async()=>{
+    render(<Router><CanvasComponent /></Router>);
+     const saveBtn=screen.getByTestId('saveButton');
+     fireEvent.click(saveBtn);
+    //  const popUp = screen.getByTestId('pop');
+    //  expect(popUp).toBeInTheDocument();
+
+
+   })
  
 });
