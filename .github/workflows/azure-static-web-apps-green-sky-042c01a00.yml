@@ -19,6 +19,8 @@ jobs:
         with:
           submodules: true
           lfs: false
+      - name: Navigate to Project Directory
+        run: cd diagramming-tool
       - name: Install Dependencies
         run: npm install --force
       - name: Build And Deploy
