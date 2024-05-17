@@ -19,10 +19,8 @@ jobs:
         with:
           submodules: true
           lfs: false
-      - name: Navigate to Project Directory
-        run: cd diagramming-tool
       - name: Install Dependencies
-        run: npm install --force
+        run: npm install --force  --prefix diagramming-tool
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
